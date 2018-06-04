@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Allocators">
+      <UniqueIdentifier>{1e9673de-73b0-4746-b631-79f4ed0cd38c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imgui-1.61">
+      <UniqueIdentifier>{499735d9-f254-49ba-8ee2-c985cf6fff43}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Manager">
+      <UniqueIdentifier>{6679ea15-8877-45c4-bbde-81aea5f45217}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)StackAllocator.h">
+      <Filter>Allocators</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Allocator.h">
+      <Filter>Allocators</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)imgui-1.61\imconfig.h">
+      <Filter>imgui-1.61</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)imgui-1.61\imgui.h">
+      <Filter>imgui-1.61</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)imgui-1.61\imgui_internal.h">
+      <Filter>imgui-1.61</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)TypeStackAllocator.h">
+      <Filter>Allocators</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)MemoryGui.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)MemoryManager.h">
+      <Filter>Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)MemPtr.h">
+      <Filter>Manager</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)StackAllocator.cpp">
+      <Filter>Allocators</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)imgui-1.61\imgui.cpp">
+      <Filter>imgui-1.61</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)imgui-1.61\imgui_demo.cpp">
+      <Filter>imgui-1.61</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)imgui-1.61\imgui_draw.cpp">
+      <Filter>imgui-1.61</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)MemoryGui.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)MemoryManager.cpp">
+      <Filter>Manager</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)MemPtr.inl">
+      <Filter>Manager</Filter>
+    </None>
+  </ItemGroup>
+</Project>

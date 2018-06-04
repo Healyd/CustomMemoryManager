@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <ItemsProjectGuid>{5a888573-b731-4eac-b597-8e17b2e7d3c4}</ItemsProjectGuid>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Allocator.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)imgui-1.61\imconfig.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)imgui-1.61\imgui.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)imgui-1.61\imgui_internal.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)MemoryGui.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)MemoryManager.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)MemPtr.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)StackAllocator.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)TypeStackAllocator.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)imgui-1.61\imgui.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)imgui-1.61\imgui_demo.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)imgui-1.61\imgui_draw.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)MemoryGui.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)MemoryManager.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)StackAllocator.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)MemPtr.inl" />
+  </ItemGroup>
+</Project>
