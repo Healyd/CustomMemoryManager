@@ -24,24 +24,43 @@ namespace CustomMemoryManager
 	{
 		if (type == AllocType::STACK)
 		{
-			if (mStackAllocators.find(name) != mStackAllocators.end())
+			const std::unordered_map<std::string, Allocators::StackAllocator>::iterator it = mStackAllocators.find(name);
+			if (it != mStackAllocators.end())
 			{
-				return mStackAllocators.find(name)->second.allocate(allocAmount_bytes);
+				return it->second.allocate(allocAmount_bytes);
 			}
 		}
 		return nullptr;
 	}
 
+	//MemData MemoryManager::Allocate_GetData(std::size_t allocAmount_bytes, const std::string& name, const AllocType type)
+	//{
+	//	return MemData(Allocate(allocAmount_bytes, name, type), type, name, *this);
+	//}
+
 	void MemoryManager::Deallocate(void* ptr, const std::string& name, const AllocType type)
 	{
 		if (type == AllocType::STACK)
 		{
-			std::unordered_map<std::string, Allocators::StackAllocator>::iterator it = mStackAllocators.find(name);
+			const std::unordered_map<std::string, Allocators::StackAllocator>::iterator it = mStackAllocators.find(name);
 			if (it != mStackAllocators.end())
 			{
 				ptr;
 				it->second.deallocate();
 			}
 		}
+	}
+
+	Allocators::IAllocator* MemoryManager::Get(const std::string& name, const AllocType type)
+	{
+		if (type == AllocType::STACK)
+		{
+			const std::unordered_map<std::string, Allocators::StackAllocator>::iterator it = mStackAllocators.find(name);
+			if (it != mStackAllocators.end())
+			{
+				return &(it->second);
+			}
+		}
+		return nullptr;
 	}
 }

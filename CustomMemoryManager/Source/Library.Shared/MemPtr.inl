@@ -6,8 +6,23 @@ namespace CustomMemoryManager
 	MemPtr<T>::MemPtr(T* ptr)
 		:	mAddress(ptr)
 	{
-
 	}
+
+	template <typename T>
+	MemPtr<T>::MemPtr(MemData& memData)
+		:	mMemData(memData)
+	{
+	}
+
+	//template <typename T>
+	//MemPtr<T>::~MemPtr()
+	//{
+	//	if (mMemoryManager != nullptr)
+	//	{
+	//		~T();
+	//		mMemoryManager->Deallocate(Get(), mAllocatorName, mAllocType);
+	//	}
+	//}
 
 	template <typename T>
 	T& MemPtr<T>::operator*()

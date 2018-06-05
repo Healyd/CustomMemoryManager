@@ -9,6 +9,7 @@
 #include <tchar.h>
 
 //#include "Allocators/StackAllocator.h"
+#include "MemoryManager.h"
 
 #include "StackAllocator.h"
 #include "MemoryGui.h"
@@ -137,7 +138,10 @@ int main(int, char**)
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
 	ImGui_ImplDX11_Init(hwnd, g_pd3dDevice, g_pd3dDeviceContext);
 
+	CustomMemoryManager::MemoryManager memoryManager;
+	memoryManager.CreateAllocator("Stack1", 40 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::STACK);
 	CustomMemoryManager::MemoryGui memoryGui;
+	memoryGui.SetMemoryManager(memoryManager);
 
 	// Setup style
 	ImGui::StyleColorsDark();

@@ -1,4 +1,6 @@
 #include "MemoryGui.h"
+#include "MemoryManager.h"
+#include "MemPtr.h"
 
 namespace CustomMemoryManager
 {
@@ -41,11 +43,36 @@ namespace CustomMemoryManager
 		ImGui::PlotLines("Stack Graph", data, 3, 0, "More Data", 0, 200, ImVec2(0, 200));
 		ImGui::NewLine();
 
+		if (mMemoryManager != nullptr)
+		{
+			Allocators::StackAllocator* stack = static_cast<Allocators::StackAllocator*>(mMemoryManager->Get("Stack1", MemoryManager::AllocType::STACK));
+			if (stack != nullptr)
+			{
+				ImGui::Text("Stack Size (Bytes): %u", stack->StackSize_Bytes());
+				ImGui::Text("Stack Size (Num Objects): %i", stack->StackSize_NumObjects());
+				MemPtr<std::uint32_t> memPtr(nullptr);
+				if (ImGui::Button("Alloc a std::uint32_t"))
+				{
+					memPtr.SetPtr(MakeMemPtr<std::uint32_t>("Stack1", MemoryManager::AllocType::STACK, *mMemoryManager));
+				}
+				if (ImGui::Button("DeAlloc a std::uint32_t"))
+				{
+					stack->Clear();
+				}
+			}
+		}
+
+
 		ImGui::End();
 	}
 
 	void MemoryGui::EndGui()
 	{
 
+	}
+
+	void MemoryGui::SetMemoryManager(MemoryManager& manager)
+	{
+		mMemoryManager = &manager;
 	}
 }

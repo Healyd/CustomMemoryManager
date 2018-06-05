@@ -125,7 +125,8 @@ namespace UnitTest
 			//Assert::IsNotNull(x);
 			//Assert::IsNull(y);
 
-			MemPtr<Foo> memPtr = new ("Stack1", memoryManager, MemoryManager::AllocType::STACK) Foo();
+			//MemPtr<Foo> memPtr = new ("Stack1", memoryManager, MemoryManager::AllocType::STACK) Foo();
+			MemPtr<Foo> memPtr = MakeMemPtr<Foo>("Stack1", MemoryManager::AllocType::STACK, memoryManager);
 
 			memPtr->~Foo();
 			memoryManager.Deallocate(memPtr.Get(), "Stack1", MemoryManager::AllocType::STACK);

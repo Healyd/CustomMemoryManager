@@ -28,7 +28,10 @@ namespace CustomMemoryManager
 
 		bool CreateAllocator(const std::string& name, const std::size_t size, const AllocType type);
 		void* Allocate(std::size_t allocAmount_bytes, const std::string& name, const AllocType type);
+		//MemData Allocate_GetData(std::size_t allocAmount_bytes, const std::string& name, const AllocType type);
 		void Deallocate(void* ptr, const std::string& name, const AllocType type);
+
+		Allocators::IAllocator* Get(const std::string& name, const AllocType type);
 		//void IsValid(const std::string& name, const AllocType type);
 
 	private:

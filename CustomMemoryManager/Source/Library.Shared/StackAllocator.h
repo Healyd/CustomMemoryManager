@@ -32,7 +32,7 @@ namespace CustomMemoryManager::Allocators
 		StackAllocator(const StackAllocator&) = delete;
 		StackAllocator(StackAllocator&& other);
 		StackAllocator& operator=(const StackAllocator&) = delete;
-		StackAllocator& operator=(StackAllocator&&) = default;
+		StackAllocator& operator=(StackAllocator&& other);
 		~StackAllocator();
 
 		virtual void* allocate(std::size_t allocAmount_bytes) override;

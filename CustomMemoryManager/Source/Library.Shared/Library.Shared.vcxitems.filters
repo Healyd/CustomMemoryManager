@@ -37,6 +37,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)MemPtr.h">
       <Filter>Manager</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)DoubleEndedStackAllocator.h">
+      <Filter>Allocators</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)StackAllocator.cpp">

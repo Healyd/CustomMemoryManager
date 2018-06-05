@@ -15,6 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)Allocator.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)DoubleEndedStackAllocator.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)imgui-1.61\imconfig.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)imgui-1.61\imgui.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)imgui-1.61\imgui_internal.h" />
