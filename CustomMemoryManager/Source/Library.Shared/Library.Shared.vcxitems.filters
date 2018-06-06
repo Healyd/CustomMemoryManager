@@ -58,6 +58,9 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)MemoryManager.cpp">
       <Filter>Manager</Filter>
     </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)DoubleEndedStackAllocator.cpp">
+      <Filter>Allocators</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)MemPtr.inl">

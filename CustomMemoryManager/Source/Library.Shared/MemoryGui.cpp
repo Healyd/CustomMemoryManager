@@ -53,7 +53,7 @@ namespace CustomMemoryManager
 				MemPtr<std::uint32_t> memPtr(nullptr);
 				if (ImGui::Button("Alloc a std::uint32_t"))
 				{
-					memPtr.SetPtr(MakeMemPtr<std::uint32_t>("Stack1", MemoryManager::AllocType::STACK, *mMemoryManager));
+					memPtr.SetPtr(MakeMemPtr_Raw<std::uint32_t>("Stack1", MemoryManager::AllocType::STACK, *mMemoryManager));
 				}
 				if (ImGui::Button("DeAlloc a std::uint32_t"))
 				{
@@ -61,6 +61,35 @@ namespace CustomMemoryManager
 				}
 			}
 		}
+
+		{
+			//ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiSetCond_Always);
+			//ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize, ImGuiSetCond_Always);
+			ImGui::Begin("Stack View");// , NULL,
+				//ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoFocusOnAppearing
+				//| ImGuiWindowFlags_NoTitleBar);
+			ImGui::Columns(4, NULL);
+			ImGui::Separator();
+			for (int i = 0; i < 16; ++i)
+			{
+				if (i > 0 && i % 4 == 0) ImGui::Separator();
+				//ImGui::Button("Hello", ImVec2(ImGui::GetWindowSize().x / 4, ImGui::GetWindowSize().x / 4));
+				//ImGui::SmallButton("Hello");
+				ImGui::ColorButton("", ImVec4(0, 0, 1, 1), 0, ImVec2(ImGui::GetWindowSize().x / 4, ImGui::GetWindowSize().x / 4));
+				//ImGui::TextColored(ImVec4(1,0,0,1),"Hello");
+				ImGui::NextColumn(); 
+				//ImGui::LogText("GoodBye");
+			}
+			ImGui::Columns(1);
+			ImGui::Separator();
+			if (ImGui::Button("Close"))
+			{
+
+			}
+			ImGui::End();
+		}
+
+		
 
 
 		ImGui::End();

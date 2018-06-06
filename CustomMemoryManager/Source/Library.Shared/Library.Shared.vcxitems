@@ -26,6 +26,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)TypeStackAllocator.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)DoubleEndedStackAllocator.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)imgui-1.61\imgui.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)imgui-1.61\imgui_demo.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)imgui-1.61\imgui_draw.cpp" />

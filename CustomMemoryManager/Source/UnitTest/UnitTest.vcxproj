@@ -170,6 +170,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DoubleEndedStackTest.cpp" />
     <ClCompile Include="Foo.cpp" />
     <ClCompile Include="StackAllocatorTest.cpp" />
     <ClCompile Include="stdafx.cpp">

@@ -117,16 +117,23 @@ namespace UnitTest
 		TEST_METHOD(test)
 		{
 			MemoryManager memoryManager;
-			Assert::IsTrue(memoryManager.CreateAllocator("Stack1", sizeof(Foo), MemoryManager::AllocType::STACK), L"Allocator Not Created.");
+			Assert::IsTrue(memoryManager.CreateAllocator("Stack1", 43*sizeof(Foo), MemoryManager::AllocType::STACK), L"Allocator Not Created.");
 			//std::uint32_t* x = static_cast<uint32_t*>(memoryManager.Allocate(8U, "Stack1", MemoryManager::AllocType::STACK));
 			//std::uint32_t* y = static_cast<uint32_t*>(memoryManager.Allocate(8U, "Stack1", MemoryManager::AllocType::STACK));
 			//std::uint32_t* x = new ("Stack1", memoryManager, MemoryManager::AllocType::STACK) uint32_t();
 			//std::uint32_t* y = new ("Stack1", memoryManager, MemoryManager::AllocType::STACK) uint32_t();
 			//Assert::IsNotNull(x);
 			//Assert::IsNull(y);
-
-			//MemPtr<Foo> memPtr = new ("Stack1", memoryManager, MemoryManager::AllocType::STACK) Foo();
-			MemPtr<Foo> memPtr = MakeMemPtr<Foo>("Stack1", MemoryManager::AllocType::STACK, memoryManager);
+			//StackAllocator* stack = static_cast<StackAllocator*>(memoryManager.Get("Stack1", MemoryManager::AllocType::STACK));
+			//MemPtr<Foo> memPtr2 = new ("Stack1", memoryManager, MemoryManager::AllocType::STACK) Foo();
+			MemPtr<Foo> memPtr = MakeMemPtr_Raw<Foo>("Stack1", MemoryManager::AllocType::STACK, memoryManager);
+	/*		MemPtr<Foo> memPtr3 = static_cast<Foo*>(stack->allocate(sizeof(Foo)));
+			MemPtr<Foo> memPtr4 = static_cast<Foo*>(stack->allocate(sizeof(Foo)));
+			Foo* foo = static_cast<Foo*>(stack->allocate(sizeof(Foo)));
+			Foo* foo1 = static_cast<Foo*>(stack->allocate(sizeof(Foo)));
+			Foo* foo2 = static_cast<Foo*>(malloc(sizeof(Foo)));
+			foo1, foo;
+			free(foo2);*/
 
 			memPtr->~Foo();
 			memoryManager.Deallocate(memPtr.Get(), "Stack1", MemoryManager::AllocType::STACK);
