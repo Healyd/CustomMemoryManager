@@ -1,100 +1,268 @@
 #include "DoubleEndedStackAllocator.h"
+#include <exception>
+
 
 namespace CustomMemoryManager::Allocators
 {
 	DoubleEndedStackAllocator::DoubleEndedStackAllocator(std::size_t stackSize_bytes, std::size_t alignment)
-		: mTopStack(stackSize_bytes / 2, alignment), mBottomStack(stackSize_bytes / 2, alignment)
+		: DoubleEndedStackAllocator(stackSize_bytes/2, stackSize_bytes/2, alignment)
 	{
 	}
 
 	DoubleEndedStackAllocator::DoubleEndedStackAllocator(std::size_t topStackSize_bytes, std::size_t bottomStackSize_bytes, std::size_t alignment)
-		: mTopStack(topStackSize_bytes, alignment), mBottomStack(bottomStackSize_bytes, alignment)
+		: mTopStackSize_bytes(topStackSize_bytes), mBottomStackSize_bytes(bottomStackSize_bytes), mAlignment(alignment)
 	{
+#ifdef ALLOCATOR_DEBUG
+		mBottomStackStart = std::calloc(1U, topStackSize_bytes + bottomStackSize_bytes);
+#else
+		mBottomStackStart = std::malloc(topStackSize_bytes + bottomStackSize_bytes);
+#endif // ALLOCATOR_DEBUG
+
+		mBottomStackCurrent = mBottomStackStart;
+		mAllocLocationsBottom = new std::intptr_t[mBottomStackSize_bytes];
+
+		mTopStackCurrent = reinterpret_cast<void*>(reinterpret_cast<std::size_t*>(mBottomStackCurrent) + topStackSize_bytes + bottomStackSize_bytes);
+		mAllocLocationsTop = new std::intptr_t[mTopStackSize_bytes];
 	}
 
-	void* DoubleEndedStackAllocator::AllocateTop(std::size_t allocAmount_bytes)
+	DoubleEndedStackAllocator::DoubleEndedStackAllocator(DoubleEndedStackAllocator&& other)
 	{
-		return mTopStack.allocate(allocAmount_bytes);
+		other;
 	}
 
-	void* DoubleEndedStackAllocator::AllocateBottom(std::size_t allocAmount_bytes)
+	DoubleEndedStackAllocator& DoubleEndedStackAllocator::operator=(DoubleEndedStackAllocator&& other)
 	{
-		return mBottomStack.allocate(allocAmount_bytes);
+		other;
+		return *this;
 	}
 
-	void DoubleEndedStackAllocator::DeallocateTop()
+	DoubleEndedStackAllocator::~DoubleEndedStackAllocator()
 	{
-		mTopStack.deallocate();
+		if (mBottomStackStart != nullptr)
+		{
+			std::free(mBottomStackStart);
+		}
+		if (mAllocLocationsTop != nullptr)
+		{
+			std::free(mAllocLocationsTop);
+		}
+		if (mAllocLocationsBottom != nullptr)
+		{
+			std::free(mAllocLocationsBottom);
+		}
 	}
 
-	void DoubleEndedStackAllocator::DeallocateBottom()
+	void* DoubleEndedStackAllocator::allocateTop(std::size_t allocAmount_bytes)
 	{
-		mBottomStack.deallocate();
+		// Cache mStackCurrent as a std::intptr_t.
+		std::intptr_t currentStackLocation = reinterpret_cast<std::intptr_t>(mTopStackCurrent);
+
+		// Determine the stack space we have to work with.
+		std::uintptr_t usedSpace = reinterpret_cast<std::intptr_t>(mTopStackStart) - currentStackLocation;
+		std::uintptr_t newSpace = usedSpace + allocAmount_bytes;
+
+		// Too large: then no stack allocation.
+		if (newSpace > mTopStackSize_bytes)
+		{
+			//throw std::exception("Stack Overflow!");
+			return nullptr;
+		}
+
+		// Store the address to this alloc location.
+		mAllocLocationsTop[mTopIndex] = currentStackLocation;
+		++mTopIndex;
+
+		// Get the current stack top location.
+		void* temp = mTopStackCurrent;
+		mTopStackCurrent = reinterpret_cast<void*>(currentStackLocation - allocAmount_bytes);
+		return temp;
+	}
+
+	void* DoubleEndedStackAllocator::allocateBottom(std::size_t allocAmount_bytes)
+	{
+		// Cache mStackCurrent as a std::intptr_t.
+		std::intptr_t currentStackLocation = reinterpret_cast<std::intptr_t>(mBottomStackCurrent);
+
+		// Determine the stack space we have to work with.
+		std::uintptr_t usedSpace = currentStackLocation - reinterpret_cast<std::intptr_t>(mBottomStackStart);
+		std::uintptr_t newSpace = usedSpace + allocAmount_bytes;
+
+		// Too large: then no stack allocation.
+		if (newSpace > mBottomStackSize_bytes)
+		{
+			//throw std::exception("Stack Overflow!");
+			return nullptr;
+		}
+
+		// Store the address to this alloc location.
+		mAllocLocationsBottom[mBottomIndex] = currentStackLocation;
+		++mBottomIndex;
+
+		// Get the current stack top location.
+		void* temp = mBottomStackCurrent;
+		mBottomStackCurrent = reinterpret_cast<void*>(currentStackLocation + allocAmount_bytes);
+		return temp;
+	}
+
+	void DoubleEndedStackAllocator::dallocateTop()
+	{
+		if (mTopIndex <= 0U)
+		{
+			throw std::exception("The Top Stack is Empty!");
+		}
+		mTopStackCurrent = reinterpret_cast<void*>(mAllocLocationsTop[--mTopIndex]);
+	}
+
+	void DoubleEndedStackAllocator::dallocateBottom()
+	{
+		if (mBottomIndex <= 0U)
+		{
+			throw std::exception("The Bottom Stack is Empty!");
+		}
+		mBottomStackCurrent = reinterpret_cast<void*>(mAllocLocationsBottom[--mBottomIndex]);
 	}
 
 	const void * const DoubleEndedStackAllocator::GetStackTop() const
 	{
-		return mTopStack.GetStackTop();
+		return mTopStackStart;
 	}
 
 	const void * const DoubleEndedStackAllocator::GetStackBottom() const
 	{
-		return mBottomStack.GetStackTop();
+		return mBottomStackStart;
 	}
-
-	//const void * const DoubleEndedStackAllocator::GetStackStart() const
-	//{
-	//	return
-	//}
 
 	void DoubleEndedStackAllocator::Clear()
 	{
-		mTopStack.Clear();
-		mBottomStack.Clear();
+		// TODO: have objects call their destructors here
+		mTopStackCurrent = mTopStackStart;
+		mBottomStackCurrent = mBottomStackStart;
+		mTopIndex = 0U;
+		mBottomIndex = 0U;
 	}
 
 	void DoubleEndedStackAllocator::ClearTop()
 	{
-		mTopStack.Clear();
+		mTopStackCurrent = mTopStackStart;
+		mTopIndex = 0U;
 	}
 
 	void DoubleEndedStackAllocator::ClearBottom()
 	{
-		mBottomStack.Clear();
+		mBottomStackCurrent = mBottomStackStart;
+		mBottomIndex = 0U;
 	}
 
 	std::size_t DoubleEndedStackAllocator::StackSize_Bytes() const
 	{
-		return mTopStack.StackSize_Bytes() + mBottomStack.StackSize_Bytes();
+		return mTopStackSize_bytes + mBottomStackSize_bytes;
 	}
 
 	std::size_t DoubleEndedStackAllocator::TopStackSize_Bytes() const
 	{
-		return mTopStack.StackSize_Bytes();
+		return mTopStackSize_bytes;
 	}
 
 	std::size_t DoubleEndedStackAllocator::BottomStackSize_Bytes() const
 	{
-		return mBottomStack.StackSize_Bytes();
+		return mBottomStackSize_bytes;
 	}
 
-	StackAllocator::Iterator DoubleEndedStackAllocator::TopBegin()
-	{
-		return mTopStack.begin();
-	}
-	
-	StackAllocator::Iterator DoubleEndedStackAllocator::TopEnd()
-	{
-		return mTopStack.end();
-	}
+#pragma region Old
+	//DoubleEndedStackAllocator::DoubleEndedStackAllocator(std::size_t stackSize_bytes, std::size_t alignment)
+	//	: mTopStack(stackSize_bytes / 2, alignment), mBottomStack(stackSize_bytes / 2, alignment)
+	//{
+	//}
 
-	StackAllocator::Iterator DoubleEndedStackAllocator::BottomBegin()
-	{
-		return mBottomStack.begin();
-	}
+	//DoubleEndedStackAllocator::DoubleEndedStackAllocator(std::size_t topStackSize_bytes, std::size_t bottomStackSize_bytes, std::size_t alignment)
+	//	: mTopStack(topStackSize_bytes, alignment), mBottomStack(bottomStackSize_bytes, alignment)
+	//{
+	//}
 
-	StackAllocator::Iterator DoubleEndedStackAllocator::BottomEnd()
-	{
-		return mBottomStack.end();
-	}
+	//void* DoubleEndedStackAllocator::AllocateTop(std::size_t allocAmount_bytes)
+	//{
+	//	return mTopStack.allocate(allocAmount_bytes);
+	//}
+
+	//void* DoubleEndedStackAllocator::AllocateBottom(std::size_t allocAmount_bytes)
+	//{
+	//	return mBottomStack.allocate(allocAmount_bytes);
+	//}
+
+	//void DoubleEndedStackAllocator::DeallocateTop()
+	//{
+	//	mTopStack.deallocate();
+	//}
+
+	//void DoubleEndedStackAllocator::DeallocateBottom()
+	//{
+	//	mBottomStack.deallocate();
+	//}
+
+	//const void * const DoubleEndedStackAllocator::GetStackTop() const
+	//{
+	//	return mTopStack.GetStackTop();
+	//}
+
+	//const void * const DoubleEndedStackAllocator::GetStackBottom() const
+	//{
+	//	return mBottomStack.GetStackTop();
+	//}
+
+	////const void * const DoubleEndedStackAllocator::GetStackStart() const
+	////{
+	////	return
+	////}
+
+	//void DoubleEndedStackAllocator::Clear()
+	//{
+	//	mTopStack.Clear();
+	//	mBottomStack.Clear();
+	//}
+
+	//void DoubleEndedStackAllocator::ClearTop()
+	//{
+	//	mTopStack.Clear();
+	//}
+
+	//void DoubleEndedStackAllocator::ClearBottom()
+	//{
+	//	mBottomStack.Clear();
+	//}
+
+	//std::size_t DoubleEndedStackAllocator::StackSize_Bytes() const
+	//{
+	//	return mTopStack.StackSize_Bytes() + mBottomStack.StackSize_Bytes();
+	//}
+
+	//std::size_t DoubleEndedStackAllocator::TopStackSize_Bytes() const
+	//{
+	//	return mTopStack.StackSize_Bytes();
+	//}
+
+	//std::size_t DoubleEndedStackAllocator::BottomStackSize_Bytes() const
+	//{
+	//	return mBottomStack.StackSize_Bytes();
+	//}
+
+	//StackAllocator::Iterator DoubleEndedStackAllocator::TopBegin()
+	//{
+	//	return mTopStack.begin();
+	//}
+	//
+	//StackAllocator::Iterator DoubleEndedStackAllocator::TopEnd()
+	//{
+	//	return mTopStack.end();
+	//}
+
+	//StackAllocator::Iterator DoubleEndedStackAllocator::BottomBegin()
+	//{
+	//	return mBottomStack.begin();
+	//}
+
+	//StackAllocator::Iterator DoubleEndedStackAllocator::BottomEnd()
+	//{
+	//	return mBottomStack.end();
+	//}
+#pragma endregion Old
 }

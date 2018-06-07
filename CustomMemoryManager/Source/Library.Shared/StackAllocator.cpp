@@ -109,10 +109,7 @@ namespace CustomMemoryManager::Allocators
 
 	void StackAllocator::Clear()
 	{
-		if (mNumObjects <= 0)
-		{
-			return;
-		}
+		// TODO: have objects call their destructors here
 		mStackCurrent = mStackStart;
 		mNumObjects = 0U;
 		mIndex = 0U;
