@@ -8,11 +8,11 @@ namespace CustomMemoryManager::Allocators
 	StackAllocator::StackAllocator(std::size_t stackSize_bytes, std::size_t alignment)
 		: mStackSize_bytes(stackSize_bytes), mAllignment(alignment)
 	{
-#ifdef ALLOCATOR_DEBUG
-		mStackStart = std::calloc(1U, stackSize_bytes);
+#ifdef _DEBUG
+		mStackStart = std::calloc(1U, stackSize_bytes + DEBUG_EXTRA_SPACE_BYTES);
 #else
 		mStackStart = std::malloc(stackSize_bytes);
-#endif // ALLOCATOR_DEBUG
+#endif // _DEBUG
 
 		mStackCurrent = mStackStart;
 		mAllocLocations = new std::intptr_t[mStackSize_bytes];
@@ -36,8 +36,8 @@ namespace CustomMemoryManager::Allocators
 		mAllocLocations(other.mAllocLocations),
 		mIndex(other.mIndex),
 		mStackStart(other.mStackStart),
-		mStackCurrent(other.mStackCurrent),
-		mNumObjects(other.mNumObjects)
+		mStackCurrent(other.mStackCurrent)//,
+		//mNumObjects(other.mNumObjects)
 	{
 		other.mAllocLocations = nullptr;
 		other.mStackStart = nullptr;
@@ -54,7 +54,7 @@ namespace CustomMemoryManager::Allocators
 			mIndex = other.mIndex;
 			mStackStart = other.mStackStart;
 			mStackCurrent = other.mStackCurrent;
-			mNumObjects = other.mNumObjects;
+			//mNumObjects = other.mNumObjects;
 
 			other.mAllocLocations = nullptr;
 			other.mStackStart = nullptr;
@@ -72,18 +72,19 @@ namespace CustomMemoryManager::Allocators
 		// Determine the stack space we have to work with.
 		std::uintptr_t usedSpace = currentStackLocation - reinterpret_cast<std::intptr_t>(mStackStart);
 		std::uintptr_t newSpace = usedSpace + allocAmount_bytes;
+		newSpace; usedSpace;
 
 		// Too large: then no stack allocation.
-		if (newSpace > mStackSize_bytes)
-		{
-			//throw std::exception("Stack Overflow!");
-			return nullptr;
-		}
+		//if (newSpace > mStackSize_bytes)
+		//{
+		//	//throw std::exception("Stack Overflow!");
+		//	return nullptr;
+		//}
 
 		// Store the address to this alloc location.
 		mAllocLocations[mIndex] = currentStackLocation;
 		++mIndex;
-		++mNumObjects;
+		//++mNumObjects;
 
 		// Get the current stack top location.
 		void* temp = mStackCurrent;
@@ -93,13 +94,13 @@ namespace CustomMemoryManager::Allocators
 
 	void StackAllocator::deallocate()
 	{
-		if (mNumObjects <= 0U)
+		if (mIndex <= 0U)
 		{
 			throw std::exception("The Stack is Empty!");
 		}
 		mStackCurrent = reinterpret_cast<void*>(mAllocLocations[--mIndex]);
 
-		--mNumObjects;
+		//--mNumObjects;
 	}
 
 	const void * const StackAllocator::GetStackTop() const
@@ -111,7 +112,7 @@ namespace CustomMemoryManager::Allocators
 	{
 		// TODO: have objects call their destructors here
 		mStackCurrent = mStackStart;
-		mNumObjects = 0U;
+		//mNumObjects = 0U;
 		mIndex = 0U;
 	}
 
@@ -125,10 +126,33 @@ namespace CustomMemoryManager::Allocators
 		return mNumObjects;
 	}
 
+	std::size_t StackAllocator::UsedSpace_Bytes() const
+	{
+		return reinterpret_cast<std::size_t>(mStackCurrent) - reinterpret_cast<std::size_t>(mStackStart);
+	}
+
 	const void * const StackAllocator::StackStart() const
 	{
 		return mStackStart;
 	}
+
+#ifdef _DEBUG
+	bool StackAllocator::IsStackOverflow() const
+	{
+		std::size_t endOfStack = reinterpret_cast<std::size_t>(mStackStart) + mStackSize_bytes;
+		std::size_t endOfDebugStack = endOfStack + DEBUG_EXTRA_SPACE_BYTES;
+
+		for (std::size_t i = 0U; i < endOfDebugStack-4U; ++i)
+		{
+			std::intptr_t* ptr = reinterpret_cast<std::intptr_t*>(endOfStack);
+			if (*ptr != NULL)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+#endif
 
 	StackAllocator::Iterator StackAllocator::begin()
 	{

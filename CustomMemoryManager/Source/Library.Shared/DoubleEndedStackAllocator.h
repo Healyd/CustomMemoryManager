@@ -47,6 +47,9 @@ namespace CustomMemoryManager::Allocators
 		std::size_t StackSize_Bytes() const;
 		std::size_t TopStackSize_Bytes() const;
 		std::size_t BottomStackSize_Bytes() const;
+		std::size_t UsedBytes() const;
+		std::size_t UsedBytes_Top() const;
+		std::size_t UsedBytes_Bottom() const;
 
 		//Iterator begin();
 		//Iterator end();

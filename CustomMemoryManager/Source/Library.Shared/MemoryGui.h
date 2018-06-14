@@ -1,6 +1,8 @@
 #pragma once
 #include "imgui-1.61/imgui.h"
 #include <cstdint>
+#include <unordered_map>
+#include <set>
 
 namespace CustomMemoryManager
 {
@@ -24,7 +26,12 @@ namespace CustomMemoryManager
 	private:
 		void StackGuiWindow();
 		// Window Bools
-		bool mShowStackWindow{ false };
+		bool mShowStackWindows{ false };
+
+#ifdef _DEBUG
+		std::set<std::string> mStackOverflowList;
+#endif // _DEBUG
+
 		float data[4] = { 1, 1, 1, 1 };
 		float data2[200];
 		float amount{ 0 };

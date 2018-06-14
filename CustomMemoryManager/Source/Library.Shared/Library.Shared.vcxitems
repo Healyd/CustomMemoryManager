@@ -22,6 +22,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)MemoryGui.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)MemoryManager.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)MemPtr.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)PoolAllocator.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)StackAllocator.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)TypeStackAllocator.h" />
   </ItemGroup>
@@ -36,5 +37,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)MemPtr.inl" />
+    <None Include="$(MSBuildThisFileDirectory)PoolAllocator.inl" />
   </ItemGroup>
 </Project>

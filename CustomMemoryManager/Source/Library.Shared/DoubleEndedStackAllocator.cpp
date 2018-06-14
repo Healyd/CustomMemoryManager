@@ -21,7 +21,8 @@ namespace CustomMemoryManager::Allocators
 		mBottomStackCurrent = mBottomStackStart;
 		mAllocLocationsBottom = new std::intptr_t[mBottomStackSize_bytes];
 
-		mTopStackCurrent = reinterpret_cast<void*>(reinterpret_cast<std::size_t*>(mBottomStackCurrent) + topStackSize_bytes + bottomStackSize_bytes);
+		mTopStackCurrent = reinterpret_cast<void*>(reinterpret_cast<std::intptr_t>(mBottomStackStart) + topStackSize_bytes + bottomStackSize_bytes);
+		mTopStackStart = mTopStackCurrent;
 		mAllocLocationsTop = new std::intptr_t[mTopStackSize_bytes];
 	}
 
@@ -68,14 +69,14 @@ namespace CustomMemoryManager::Allocators
 			return nullptr;
 		}
 
+		mTopStackCurrent = reinterpret_cast<void*>(currentStackLocation - allocAmount_bytes);
+
 		// Store the address to this alloc location.
-		mAllocLocationsTop[mTopIndex] = currentStackLocation;
+		mAllocLocationsTop[mTopIndex] = reinterpret_cast<std::intptr_t>(mTopStackCurrent);
 		++mTopIndex;
 
 		// Get the current stack top location.
-		void* temp = mTopStackCurrent;
-		mTopStackCurrent = reinterpret_cast<void*>(currentStackLocation - allocAmount_bytes);
-		return temp;
+		return mTopStackCurrent;
 	}
 
 	void* DoubleEndedStackAllocator::allocateBottom(std::size_t allocAmount_bytes)
@@ -167,6 +168,22 @@ namespace CustomMemoryManager::Allocators
 	{
 		return mBottomStackSize_bytes;
 	}
+
+	std::size_t DoubleEndedStackAllocator::UsedBytes() const
+	{
+		return UsedBytes_Top() + UsedBytes_Bottom();
+	}
+
+	std::size_t DoubleEndedStackAllocator::UsedBytes_Top() const
+	{
+		return reinterpret_cast<std::size_t>(mTopStackStart) - reinterpret_cast<std::size_t>(mTopStackCurrent);
+	}
+
+	std::size_t DoubleEndedStackAllocator::UsedBytes_Bottom() const
+	{
+		return reinterpret_cast<std::size_t>(mBottomStackCurrent) - reinterpret_cast<std::size_t>(mBottomStackStart);
+	}
+
 
 #pragma region Old
 	//DoubleEndedStackAllocator::DoubleEndedStackAllocator(std::size_t stackSize_bytes, std::size_t alignment)

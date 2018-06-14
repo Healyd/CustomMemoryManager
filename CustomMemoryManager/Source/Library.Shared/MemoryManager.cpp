@@ -63,4 +63,17 @@ namespace CustomMemoryManager
 		}
 		return nullptr;
 	}
+
+	std::vector<std::string> MemoryManager::Get(const AllocType type)
+	{
+		std::vector<std::string> keys;
+		if (type == AllocType::STACK)
+		{
+			for (const auto& stack : mStackAllocators)
+			{
+				keys.push_back(stack.first);
+			}
+		}
+		return keys;
+	}
 }

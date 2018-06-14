@@ -139,7 +139,8 @@ int main(int, char**)
 	ImGui_ImplDX11_Init(hwnd, g_pd3dDevice, g_pd3dDeviceContext);
 
 	CustomMemoryManager::MemoryManager memoryManager;
-	memoryManager.CreateAllocator("Stack1", 40 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::STACK);
+	memoryManager.CreateAllocator("Stack1", 2 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::STACK);
+	memoryManager.CreateAllocator("Stack2", 40 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::STACK);
 	CustomMemoryManager::MemoryGui memoryGui;
 	memoryGui.SetMemoryManager(memoryManager);
 

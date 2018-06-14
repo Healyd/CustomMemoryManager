@@ -40,6 +40,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)DoubleEndedStackAllocator.h">
       <Filter>Allocators</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)PoolAllocator.h">
+      <Filter>Allocators</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)StackAllocator.cpp">
@@ -65,6 +68,9 @@
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)MemPtr.inl">
       <Filter>Manager</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)PoolAllocator.inl">
+      <Filter>Allocators</Filter>
     </None>
   </ItemGroup>
 </Project>

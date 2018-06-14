@@ -7,91 +7,75 @@ namespace CustomMemoryManager
 	void MemoryGui::RunGui()
 	{
 		ImGui::Text("Hello from the Memory Gui!");
-		ImGui::Checkbox("Stack Windoww", &mShowStackWindow);
+
+		if (mMemoryManager != nullptr)
+		{
+			ImGui::Checkbox("Show Stacks Window", &mShowStackWindows);
+			std::vector<std::string> stackNames = mMemoryManager->Get(MemoryManager::AllocType::STACK);
+			for (const std::string& name : stackNames)
+			{
+				std::string text = "\t\t" + name + " Window";
+				ImGui::Text(text.c_str());
+			}
+		}
 
 		StackGuiWindow();
 	}
 
 	void MemoryGui::StackGuiWindow()
 	{
-		if (!mShowStackWindow)
+		if (!mShowStackWindows)
 		{
 			return;
 		}
 
-		ImGui::Begin("Stack Window");
-
-		ImGui::Text("What's Up!");
-		//for (int i = 0; i < 4; ++i)
-		//{
-		//	data[i] += 0.005f;
-		//}
-		ImGui::SliderFloat("Stack Slider", &amount, 0, 200);
-		for (int i = 0; i < 4; ++i)
-		{
-			data[i] = amount;
-		}
-		for (int i = 0; i < 200; ++i)
-		{
-			if (i <= amount)
-				data2[i] = 200;
-			else
-				data2[i] = 0;
-		}
-		ImGui::PlotHistogram("Histogram", data2, 200, 0, "DATATATA", 0, 200, ImVec2(0, 100));
-		ImGui::NewLine();
-		ImGui::PlotLines("Stack Graph", data, 3, 0, "More Data", 0, 200, ImVec2(0, 200));
-		ImGui::NewLine();
+		ImGui::Begin("Stacks Window");
 
 		if (mMemoryManager != nullptr)
 		{
-			Allocators::StackAllocator* stack = static_cast<Allocators::StackAllocator*>(mMemoryManager->Get("Stack1", MemoryManager::AllocType::STACK));
-			if (stack != nullptr)
+			std::vector<std::string> stackNames = mMemoryManager->Get(MemoryManager::AllocType::STACK);
+			for (const std::string& name : stackNames)
 			{
-				ImGui::Text("Stack Size (Bytes): %u", stack->StackSize_Bytes());
-				ImGui::Text("Stack Size (Num Objects): %i", stack->StackSize_NumObjects());
-				MemPtr<std::uint32_t> memPtr(nullptr);
-				if (ImGui::Button("Alloc a std::uint32_t"))
+				Allocators::StackAllocator* stack = static_cast<Allocators::StackAllocator*>(mMemoryManager->Get(name, MemoryManager::AllocType::STACK));
+				if (stack != nullptr)
 				{
-					memPtr.SetPtr(MakeMemPtr_Raw<std::uint32_t>("Stack1", MemoryManager::AllocType::STACK, *mMemoryManager));
-				}
-				if (ImGui::Button("DeAlloc a std::uint32_t"))
-				{
-					stack->Clear();
+					//ImGui::Begin(std::string(name+"Stack Window").c_str());
+					ImGui::TextColored(ImVec4(0, 1, 0, 1), name.c_str());
+
+					ImGui::Text("%s Size (Bytes): %u", name.c_str(), stack->StackSize_Bytes());
+					ImGui::Text("%s Used Space (Bytes): %i", name.c_str(), stack->UsedSpace_Bytes());
+
+					//MemPtr<std::uint32_t> memPtr(nullptr);
+					if (ImGui::Button(std::string(name + "Alloc a std::uint32_t").c_str()))
+					{
+						std::uint32_t* addr = static_cast<std::uint32_t*>(stack->allocate(sizeof(std::uint32_t)));
+						*addr = 4;
+						//memPtr.SetPtr(MakeMemPtr_Raw<std::uint32_t>(name, MemoryManager::AllocType::STACK, *mMemoryManager));
+#ifdef _DEBUG
+						if (stack->IsStackOverflow())
+							mStackOverflowList.emplace(std::move(name));
+#endif //_DEBUG
+					}
+					if (ImGui::Button(std::string(name + "DeAlloc a std::uint32_t").c_str()))
+					{
+						stack->Clear();
+					}
+#ifdef _DEBUG
+					for (const auto& name1 : mStackOverflowList)
+					{
+						if (name1 == name)
+							ImGui::TextColored(ImVec4(1, 0, 0, 1), std::string(name1 + " OVERFLOW").c_str());
+					}
+#endif //_DEBUG
+					ImGui::Text("");
+					ImGui::Separator();
 				}
 			}
 		}
-
+		if (ImGui::Button("Close"))
 		{
-			//ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiSetCond_Always);
-			//ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize, ImGuiSetCond_Always);
-			ImGui::Begin("Stack View");// , NULL,
-				//ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoFocusOnAppearing
-				//| ImGuiWindowFlags_NoTitleBar);
-			ImGui::Columns(4, NULL);
-			ImGui::Separator();
-			for (int i = 0; i < 16; ++i)
-			{
-				if (i > 0 && i % 4 == 0) ImGui::Separator();
-				//ImGui::Button("Hello", ImVec2(ImGui::GetWindowSize().x / 4, ImGui::GetWindowSize().x / 4));
-				//ImGui::SmallButton("Hello");
-				ImGui::ColorButton("", ImVec4(0, 0, 1, 1), 0, ImVec2(ImGui::GetWindowSize().x / 4, ImGui::GetWindowSize().x / 4));
-				//ImGui::TextColored(ImVec4(1,0,0,1),"Hello");
-				ImGui::NextColumn(); 
-				//ImGui::LogText("GoodBye");
-			}
-			ImGui::Columns(1);
-			ImGui::Separator();
-			if (ImGui::Button("Close"))
-			{
-
-			}
-			ImGui::End();
+			mShowStackWindows = false;
 		}
-
-		
-
-
 		ImGui::End();
 	}
 

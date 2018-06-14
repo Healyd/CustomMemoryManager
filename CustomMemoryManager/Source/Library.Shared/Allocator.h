@@ -2,9 +2,9 @@
 #include <cstdlib>
 #include <cstdint>
 
-#ifdef _DEBUG
-	#define ALLOCATOR_DEBUG
-#endif // DEBUG
+//#ifdef _DEBUG
+//	#define ALLOCATOR_DEBUG
+//#endif // DEBUG
 
 #define POINTER_SIZE sizeof(std::intptr_t)
 

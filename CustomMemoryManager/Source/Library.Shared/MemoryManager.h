@@ -32,6 +32,8 @@ namespace CustomMemoryManager
 		void Deallocate(void* ptr, const std::string& name, const AllocType type);
 
 		Allocators::IAllocator* Get(const std::string& name, const AllocType type);
+		std::vector<std::string> Get(const AllocType type);
+
 		//void IsValid(const std::string& name, const AllocType type);
 
 	private:
@@ -41,22 +43,22 @@ namespace CustomMemoryManager
 }
 
 //inline CustomMemoryManager::MemoryManager gMemoryManager;
-//
+
 inline void* operator new(std::size_t size, const std::string& name, CustomMemoryManager::MemoryManager& memoryManager, const CustomMemoryManager::MemoryManager::AllocType type)
 {
 	return memoryManager.Allocate(size, name, type);
 }
-//
+
 //inline void* operator new[] (std::size_t size, const std::string& name)
 //{
 //	return gMemoryManager.Allocate(size, name);
 //}
-//
+
 inline void operator delete(void* ptr, const std::string& name, CustomMemoryManager::MemoryManager& memoryManager, const CustomMemoryManager::MemoryManager::AllocType type)
 {
 	memoryManager.Deallocate(ptr, name, type);
 }
-//
+
 //inline void operator delete[](void* ptr)
 //{
 //	gMemoryManager.Deallocate(ptr);

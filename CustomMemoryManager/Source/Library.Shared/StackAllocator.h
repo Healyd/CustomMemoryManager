@@ -4,6 +4,18 @@
 
 namespace CustomMemoryManager::Allocators
 {
+
+#define GBtoBYTES(gigabytes) gigabytes*1024*1024*1024
+#define MBtoBYTES(megabytes) megabytes*1024*1024
+
+#define DEFAULT_STACKSIZE_BYTES GBtoBYTES(0.5f)
+#define DEFAULT_STACKALIGNMENT 0U
+
+#ifdef _DEBUG
+	#define DEBUG_EXTRA_SPACE_BYTES 3000
+#endif // _DEBUG
+
+
 	class StackAllocator final : public IAllocator
 	{
 	private:
@@ -28,7 +40,7 @@ namespace CustomMemoryManager::Allocators
 		};
 
 	public:
-		StackAllocator(std::size_t stackSize_bytes, std::size_t alignment = 0U);
+		StackAllocator(std::size_t stackSize_bytes = DEFAULT_STACKSIZE_BYTES, std::size_t alignment = DEFAULT_STACKALIGNMENT);
 		StackAllocator(const StackAllocator&) = delete;
 		StackAllocator(StackAllocator&& other);
 		StackAllocator& operator=(const StackAllocator&) = delete;
@@ -42,7 +54,12 @@ namespace CustomMemoryManager::Allocators
 		void Clear();
 		std::size_t StackSize_Bytes() const;
 		std::size_t StackSize_NumObjects() const;
+		std::size_t UsedSpace_Bytes() const;
 		const void * const StackStart() const;
+
+#ifdef _DEBUG
+		bool IsStackOverflow() const;
+#endif //_DEBUG
 
 		Iterator begin();
 		Iterator end();
