@@ -1,0 +1,7 @@
+Custom Memory Manager
+
+	-	Stack Allocator
+
+	-	Pool Allocator
+		-	Chunk Detection (quick allocation for arrays)
+		-	Defragmentation

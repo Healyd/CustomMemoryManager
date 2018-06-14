@@ -48,7 +48,8 @@ namespace CustomMemoryManager::Allocators
 		~StackAllocator();
 
 		virtual void* allocate(std::size_t allocAmount_bytes) override;
-		virtual void deallocate() override;
+		virtual void deallocate(void* ptr) override;
+		void deallocate();
 
 		const void * const GetStackTop() const;
 		void Clear();

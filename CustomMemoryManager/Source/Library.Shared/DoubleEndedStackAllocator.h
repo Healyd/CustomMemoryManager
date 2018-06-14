@@ -33,7 +33,7 @@ namespace CustomMemoryManager::Allocators
 		virtual void* allocate(std::size_t) override { return nullptr; };
 		void* allocateTop(std::size_t allocateAmount_bytes);
 		void* allocateBottom(std::size_t allocateAmount_bytes);
-		virtual void deallocate() override { return; };
+		virtual void deallocate(void*) override { return; };
 		void dallocateTop();
 		void dallocateBottom();
 

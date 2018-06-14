@@ -6,12 +6,12 @@ namespace UnitTest
 	class Foo final
 	{
 	public:
-		Foo() = default;
+		Foo();
 		Foo(const Foo&) = default;
 		Foo(Foo&&) = default;
 		Foo& operator=(Foo&) = default;
 		Foo& operator=(Foo&&) = default;
-		~Foo() = default;
+		~Foo();
 
 		std::string data = "data";
 	};

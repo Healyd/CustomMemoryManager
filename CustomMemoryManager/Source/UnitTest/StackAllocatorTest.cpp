@@ -139,17 +139,18 @@ namespace UnitTest
 			
 			Foo* ptr3 = static_cast<Foo*>(new ("Stack1", memoryManager, MemoryManager::AllocType::STACK) Foo());
 			ptr3->~Foo();
-			memoryManager.Deallocate(ptr3, "Stack1", MemoryManager::AllocType::STACK);
+			operator delete (ptr3, "Stack1", memoryManager, MemoryManager::AllocType::STACK);
+			//memoryManager.Deallocate(ptr3, "Stack1", MemoryManager::AllocType::STACK);
 			
 			
-			MemPtr<Foo> memPtr2 = static_cast<Foo*>(new ("Stack1", memoryManager, MemoryManager::AllocType::STACK) Foo());
-			memPtr2->~Foo();
-			memoryManager.Deallocate(memPtr2.Get(), "Stack1", MemoryManager::AllocType::STACK);
+			//MemPtr<Foo> memPtr2 = static_cast<Foo*>(new ("Stack1", memoryManager, MemoryManager::AllocType::STACK) Foo());
+			//memPtr2->~Foo();
+			//memoryManager.Deallocate(memPtr2.Get(), "Stack1", MemoryManager::AllocType::STACK);
 
-			
-			MemPtr<Foo> memPtr = MakeMemPtr_Raw<Foo>("Stack1", MemoryManager::AllocType::STACK, memoryManager);
-			memPtr->~Foo();
-			memoryManager.Deallocate(memPtr.Get(), "Stack1", MemoryManager::AllocType::STACK);
+			//
+			//MemPtr<Foo> memPtr = MakeMemPtr_Raw<Foo>("Stack1", MemoryManager::AllocType::STACK, memoryManager);
+			//memPtr->~Foo();
+			//memoryManager.Deallocate(memPtr.Get(), "Stack1", MemoryManager::AllocType::STACK);
 		}
 
 		TEST_METHOD(StackOverFlow)

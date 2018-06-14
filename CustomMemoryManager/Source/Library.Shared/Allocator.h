@@ -14,6 +14,6 @@ namespace CustomMemoryManager::Allocators
 	{
 	public:
 		virtual void* allocate(std::size_t allocAmount_bytes) = 0;
-		virtual void deallocate() = 0;
+		virtual void deallocate(void* ptr) = 0;
 	};
 }

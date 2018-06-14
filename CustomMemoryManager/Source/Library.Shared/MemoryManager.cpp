@@ -45,8 +45,7 @@ namespace CustomMemoryManager
 			const std::unordered_map<std::string, Allocators::StackAllocator>::iterator it = mStackAllocators.find(name);
 			if (it != mStackAllocators.end())
 			{
-				ptr;
-				it->second.deallocate();
+				it->second.deallocate(ptr);
 			}
 		}
 	}

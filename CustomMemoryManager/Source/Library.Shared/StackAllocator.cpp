@@ -92,7 +92,7 @@ namespace CustomMemoryManager::Allocators
 		return temp;
 	}
 
-	void StackAllocator::deallocate()
+	void StackAllocator::deallocate(void*)
 	{
 		if (mIndex <= 0U)
 		{
@@ -101,6 +101,11 @@ namespace CustomMemoryManager::Allocators
 		mStackCurrent = reinterpret_cast<void*>(mAllocLocations[--mIndex]);
 
 		//--mNumObjects;
+	}
+
+	void StackAllocator::deallocate()
+	{
+		deallocate(nullptr);
 	}
 
 	const void * const StackAllocator::GetStackTop() const
