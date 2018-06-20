@@ -89,6 +89,19 @@ namespace CustomMemoryManager::Allocators
 		}
 	}
 
+	void* DoubleEndedStackAllocator::allocate(std::size_t allocAmount_bytes, Info info)
+	{
+		if (info == Info::TOP)
+		{
+			return allocateTop(allocAmount_bytes);
+		}
+		else if (info == Info::BOTTOM)
+		{
+			return allocateBottom(allocAmount_bytes);
+		}
+		return nullptr;
+	}
+
 	void* DoubleEndedStackAllocator::allocateTop(std::size_t allocAmount_bytes)
 	{
 		// Cache mStackCurrent as a std::intptr_t.
@@ -141,11 +154,24 @@ namespace CustomMemoryManager::Allocators
 		return temp;
 	}
 
+	void DoubleEndedStackAllocator::deallocate(void*, Info info)
+	{
+		if (info == Info::TOP)
+		{
+			dallocateTop();
+		}
+		else if (info == Info::BOTTOM)
+		{
+			dallocateBottom();
+		}
+	}
+
 	void DoubleEndedStackAllocator::dallocateTop()
 	{
 		if (mTopIndex <= 0U)
 		{
-			throw std::exception("The Top Stack is Empty!");
+			return;
+			//throw std::exception("The Top Stack is Empty!");
 		}
 		mTopStackCurrent = reinterpret_cast<void*>(mAllocLocationsTop[--mTopIndex]);
 	}
@@ -154,7 +180,8 @@ namespace CustomMemoryManager::Allocators
 	{
 		if (mBottomIndex <= 0U)
 		{
-			throw std::exception("The Bottom Stack is Empty!");
+			return;
+			//throw std::exception("The Bottom Stack is Empty!");
 		}
 		mBottomStackCurrent = reinterpret_cast<void*>(mAllocLocationsBottom[--mBottomIndex]);
 	}

@@ -21,7 +21,7 @@ namespace CustomMemoryManager
 			// If Not found: then add it.
 			if (mDoubleStackAllocators.find(name) == mDoubleStackAllocators.end())
 			{
-				mDoubleStackAllocators.emplace(std::move(name), std::move(Allocators::DoubleEndedStackAllocator(size/2, size/2, 0U)));
+				mDoubleStackAllocators.emplace(std::move(name), std::move(Allocators::DoubleEndedStackAllocator(size / 2, size / 2, 0U)));
 				isCreated = true;
 			}
 		}
@@ -29,7 +29,7 @@ namespace CustomMemoryManager
 		return isCreated;
 	}
 
-	void* MemoryManager::Allocate(std::size_t allocAmount_bytes, const std::string& name, const AllocType type, const Side side)
+	void* MemoryManager::Allocate(std::size_t allocAmount_bytes, const std::string& name, const AllocType type, const Allocators::Info info)
 	{
 		if (type == AllocType::STACK)
 		{
@@ -44,10 +44,15 @@ namespace CustomMemoryManager
 			const std::unordered_map<std::string, Allocators::DoubleEndedStackAllocator>::iterator it = mDoubleStackAllocators.find(name);
 			if (it != mDoubleStackAllocators.end())
 			{
-				if (side == Side::TOP)
-					return it->second.allocateTop(allocAmount_bytes);
-				else if (side == Side::BOTTOM)
-					return it->second.allocateBottom(allocAmount_bytes);
+				return it->second.allocate(allocAmount_bytes, info);
+			}
+		}
+		else if (type == AllocType::POOL)
+		{
+			const std::unordered_map<std::string, Allocators::IAllocator*>::iterator it = mPoolAllocators.find(name);
+			if (it != mPoolAllocators.end())
+			{
+				return it->second->allocate(allocAmount_bytes);		// TODO: update, 'allocAmount_bytes' doesn't match with input actual of 'numObjects' (i hacked it)
 			}
 		}
 		return nullptr;
@@ -58,7 +63,7 @@ namespace CustomMemoryManager
 	//	return MemData(Allocate(allocAmount_bytes, name, type), type, name, *this);
 	//}
 
-	void MemoryManager::Deallocate(void* ptr, const std::string& name, const AllocType type, const Side side)
+	void MemoryManager::Deallocate(void* ptr, const std::string& name, const AllocType type, const Allocators::Info info)
 	{
 		if (type == AllocType::STACK)
 		{
@@ -73,10 +78,15 @@ namespace CustomMemoryManager
 			const std::unordered_map<std::string, Allocators::DoubleEndedStackAllocator>::iterator it = mDoubleStackAllocators.find(name);
 			if (it != mDoubleStackAllocators.end())
 			{
-				if (side == Side::TOP)
-					it->second.dallocateTop();
-				else if (side == Side::BOTTOM)
-					it->second.dallocateBottom();
+				it->second.deallocate(nullptr, info);
+			}
+		}
+		else if (type == AllocType::POOL)
+		{
+			const std::unordered_map<std::string, Allocators::IAllocator*>::iterator it = mPoolAllocators.find(name);
+			if (it != mPoolAllocators.end())
+			{
+				it->second->deallocate(ptr);
 			}
 		}
 	}
@@ -99,6 +109,14 @@ namespace CustomMemoryManager
 				return &(it->second);
 			}
 		}
+		else if (type == AllocType::POOL)
+		{
+			const std::unordered_map<std::string, Allocators::IAllocator*>::iterator it = mPoolAllocators.find(name);
+			if (it != mPoolAllocators.end())
+			{
+				return it->second;
+			}
+		}
 		return nullptr;
 	}
 
@@ -114,9 +132,16 @@ namespace CustomMemoryManager
 		}
 		else if (type == AllocType::DOUBLESTACK)
 		{
-			for (const auto& stack : mDoubleStackAllocators)
+			for (const auto& dstack : mDoubleStackAllocators)
 			{
-				keys.push_back(stack.first);
+				keys.push_back(dstack.first);
+			}
+		}
+		else if (type == AllocType::POOL)
+		{
+			for (const auto& pool : mPoolAllocators)
+			{
+				keys.push_back(pool.first);
 			}
 		}
 		return keys;

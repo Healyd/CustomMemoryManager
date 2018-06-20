@@ -8,7 +8,7 @@ namespace CustomMemoryManager::Allocators
 #define DEBUG_EXTRA_SPACE_BYTES_POOL 300
 
 	template <typename T>
-	class PoolAllocator : public IAllocator
+	class PoolAllocator final : public IAllocator
 	{
 	public:
 		PoolAllocator(std::size_t poolSize_bytes, std::size_t alignment = 0U);
@@ -16,10 +16,11 @@ namespace CustomMemoryManager::Allocators
 		PoolAllocator(PoolAllocator&&) = default;
 		PoolAllocator& operator=(const PoolAllocator&) = default;
 		PoolAllocator& operator=(PoolAllocator&&) = default;
-		~PoolAllocator() = default;
+		~PoolAllocator();
 
-		virtual void* allocate(std::size_t numObjects) override;
-		virtual void deallocate(void* ptr) override;
+		virtual void* allocate(std::size_t numObjects, Info info = Info::NONE) override;
+		virtual void deallocate(void* ptr, Info info = Info::NONE) override;
+		void deallocate(void* ptr, std::size_t numObjects);
 
 		void Clear();
 
@@ -33,9 +34,10 @@ namespace CustomMemoryManager::Allocators
 		std::size_t mPoolSize_bytes{ 0U };
 		std::size_t mAlignment{ 0U };
 
-		std::vector<void*> mInUse;		// pointers to memory in the pool that are available
-		std::vector<void*> mNotInUse;	// pointers to memory in the pool that are not available
+		std::deque<void*> mInUse;			// pointers to memory in the pool that are not available
+		std::deque<void*> mNotInUse;		// pointers to memory in the pool that are available
 
+		/*
 		struct chunk
 		{
 			void* current{ nullptr };
@@ -50,6 +52,7 @@ namespace CustomMemoryManager::Allocators
 
 		std::queue<chunk> mInUse2;
 		std::queue<chunk> mNotInUse2;
+		*/
 	};
 }
 #include "PoolAllocator.inl"

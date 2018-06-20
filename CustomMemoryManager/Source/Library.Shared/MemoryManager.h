@@ -2,6 +2,7 @@
 #include "Allocator.h"
 #include "StackAllocator.h"
 #include "DoubleEndedStackAllocator.h"
+#include "PoolAllocator.h"
 #include <unordered_map>
 #include <string>
 #include <vector>
@@ -17,13 +18,8 @@ namespace CustomMemoryManager
 			NONE,
 			STACK,
 			DOUBLESTACK,
+			POOL,
 			MAX
-		};
-
-		enum Side
-		{
-			TOP,
-			BOTTOM
 		};
 
 	public:
@@ -35,9 +31,11 @@ namespace CustomMemoryManager
 		~MemoryManager() = default;
 
 		bool CreateAllocator(const std::string& name, const std::size_t size, const AllocType type);
-		void* Allocate(std::size_t allocAmount_bytes, const std::string& name, const AllocType type, const Side side = Side::TOP);
+		template <typename T>
+		bool CreateAllocator(const std::string& name, const std::size_t size, const AllocType type);
+		void* Allocate(std::size_t allocAmount_bytes, const std::string& name, const AllocType type, Allocators::Info info = Allocators::Info::NONE);
 		//MemData Allocate_GetData(std::size_t allocAmount_bytes, const std::string& name, const AllocType type);
-		void Deallocate(void* ptr, const std::string& name, const AllocType type, const Side side = Side::TOP);
+		void Deallocate(void* ptr, const std::string& name, const AllocType type, Allocators::Info info = Allocators::Info::NONE);
 
 		Allocators::IAllocator* Get(const std::string& name, const AllocType type);
 		std::vector<std::string> Get(const AllocType type);
@@ -47,8 +45,24 @@ namespace CustomMemoryManager
 	private:
 		std::unordered_map<std::string, Allocators::StackAllocator> mStackAllocators;
 		std::unordered_map<std::string, Allocators::DoubleEndedStackAllocator> mDoubleStackAllocators;
-		//std::vector < std::pair<const std::string, Allocators::StackAllocator> > mStackAllocators;
+		std::unordered_map<std::string, Allocators::IAllocator*> mPoolAllocators;
 	};
+
+	template <typename T>
+	inline bool MemoryManager::CreateAllocator(const std::string& name, const std::size_t size, const AllocType type)
+	{
+		bool isCreated = false;
+		if (type == AllocType::POOL)
+		{
+			// If Not found: then add it.
+			if (mPoolAllocators.find(name) == mPoolAllocators.end())
+			{
+				mPoolAllocators.emplace(std::move(name), std::move(new Allocators::PoolAllocator<T>(size)));
+				isCreated;
+			}
+		}
+		return isCreated;
+	}
 }
 
 //inline CustomMemoryManager::MemoryManager gMemoryManager;

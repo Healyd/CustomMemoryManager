@@ -144,8 +144,10 @@ int main(int, char**)
 	memoryManager.CreateAllocator("Stack1", 800 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::STACK);
 	memoryManager.CreateAllocator("Stack2", 400 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::STACK);
 	memoryManager.CreateAllocator("Stack3", 1000 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::STACK);
-	memoryManager.CreateAllocator("DoubleStack1", 400 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK);
-	memoryManager.CreateAllocator("DoubleStack_No_Noah", 400 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK);
+	memoryManager.CreateAllocator("DoubleStack1", 800 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK);
+	memoryManager.CreateAllocator("DoubleStack2", 400 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK);
+	memoryManager.CreateAllocator<std::uint32_t>("UINT32_Pool1", 400 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::POOL);
+	//memoryManager.CreateAllocator<std::string>("Pool2", 400 * sizeof(std::string), CustomMemoryManager::MemoryManager::AllocType::POOL);
 
 	CustomMemoryManager::MemoryGui memoryGui(memoryManager);
 

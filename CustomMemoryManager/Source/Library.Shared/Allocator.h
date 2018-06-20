@@ -10,10 +10,18 @@
 
 namespace CustomMemoryManager::Allocators
 {
+	enum Info
+	{
+		NONE,
+		TOP,
+		BOTTOM,
+		MAX
+	};
+
 	class IAllocator
 	{
 	public:
-		virtual void* allocate(std::size_t allocAmount_bytes) = 0;
-		virtual void deallocate(void* ptr) = 0;
+		virtual void* allocate(std::size_t allocAmount_bytes, Info info = Info::NONE) = 0;
+		virtual void deallocate(void* ptr, Info info = Info::NONE) = 0;
 	};
 }

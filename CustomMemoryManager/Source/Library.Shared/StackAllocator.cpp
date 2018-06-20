@@ -64,7 +64,7 @@ namespace CustomMemoryManager::Allocators
 		return *this;
 	}
 
-	void* StackAllocator::allocate(std::size_t allocAmount_bytes)
+	void* StackAllocator::allocate(std::size_t allocAmount_bytes, Info)
 	{
 		// Cache mStackCurrent as a std::intptr_t.
 		std::intptr_t currentStackLocation = reinterpret_cast<std::intptr_t>(mStackCurrent);
@@ -93,7 +93,7 @@ namespace CustomMemoryManager::Allocators
 		return temp;
 	}
 
-	void StackAllocator::deallocate(void*)
+	void StackAllocator::deallocate(void*, Info)
 	{
 		if (mIndex <= 0U)
 		{

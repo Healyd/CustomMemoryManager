@@ -18,7 +18,7 @@ namespace UnitTest
 
 		TEST_METHOD(Allocator)
 		{
-			PoolAllocator<std::uint32_t> pool(8U);
+			PoolAllocator<std::uint32_t> pool(2U*sizeof(std::uint32_t));
 			
 			std::uint32_t* x1 = static_cast<std::uint32_t*>(pool.allocate(1));
 			Assert::IsNotNull(x1, L"1");
@@ -104,6 +104,50 @@ namespace UnitTest
 			}
 
 			Assert::AreEqual((std::size_t)50U, pool.PoolSize_NumObjects());
+		}
+
+		TEST_METHOD(Allocator_Array_Simple)
+		{
+			PoolAllocator<std::uint32_t> pool(50U * sizeof(std::uint32_t));
+
+			std::uint32_t* intArray = static_cast<std::uint32_t*>(pool.allocate(40));
+			Assert::IsNotNull(intArray);
+			Assert::AreEqual((std::size_t)40, pool.PoolSize_NumObjects());
+
+			std::uint32_t* intArray2 = static_cast<std::uint32_t*>(pool.allocate(11));
+			Assert::IsNull(intArray2);
+			Assert::AreEqual((std::size_t)40, pool.PoolSize_NumObjects());
+
+			pool.deallocate(intArray, 40);
+			Assert::AreEqual((std::size_t)0, pool.PoolSize_NumObjects());
+		}
+
+		TEST_METHOD(Allocator_Array)
+		{
+			PoolAllocator<Foo> fooPool(10 * sizeof(Foo));
+			
+			Foo* foo1 = static_cast<Foo*>(fooPool.allocate(1));
+			Assert::IsNotNull(foo1);
+			Assert::AreEqual((std::size_t)1, fooPool.PoolSize_NumObjects());
+
+			Foo* foo2 = static_cast<Foo*>(fooPool.allocate(1));
+			Assert::IsNotNull(foo2);
+			Assert::AreEqual((std::size_t)2, fooPool.PoolSize_NumObjects());
+
+			Foo* fooArray1 = static_cast<Foo*>(fooPool.allocate(7));
+			Assert::IsNotNull(fooArray1);
+			Assert::AreEqual((std::size_t)9, fooPool.PoolSize_NumObjects());
+
+			Foo* foo3 = static_cast<Foo*>(fooPool.allocate(1));
+			Assert::IsNotNull(foo3);
+			Assert::AreEqual((std::size_t)10, fooPool.PoolSize_NumObjects());
+
+			fooPool.deallocate(fooArray1, 7);
+			Assert::AreEqual((std::size_t)3, fooPool.PoolSize_NumObjects());
+
+			Foo* fooArray2 = static_cast<Foo*>(fooPool.allocate(7));
+			Assert::IsNotNull(fooArray2);
+			Assert::AreEqual((std::size_t)10, fooPool.PoolSize_NumObjects());
 		}
 	};
 }
