@@ -10,6 +10,9 @@
     <Filter Include="Manager">
       <UniqueIdentifier>{6679ea15-8877-45c4-bbde-81aea5f45217}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Misc">
+      <UniqueIdentifier>{86e334b4-e670-4fff-a37d-61882f77ca1c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)StackAllocator.h">
@@ -43,6 +46,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)PoolAllocator.h">
       <Filter>Allocators</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)StopWatch.h">
+      <Filter>Misc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)StackAllocator.cpp">
@@ -64,6 +70,9 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)DoubleEndedStackAllocator.cpp">
       <Filter>Allocators</Filter>
     </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)StopWatch.cpp">
+      <Filter>Misc</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)MemPtr.inl">
@@ -71,6 +80,9 @@
     </None>
     <None Include="$(MSBuildThisFileDirectory)PoolAllocator.inl">
       <Filter>Allocators</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)StopWatch.inl">
+      <Filter>Misc</Filter>
     </None>
   </ItemGroup>
 </Project>

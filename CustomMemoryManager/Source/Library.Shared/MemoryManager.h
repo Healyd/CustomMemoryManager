@@ -1,6 +1,7 @@
 #pragma once
 #include "Allocator.h"
 #include "StackAllocator.h"
+#include "DoubleEndedStackAllocator.h"
 #include <unordered_map>
 #include <string>
 #include <vector>
@@ -15,7 +16,14 @@ namespace CustomMemoryManager
 		{
 			NONE,
 			STACK,
+			DOUBLESTACK,
 			MAX
+		};
+
+		enum Side
+		{
+			TOP,
+			BOTTOM
 		};
 
 	public:
@@ -27,9 +35,9 @@ namespace CustomMemoryManager
 		~MemoryManager() = default;
 
 		bool CreateAllocator(const std::string& name, const std::size_t size, const AllocType type);
-		void* Allocate(std::size_t allocAmount_bytes, const std::string& name, const AllocType type);
+		void* Allocate(std::size_t allocAmount_bytes, const std::string& name, const AllocType type, const Side side = Side::TOP);
 		//MemData Allocate_GetData(std::size_t allocAmount_bytes, const std::string& name, const AllocType type);
-		void Deallocate(void* ptr, const std::string& name, const AllocType type);
+		void Deallocate(void* ptr, const std::string& name, const AllocType type, const Side side = Side::TOP);
 
 		Allocators::IAllocator* Get(const std::string& name, const AllocType type);
 		std::vector<std::string> Get(const AllocType type);
@@ -38,6 +46,7 @@ namespace CustomMemoryManager
 
 	private:
 		std::unordered_map<std::string, Allocators::StackAllocator> mStackAllocators;
+		std::unordered_map<std::string, Allocators::DoubleEndedStackAllocator> mDoubleStackAllocators;
 		//std::vector < std::pair<const std::string, Allocators::StackAllocator> > mStackAllocators;
 	};
 }

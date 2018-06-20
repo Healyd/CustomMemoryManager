@@ -6,18 +6,18 @@ namespace CustomMemoryManager::Allocators
 		: mPoolSize_bytes(poolSize_bytes), mAlignment(alignment)
 	{
 #ifdef _DEBUG
-		mPoolStart = std::calloc(1U, poolSize_bytes + DEBUG_EXTRA_SPACE_BYTES_POOL);
+		mPoolStart = std::calloc(1U, poolSize_bytes);// +DEBUG_EXTRA_SPACE_BYTES_POOL);
 #else
 		mPoolStart = std::malloc(poolSize_bytes);
 #endif
 		mPoolCurrent = mPoolStart;
-		for (std::uint32_t i = 0; i < poolSize_bytes; i+=4U)
+		for (std::size_t i = 0; i < poolSize_bytes; i+=sizeof(std::intptr_t))
 		{
 			mNotInUse.push_back(reinterpret_cast<void*>(reinterpret_cast<std::intptr_t>(mPoolStart) + i));
-			chunk hunk;
-			hunk.current = reinterpret_cast<void*>(reinterpret_cast<std::intptr_t>(mPoolStart) + i);
-			hunk.chunkSize = (poolSize_bytes - i) / sizeof(T);
-			mNotInUse2.push(hunk);
+			chunk ck;
+			ck.current = reinterpret_cast<void*>(reinterpret_cast<std::intptr_t>(mPoolStart) + i);
+			ck.chunkSize = (poolSize_bytes - i) / sizeof(T);
+			mNotInUse2.push(ck);
 		}
 
 		chunk chk;
@@ -71,6 +71,30 @@ namespace CustomMemoryManager::Allocators
 	template <typename T>
 	void PoolAllocator<T>::Clear()
 	{
+		mNotInUse.clear();
+		mInUse.clear();
+		for (std::size_t i = 0; i < poolSize_bytes; i += sizeof(std::intptr_t))
+		{
+			mNotInUse.push_back(reinterpret_cast<void*>(reinterpret_cast<std::intptr_t>(mPoolStart) + i));
+		}
+		// TODO: Should I just transfer mInUse to mNotInUse and not work about having the pointers in order. For loop may just be more work than I need.
+	}
 
+	template <typename T>
+	std::size_t PoolAllocator<T>::PoolSize_Bytes() const
+	{
+		return mPoolSize_bytes;
+	}
+
+	template <typename T>
+	std::size_t PoolAllocator<T>::UsedSpace_Bytes() const
+	{
+		return mPoolSize_bytes - (mInUse.size() * sizeof(T));
+	}
+
+	template <typename T>
+	std::size_t PoolAllocator<T>::PoolSize_NumObjects() const
+	{
+		return mInUse.size();
 	}
 }

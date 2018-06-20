@@ -77,8 +77,9 @@ namespace CustomMemoryManager::Allocators
 		// Too large: then no stack allocation.
 		//if (newSpace > mStackSize_bytes)
 		//{
+
 		//	//throw std::exception("Stack Overflow!");
-		//	return nullptr;
+		//	//return nullptr;
 		//}
 
 		// Store the address to this alloc location.
@@ -96,7 +97,8 @@ namespace CustomMemoryManager::Allocators
 	{
 		if (mIndex <= 0U)
 		{
-			throw std::exception("The Stack is Empty!");
+			return;
+			//throw std::exception("The Stack is Empty!");
 		}
 		mStackCurrent = reinterpret_cast<void*>(mAllocLocations[--mIndex]);
 
@@ -145,11 +147,11 @@ namespace CustomMemoryManager::Allocators
 	bool StackAllocator::IsStackOverflow() const
 	{
 		std::size_t endOfStack = reinterpret_cast<std::size_t>(mStackStart) + mStackSize_bytes;
-		std::size_t endOfDebugStack = endOfStack + DEBUG_EXTRA_SPACE_BYTES;
+		//std::size_t endOfDebugStack = endOfStack + DEBUG_EXTRA_SPACE_BYTES;
 
-		for (std::size_t i = 0U; i < endOfDebugStack-4U; ++i)
+		for (std::size_t i = 0U; i < DEBUG_EXTRA_SPACE_BYTES; i+=sizeof(std::intptr_t))
 		{
-			std::intptr_t* ptr = reinterpret_cast<std::intptr_t*>(endOfStack);
+			std::intptr_t* ptr = reinterpret_cast<std::intptr_t*>(endOfStack + i);
 			if (*ptr != NULL)
 			{
 				return true;

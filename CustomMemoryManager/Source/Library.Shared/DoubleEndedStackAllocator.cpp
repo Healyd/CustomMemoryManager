@@ -5,7 +5,7 @@
 namespace CustomMemoryManager::Allocators
 {
 	DoubleEndedStackAllocator::DoubleEndedStackAllocator(std::size_t stackSize_bytes, std::size_t alignment)
-		: DoubleEndedStackAllocator(stackSize_bytes/2, stackSize_bytes/2, alignment)
+		: DoubleEndedStackAllocator(stackSize_bytes / 2, stackSize_bytes / 2, alignment)
 	{
 	}
 
@@ -27,13 +27,49 @@ namespace CustomMemoryManager::Allocators
 	}
 
 	DoubleEndedStackAllocator::DoubleEndedStackAllocator(DoubleEndedStackAllocator&& other)
+		: mTopStackSize_bytes(other.mTopStackSize_bytes),
+		mBottomStackSize_bytes(other.mBottomStackSize_bytes),
+		mAlignment(other.mAlignment),
+		mAllocLocationsTop(other.mAllocLocationsTop),
+		mAllocLocationsBottom(other.mAllocLocationsBottom),
+		mTopIndex(other.mTopIndex),
+		mBottomIndex(other.mBottomIndex),
+		mTopStackStart(other.mTopStackStart),
+		mBottomStackStart(other.mBottomStackStart),
+		mTopStackCurrent(other.mTopStackCurrent),
+		mBottomStackCurrent(other.mBottomStackCurrent)
 	{
-		other;
+		other.mAllocLocationsTop = nullptr;
+		other.mAllocLocationsBottom = nullptr;
+		other.mTopStackStart = nullptr;
+		other.mBottomStackStart = nullptr;
+		other.mTopStackCurrent = nullptr;
+		other.mBottomStackCurrent = nullptr;
 	}
 
 	DoubleEndedStackAllocator& DoubleEndedStackAllocator::operator=(DoubleEndedStackAllocator&& other)
 	{
-		other;
+		if (this != &other)
+		{
+			mTopStackSize_bytes = other.mTopStackSize_bytes;
+			mBottomStackSize_bytes = other.mBottomStackSize_bytes;
+			mAlignment = other.mAlignment;
+			mAllocLocationsTop = other.mAllocLocationsTop;
+			mAllocLocationsBottom = other.mAllocLocationsBottom;
+			mTopIndex = other.mTopIndex;
+			mBottomIndex = other.mBottomIndex;
+			mTopStackStart = other.mTopStackStart;
+			mBottomStackStart = other.mBottomStackStart;
+			mTopStackCurrent = other.mTopStackCurrent;
+			mBottomStackCurrent = other.mBottomStackCurrent;
+
+			other.mAllocLocationsTop = nullptr;
+			other.mAllocLocationsBottom = nullptr;
+			other.mTopStackStart = nullptr;
+			other.mBottomStackStart = nullptr;
+			other.mTopStackCurrent = nullptr;
+			other.mBottomStackCurrent = nullptr;
+		}
 		return *this;
 	}
 

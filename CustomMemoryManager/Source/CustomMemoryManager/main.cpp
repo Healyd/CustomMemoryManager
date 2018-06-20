@@ -13,6 +13,8 @@
 
 #include "StackAllocator.h"
 #include "MemoryGui.h"
+#include <stdlib.h>
+#include <time.h>
 
 // Data
 static ID3D11Device*            g_pd3dDevice = NULL;
@@ -139,10 +141,21 @@ int main(int, char**)
 	ImGui_ImplDX11_Init(hwnd, g_pd3dDevice, g_pd3dDeviceContext);
 
 	CustomMemoryManager::MemoryManager memoryManager;
-	memoryManager.CreateAllocator("Stack1", 2 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::STACK);
-	memoryManager.CreateAllocator("Stack2", 40 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::STACK);
-	CustomMemoryManager::MemoryGui memoryGui;
-	memoryGui.SetMemoryManager(memoryManager);
+	memoryManager.CreateAllocator("Stack1", 800 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::STACK);
+	memoryManager.CreateAllocator("Stack2", 400 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::STACK);
+	memoryManager.CreateAllocator("Stack3", 1000 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::STACK);
+	memoryManager.CreateAllocator("DoubleStack1", 400 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK);
+	memoryManager.CreateAllocator("DoubleStack_No_Noah", 400 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK);
+
+	CustomMemoryManager::MemoryGui memoryGui(memoryManager);
+
+	//std::vector<std::uint32_t*> IntVector(200);
+	//for (std::uint32_t i = 0U; i < 200; ++i)
+	//{
+	//	IntVector.push_back(static_cast<std::uint32_t*>(memoryManager.Allocate(sizeof(std::uint32_t), "Stack2", CustomMemoryManager::MemoryManager::AllocType::STACK)));
+	//}
+
+	//srand((std::size_t)(time(NULL)));
 
 	// Setup style
 	ImGui::StyleColorsDark();
@@ -185,6 +198,32 @@ int main(int, char**)
 		ImGui_ImplDX11_NewFrame();
 
 		memoryGui.RunGui();
+
+		/*std::uint32_t numObjectsToDeallocate = rand() % 100 + 1;
+		std::uint32_t numObjectsToAllocate = rand() % 100 + 1;
+
+		for (std::uint32_t i = 0; i < numObjectsToDeallocate; ++i)
+		{
+			if (!IntVector.empty())
+			{
+				std::uint32_t* intPtr = IntVector.back();
+				IntVector.pop_back();
+				memoryManager.Deallocate(intPtr, "Stack2", CustomMemoryManager::MemoryManager::AllocType::STACK);
+			}
+		}
+
+		CustomMemoryManager::Allocators::StackAllocator* stackAll = static_cast<CustomMemoryManager::Allocators::StackAllocator*>(memoryManager.Get("Stack2", CustomMemoryManager::MemoryManager::AllocType::STACK));
+		std::size_t x = (stackAll->StackSize_Bytes() - stackAll->UsedSpace_Bytes()) / sizeof(std::uint32_t) + 1;
+		if (numObjectsToAllocate >= x)
+		{
+			numObjectsToAllocate = x;
+		}
+
+		for (std::uint32_t i = 0; i < numObjectsToAllocate; ++i)
+		{
+			IntVector.push_back(static_cast<std::uint32_t*>(memoryManager.Allocate(sizeof(std::uint32_t), "Stack2", CustomMemoryManager::MemoryManager::AllocType::STACK)));
+		}*/
+
 
 		// 1. Show a simple window.
 		// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets automatically appears in a window called "Debug".

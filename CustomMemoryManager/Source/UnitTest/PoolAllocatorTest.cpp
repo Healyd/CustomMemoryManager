@@ -69,5 +69,41 @@ namespace UnitTest
 			x3 = static_cast<std::uint32_t*>(pool.allocate(1));
 			Assert::IsNull(x3, L"9");
 		}
+
+		TEST_METHOD(Allocator_Loop)
+		{
+			PoolAllocator<std::uint32_t> pool(sizeof(std::uint32_t) * 50U);
+
+			std::vector<std::uint32_t*> pointers;
+
+			for (std::uint32_t i = 0U; i < 50U; ++i)
+			{
+				pointers.push_back(static_cast<std::uint32_t*>(pool.allocate(1)));
+			}
+
+			Assert::AreEqual((std::size_t)50U, pool.PoolSize_NumObjects());
+
+			std::uint32_t* ptr = pointers.back();
+			pointers.pop_back();
+			pool.deallocate(ptr);
+			Assert::AreEqual((std::size_t)49U, pool.PoolSize_NumObjects());
+
+			ptr = pointers.back();
+			pointers.pop_back();
+			pool.deallocate(ptr);
+			Assert::AreEqual((std::size_t)48U, pool.PoolSize_NumObjects());
+
+			ptr = pointers.back();
+			pointers.pop_back();
+			pool.deallocate(ptr);
+			Assert::AreEqual((std::size_t)47U, pool.PoolSize_NumObjects());
+
+			for (std::uint32_t i = 0U; i < 3U; ++i)
+			{
+				pointers.push_back(static_cast<std::uint32_t*>(pool.allocate(1)));
+			}
+
+			Assert::AreEqual((std::size_t)50U, pool.PoolSize_NumObjects());
+		}
 	};
 }

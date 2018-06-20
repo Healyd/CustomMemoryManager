@@ -23,6 +23,10 @@ namespace CustomMemoryManager::Allocators
 
 		void Clear();
 
+		std::size_t PoolSize_Bytes() const;
+		std::size_t UsedSpace_Bytes() const;
+		std::size_t PoolSize_NumObjects() const;
+
 	private:
 		void* mPoolStart{ nullptr };
 		void* mPoolCurrent{ nullptr };
