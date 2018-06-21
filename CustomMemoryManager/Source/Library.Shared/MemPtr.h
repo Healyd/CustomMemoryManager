@@ -57,6 +57,12 @@ namespace CustomMemoryManager
 		return static_cast<T*>(new (name, manager, type) T());
 	}
 
+	template <typename T>
+	inline T* PoolAlloc(const std::string& name, MemoryManager& manager)
+	{
+		return static_cast<T*>(new (name, manager, CustomMemoryManager::MemoryManager::AllocType::POOL) T());
+	}
+
 	//template <typename T>
 	//inline MemPtr<T>::MemData MakeMemPtrData(const std::string& name, MemoryManager::AllocType type, MemoryManager& manager)
 	//{

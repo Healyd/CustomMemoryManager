@@ -141,8 +141,7 @@ namespace UnitTest
 			ptr3->~Foo();
 			operator delete (ptr3, "Stack1", memoryManager, MemoryManager::AllocType::STACK);
 			//memoryManager.Deallocate(ptr3, "Stack1", MemoryManager::AllocType::STACK);
-			
-			
+
 			MemPtr<Foo> memPtr2 = static_cast<Foo*>(new ("Stack1", memoryManager, MemoryManager::AllocType::STACK) Foo());
 			memPtr2->~Foo();
 			memoryManager.Deallocate(memPtr2.Get(), "Stack1", MemoryManager::AllocType::STACK);
@@ -153,9 +152,17 @@ namespace UnitTest
 			memoryManager.Deallocate(memPtr.Get(), "Stack1", MemoryManager::AllocType::STACK);
 		}
 
-		TEST_METHOD(StackOverFlow)
+		TEST_METHOD(MoreTesing)
 		{
+			MemoryManager memoryManager;
+			Assert::IsTrue(memoryManager.CreateAllocator("Stack1", 43 * sizeof(Foo), MemoryManager::AllocType::STACK), L"Allocator Not Created.");
 
+			/*Foo* ptr22 = static_cast<Foo*>(STACK_ALLOC("Stack1", memoryManager) Foo());
+			ptr22->~Foo();
+			operator delete (ptr22, "Stack1", memoryManager, MemoryManager::AllocType::STACK);*/
+
+			//Foo* ptr1 = PoolAlloc<Foo>("Pool1", memoryManager);
+			//Foo* ptr2 = POOL_ALLOC("Pool1", memoryManager) Foo();
 		}
 
 	private:

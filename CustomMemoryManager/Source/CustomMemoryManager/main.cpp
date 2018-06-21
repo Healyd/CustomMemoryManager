@@ -15,6 +15,10 @@
 #include "MemoryGui.h"
 #include <stdlib.h>
 #include <time.h>
+#include <string>
+#include "Object.h"
+
+using namespace Test;
 
 // Data
 static ID3D11Device*            g_pd3dDevice = NULL;
@@ -139,28 +143,43 @@ int main(int, char**)
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
 	ImGui_ImplDX11_Init(hwnd, g_pd3dDevice, g_pd3dDeviceContext);
+	/*
+		CustomMemoryManager::MemoryManager memoryManager;
+		memoryManager.CreateAllocator("Stack1", 800 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::STACK);
+		memoryManager.CreateAllocator("Stack2", 400 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::STACK);
+		memoryManager.CreateAllocator("Stack3", 1000 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::STACK);
+		memoryManager.CreateAllocator("DoubleStack1", 800 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK);
+		memoryManager.CreateAllocator("DoubleStack2", 400 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK);
+		memoryManager.CreateAllocator<std::uint32_t>("UINT32_Pool1", 400 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::POOL);
+		//memoryManager.CreateAllocator<std::string>("Pool2", 400 * sizeof(std::string), CustomMemoryManager::MemoryManager::AllocType::POOL);
 
-	CustomMemoryManager::MemoryManager memoryManager;
-	memoryManager.CreateAllocator("Stack1", 800 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::STACK);
-	memoryManager.CreateAllocator("Stack2", 400 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::STACK);
-	memoryManager.CreateAllocator("Stack3", 1000 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::STACK);
-	memoryManager.CreateAllocator("DoubleStack1", 800 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK);
-	memoryManager.CreateAllocator("DoubleStack2", 400 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK);
-	memoryManager.CreateAllocator<std::uint32_t>("UINT32_Pool1", 400 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::POOL);
-	//memoryManager.CreateAllocator<std::string>("Pool2", 400 * sizeof(std::string), CustomMemoryManager::MemoryManager::AllocType::POOL);
+		CustomMemoryManager::MemoryGui memoryGui(memoryManager);
+	*/
 
-	CustomMemoryManager::MemoryGui memoryGui(memoryManager);
+	CREATE_STACK("Stack1", 800 * sizeof(std::uint32_t));
+	CREATE_STACK("Stack2", 400 * sizeof(std::uint32_t));
+	CREATE_STACK("Stack3", 1000 * sizeof(std::uint32_t));
 
-	//std::vector<std::uint32_t*> IntVector(200);
-	//for (std::uint32_t i = 0U; i < 200; ++i)
-	//{
-	//	IntVector.push_back(static_cast<std::uint32_t*>(memoryManager.Allocate(sizeof(std::uint32_t), "Stack2", CustomMemoryManager::MemoryManager::AllocType::STACK)));
-	//}
+	CREATE_DSTACK("DoubleStack1", 800 * sizeof(std::uint32_t));
+	CREATE_DSTACK("DoubleStack2", 400 * sizeof(std::uint32_t));
 
-	//srand((std::size_t)(time(NULL)));
+	CREATE_POOL("UINT32_Pool", Object, 400 * sizeof(Object));
 
-	// Setup style
-	ImGui::StyleColorsDark();
+	Object* ptrs = POOL_ALLOC("UINT32_Pool") Object();		// calls the constructor
+	POOL_DEALLOC(ptrs, "UINT32_Pool", Object);				// calls the destructor
+
+	CustomMemoryManager::MemoryGui memoryGui(GLOBAL_MEMORY_MANAGER);
+
+		//std::vector<std::uint32_t*> IntVector(200);
+		//for (std::uint32_t i = 0U; i < 200; ++i)
+		//{
+		//	IntVector.push_back(static_cast<std::uint32_t*>(memoryManager.Allocate(sizeof(std::uint32_t), "Stack2", CustomMemoryManager::MemoryManager::AllocType::STACK)));
+		//}
+
+		//srand((std::size_t)(time(NULL)));
+
+		// Setup style
+		ImGui::StyleColorsDark();
 	//ImGui::StyleColorsClassic();
 
 	// Load Fonts
