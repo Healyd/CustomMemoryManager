@@ -1,6 +1,10 @@
+
+#ifdef MemDebug
+
 #include "MemoryGui.h"
 #include "MemoryManager.h"
 #include "MemPtr.h"
+#include <iostream>
 
 namespace CustomMemoryManager
 {
@@ -130,18 +134,20 @@ namespace CustomMemoryManager
 				Allocators::StackAllocator* stack = static_cast<Allocators::StackAllocator*>(mMemoryManager->Get(name, MemoryManager::AllocType::STACK));
 				if (stack != nullptr)
 				{
-					//ImGui::Begin(std::string(name+"Stack Window").c_str());
+					const MemoryManager::Data* const data = mMemoryManager->GetData(name);
+
 					ImGui::TextColored(ImVec4(0, 1, 0, 1), name.c_str());
 
 					ImGui::Text("%s Size (Bytes): %u", name.c_str(), stack->StackSize_Bytes());
 					ImGui::Text("%s Used Space (Bytes): %i", name.c_str(), stack->UsedSpace_Bytes());
-					ImGui::Text("%s Average Allocation Time: %f microseconds", name.c_str(), mData.find(name)->second.mAverageAllocationTime / mData.find(name)->second.mNumAllocations);
-					ImGui::Text("%s Average Deallocation Time: %f microseconds", name.c_str(), mData.find(name)->second.mAverageDeallocationTime / mData.find(name)->second.mNumDeallocations);
-					ImGui::Text("%s Num Allocations: %u", name.c_str(), mData.find(name)->second.mNumAllocations);
-					ImGui::Text("%s Num Dellocations: %u", name.c_str(), mData.find(name)->second.mNumDeallocations);
-
-					//MemPtr<std::uint32_t> memPtr(nullptr);
-						//memPtr.SetPtr(MakeMemPtr_Raw<std::uint32_t>(name, MemoryManager::AllocType::STACK, *mMemoryManager));
+					ImGui::Text("%s Average Allocation Time: %f microseconds", name.c_str(), data->mAverageAllocationTime / data->mNumAllocations);
+					ImGui::Text("%s Average Deallocation Time: %f microseconds", name.c_str(), data->mAverageDeallocationTime / data->mNumDeallocations);
+					ImGui::Text("%s Num Allocations: %u", name.c_str(), data->mNumAllocations);
+					ImGui::Text("%s Num Dellocations: %u", name.c_str(), data->mNumDeallocations);
+					//ImGui::Text("%s Average Allocation Time: %f microseconds", name.c_str(), mData.find(name)->second.mAverageAllocationTime / mData.find(name)->second.mNumAllocations);
+					//ImGui::Text("%s Average Deallocation Time: %f microseconds", name.c_str(), mData.find(name)->second.mAverageDeallocationTime / mData.find(name)->second.mNumDeallocations);
+					//ImGui::Text("%s Num Allocations: %u", name.c_str(), mData.find(name)->second.mNumAllocations);
+					//ImGui::Text("%s Num Dellocations: %u", name.c_str(), mData.find(name)->second.mNumDeallocations);
 
 					if (ImGui::Button(std::string(name + " Alloc a std::uint32_t").c_str()))
 					{
@@ -166,7 +172,8 @@ namespace CustomMemoryManager
 					}
 #endif //_DEBUG
 
-					TestAllocationsIntsStack(mData.find(name)->second.mIntVector, mData.find(name)->second.mGraphData, name, 100, 100);
+					//TestAllocationsIntsStack(mData.find(name)->second.mIntVector, mData.find(name)->second.mGraphData, name, 100, 100);
+					GraphHistorgram(name, mData.find(name)->second.mGraphData, static_cast<float>(stack->UsedSpace_Bytes()), static_cast<float>(stack->StackSize_Bytes()));
 
 					ImGui::Text("");
 					ImGui::Separator();
@@ -197,37 +204,49 @@ namespace CustomMemoryManager
 				Allocators::DoubleEndedStackAllocator* stack = static_cast<Allocators::DoubleEndedStackAllocator*>(mMemoryManager->Get(name, MemoryManager::AllocType::DOUBLESTACK));
 				if (stack != nullptr)
 				{
+					const MemoryManager::Data* const data = mMemoryManager->GetData(name);
+
 					ImGui::TextColored(ImVec4(0, 1, 0, 1), name.c_str());
 
 					// Total
 					ImGui::Text("%s Total Size (Bytes): %u", name.c_str(), stack->StackSize_Bytes());
 					ImGui::Text("%s Total Used Size (Bytes): %u", name.c_str(), stack->UsedBytes());
-					
+
 					ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 
 					// Top Stack
 					ImGui::Text("%s Top Size (Bytes): %u", name.c_str(), stack->TopStackSize_Bytes());
 					ImGui::Text("%s Top Used Size (Bytes): %i", name.c_str(), stack->UsedBytes_Top());
-					
+
 					ImGui::Spacing();
 
-					ImGui::Text("%s Top Average Allocation Time: %f microseconds", name.c_str(), mData.find(name)->second.mAverageAllocationTime / mData.find(name)->second.mNumAllocations);
-					ImGui::Text("%s Top Average Deallocation Time: %f microseconds", name.c_str(), mData.find(name)->second.mAverageDeallocationTime / mData.find(name)->second.mNumDeallocations);
-					ImGui::Text("%s Top Num Allocations: %u", name.c_str(), mData.find(name)->second.mNumAllocations);
-					ImGui::Text("%s Top Num Dellocations: %u", name.c_str(), mData.find(name)->second.mNumDeallocations);
+					ImGui::Text("%s Top Average Allocation Time: %f microseconds", name.c_str(), data->mAverageAllocationTime / data->mNumAllocations);
+					ImGui::Text("%s Top Average Deallocation Time: %f microseconds", name.c_str(), data->mAverageDeallocationTime / data->mNumDeallocations);
+					ImGui::Text("%s Top Num Allocations: %u", name.c_str(), data->mNumAllocations);
+					ImGui::Text("%s Top Num Dellocations: %u", name.c_str(), data->mNumDeallocations);
+
+					//ImGui::Text("%s Top Average Allocation Time: %f microseconds", name.c_str(), mData.find(name)->second.mAverageAllocationTime / mData.find(name)->second.mNumAllocations);
+					//ImGui::Text("%s Top Average Deallocation Time: %f microseconds", name.c_str(), mData.find(name)->second.mAverageDeallocationTime / mData.find(name)->second.mNumDeallocations);
+					//ImGui::Text("%s Top Num Allocations: %u", name.c_str(), mData.find(name)->second.mNumAllocations);
+					//ImGui::Text("%s Top Num Dellocations: %u", name.c_str(), mData.find(name)->second.mNumDeallocations);
 
 					ImGui::Spacing(); ImGui::Spacing(); ImGui::Spacing();
 
 					// Bottom Stack
 					ImGui::Text("%s Bottom Size (Bytes): %u", name.c_str(), stack->BottomStackSize_Bytes());
 					ImGui::Text("%s Bottom Used Size (Bytes): %i", name.c_str(), stack->UsedBytes_Bottom());
-					
+
 					ImGui::Spacing();
 
-					ImGui::Text("%s Bottom Average Allocation Time: %f microseconds", name.c_str(), mData.find(name)->second.mAverageAllocationTime_Bottom / mData.find(name)->second.mNumAllocations_Bottom);
-					ImGui::Text("%s Bottom Average Deallocation Time: %f microseconds", name.c_str(), mData.find(name)->second.mAverageDeallocationTime_Bottom / mData.find(name)->second.mNumDeallocations_Bottom);
-					ImGui::Text("%s Bottom Num Allocations: %u", name.c_str(), mData.find(name)->second.mNumAllocations_Bottom);
-					ImGui::Text("%s Bottom Num Dellocations: %u", name.c_str(), mData.find(name)->second.mNumDeallocations_Bottom);
+					ImGui::Text("%s Bottom Average Allocation Time: %f microseconds", name.c_str(), data->mAverageAllocationTime_Bottom / data->mNumAllocations_Bottom);
+					ImGui::Text("%s Bottom Average Deallocation Time: %f microseconds", name.c_str(), data->mAverageDeallocationTime_Bottom / data->mNumDeallocations_Bottom);
+					ImGui::Text("%s Bottom Num Allocations: %u", name.c_str(), data->mNumAllocations_Bottom);
+					ImGui::Text("%s Bottom Num Dellocations: %u", name.c_str(), data->mNumDeallocations_Bottom);
+
+					//ImGui::Text("%s Bottom Average Allocation Time: %f microseconds", name.c_str(), mData.find(name)->second.mAverageAllocationTime_Bottom / mData.find(name)->second.mNumAllocations_Bottom);
+					//ImGui::Text("%s Bottom Average Deallocation Time: %f microseconds", name.c_str(), mData.find(name)->second.mAverageDeallocationTime_Bottom / mData.find(name)->second.mNumDeallocations_Bottom);
+					//ImGui::Text("%s Bottom Num Allocations: %u", name.c_str(), mData.find(name)->second.mNumAllocations_Bottom);
+					//ImGui::Text("%s Bottom Num Dellocations: %u", name.c_str(), mData.find(name)->second.mNumDeallocations_Bottom);
 
 
 					if (ImGui::Button(std::string(name + " Alloc a std::uint32_t on Top").c_str()))
@@ -255,8 +274,11 @@ namespace CustomMemoryManager
 						stack->ClearTop();
 					}
 
-					TestAllocationsIntsDoubleStackTop(mData.find(name)->second.mIntVector, mData.find(name)->second.mGraphData, name, 100/2, 100/2);
-					TestAllocationsIntsDoubleStackBottom(mData.find(name)->second.mIntVector_Bottom, mData.find(name)->second.mGraphData_Bottom, name, 100/2, 100/2);
+					//TestAllocationsIntsDoubleStackTop(mData.find(name)->second.mIntVector, mData.find(name)->second.mGraphData, name, 100/2, 100/2);
+					//TestAllocationsIntsDoubleStackBottom(mData.find(name)->second.mIntVector_Bottom, mData.find(name)->second.mGraphData_Bottom, name, 100/2, 100/2);
+					GraphHistorgram(name + " Top", mData.find(name)->second.mGraphData, static_cast<float>(stack->UsedBytes_Top()), static_cast<float>(stack->TopStackSize_Bytes()));
+					GraphHistorgram(name + " Bottom", mData.find(name)->second.mGraphData_Bottom, static_cast<float>(stack->UsedBytes_Bottom()), static_cast<float>(stack->BottomStackSize_Bytes()));
+
 
 					ImGui::Text("");
 					ImGui::Separator();
@@ -284,32 +306,24 @@ namespace CustomMemoryManager
 			std::vector<std::string> poolNames = mMemoryManager->Get(MemoryManager::AllocType::POOL);
 			for (const std::string& name : poolNames)
 			{
-				Allocators::PoolAllocator<std::uint32_t>* pool = static_cast<Allocators::PoolAllocator<std::uint32_t>*>(mMemoryManager->Get(name, MemoryManager::AllocType::POOL));
+				Allocators::IAllocator* pool = mMemoryManager->Get(name, MemoryManager::AllocType::POOL);
+				//Allocators::PoolAllocator<std::uint32_t>* pool = dynamic_cast<Allocators::PoolAllocator<std::uint32_t>*>(mMemoryManager->Get(name, MemoryManager::AllocType::POOL));
 				if (pool != nullptr)
 				{
-					//ImGui::Begin(std::string(name+"Stack Window").c_str());
+					const MemoryManager::Data* const data = mMemoryManager->GetData(name);
+
 					ImGui::TextColored(ImVec4(0, 1, 0, 1), name.c_str());
 
-					ImGui::Text("%s Size (Bytes): %u", name.c_str(), pool->PoolSize_Bytes());
-					ImGui::Text("%s Used Space (Bytes): %i", name.c_str(), pool->UsedSpace_Bytes());
-					ImGui::Text("%s Average Allocation Time: %f microseconds", name.c_str(), mData.find(name)->second.mAverageAllocationTime / mData.find(name)->second.mNumAllocations);
-					ImGui::Text("%s Average Deallocation Time: %f microseconds", name.c_str(), mData.find(name)->second.mAverageDeallocationTime / mData.find(name)->second.mNumDeallocations);
-					ImGui::Text("%s Num Allocations: %u", name.c_str(), mData.find(name)->second.mNumAllocations);
-					ImGui::Text("%s Num Dellocations: %u", name.c_str(), mData.find(name)->second.mNumDeallocations);
+					ImGui::Text("%s Size (Bytes): %u", name.c_str(), pool->Size_Bytes());
+					ImGui::Text("%s Used Space (Bytes): %i", name.c_str(), pool->UsedSize_Bytes());
 
-					if (ImGui::Button(std::string(name + " Alloc a std::uint32_t").c_str()))
-					{
-						std::uint32_t* addr = static_cast<std::uint32_t*>(pool->allocate(1));
-						*addr = 4;
-					}
+					ImGui::Text("%s Average Allocation Time: %f microseconds", name.c_str(), data->mAverageAllocationTime / data->mNumAllocations);
+					ImGui::Text("%s Average Deallocation Time: %f microseconds", name.c_str(), data->mAverageDeallocationTime / data->mNumDeallocations);
+					ImGui::Text("%s Num Allocations: %u", name.c_str(), data->mNumAllocations);
+					ImGui::Text("%s Num Dellocations: %u", name.c_str(), data->mNumDeallocations);
 
-
-					if (ImGui::Button(std::string("Clear " + name).c_str()))
-					{
-						pool->Clear();
-					}
-
-					TestAllocationsIntsPool(mData.find(name)->second.mIntVector, mData.find(name)->second.mGraphData, name, 100, 100);
+					//TestAllocationsIntsPool(mData.find(name)->second.mIntVector, mData.find(name)->second.mGraphData, name, 100, 100);
+					GraphHistorgram(name, mData.find(name)->second.mGraphData, static_cast<float>(pool->UsedSize_Bytes()), static_cast<float>(pool->Size_Bytes()));
 
 					ImGui::Text("");
 					ImGui::Separator();
@@ -345,6 +359,7 @@ namespace CustomMemoryManager
 			ImGui::Text("%s Num Dellocations: %u", mMallocName.c_str(), mData.find(mMallocName)->second.mNumDeallocations);
 
 			TestAllocationsIntsMalloc(mData.find(mMallocName)->second.mIntVector, mData.find(mMallocName)->second.mGraphData, mMallocName, 100, 100);
+			//GraphHistorgram(mMallocName, mData.find(mMallocName)->second.mGraphData, static_cast<float>(mData.find(mMallocName)->second.mIntVector.size()), static_cast<float>(1000));
 
 			ImGui::Text("");
 			ImGui::Separator();
@@ -359,6 +374,7 @@ namespace CustomMemoryManager
 
 	void MemoryGui::TestAllocationsIntsStack(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount)
 	{
+		floatData;
 		if (allocAmount <= 0U || deallocAmount <= 0U)
 		{
 			return;
@@ -366,7 +382,7 @@ namespace CustomMemoryManager
 
 		std::size_t numObjectsToDeallocate = rand() % deallocAmount + 1;
 		std::size_t numObjectsToAllocate = rand() % allocAmount + 1;
-		
+
 		Library::StopWatch stopWatch;
 
 		for (std::uint32_t i = 0; i < numObjectsToDeallocate; ++i)
@@ -402,36 +418,37 @@ namespace CustomMemoryManager
 			++(mData.find(name)->second.mNumAllocations);
 		}
 
-		if (floatData.size() < 101U)
-		{
-			floatData.push_back((float)stackAlloc->UsedSpace_Bytes());
-		}
-		else
-		{
-			floatData.push_back((float)stackAlloc->UsedSpace_Bytes());
-			floatData.pop_front();
-		}
+		//if (floatData.size() < 101U)
+		//{
+		//	floatData.push_back((float)stackAlloc->UsedSpace_Bytes());
+		//}
+		//else
+		//{
+		//	floatData.push_back((float)stackAlloc->UsedSpace_Bytes());
+		//	floatData.pop_front();
+		//}
 
-		float *dat = new float[floatData.size()];
-		for (std::uint32_t i = 0; i < floatData.size(); ++i)
-		{
-			dat[i] = floatData[i];
-		}
-		ImGui::PlotHistogram(
-			std::string(name + " Graph").c_str(),	// Plot Name
-			dat,									// Data
-			(int)floatData.size(),						// Amount of data to show
-			0,										// Offset
-			"",										// Overlay Text
-			0,										// Scale Min
-			(float)stackAlloc->StackSize_Bytes(),	// Scale Max
-			ImVec2(100, 100)						// Graph size
-		);
-		delete dat;
+		//float *dat = new float[floatData.size()];
+		//for (std::uint32_t i = 0; i < floatData.size(); ++i)
+		//{
+		//	dat[i] = floatData[i];
+		//}
+		//ImGui::PlotHistogram(
+		//	std::string(name + " Graph").c_str(),	// Plot Name
+		//	dat,									// Data
+		//	(int)floatData.size(),						// Amount of data to show
+		//	0,										// Offset
+		//	"",										// Overlay Text
+		//	0,										// Scale Min
+		//	(float)stackAlloc->StackSize_Bytes(),	// Scale Max
+		//	ImVec2(100, 100)						// Graph size
+		//);
+		//delete dat;
 	}
 
 	void MemoryGui::TestAllocationsIntsDoubleStackTop(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount)
 	{
+		floatData;
 		if (allocAmount <= 0U || deallocAmount <= 0U)
 		{
 			return;
@@ -477,37 +494,38 @@ namespace CustomMemoryManager
 				++(mData.find(name)->second.mNumAllocations);
 			}
 
-			if (floatData.size() < 101U)
-			{
-				floatData.push_back((float)stackAlloc->UsedBytes_Top());
-			}
-			else
-			{
-				floatData.push_back((float)stackAlloc->UsedBytes_Top());
-				floatData.pop_front();
-			}
+			//if (floatData.size() < 101U)
+			//{
+			//	floatData.push_back((float)stackAlloc->UsedBytes_Top());
+			//}
+			//else
+			//{
+			//	floatData.push_back((float)stackAlloc->UsedBytes_Top());
+			//	floatData.pop_front();
+			//}
 
-			float *dat = new float[floatData.size()];
-			for (std::uint32_t i = 0; i < floatData.size(); ++i)
-			{
-				dat[i] = floatData[i];
-			}
-			ImGui::PlotHistogram(
-				std::string(name + " Graph Top").c_str(),	// Plot Name
-				dat,										// Data
-				(int)floatData.size(),						// Amount of data to show
-				0,											// Offset
-				"",											// Overlay Text
-				0,											// Scale Min
-				(float)stackAlloc->TopStackSize_Bytes(),		// Scale Max
-				ImVec2(100, 100)							// Graph size
-			);
-			delete dat;
+			//float *dat = new float[floatData.size()];
+			//for (std::uint32_t i = 0; i < floatData.size(); ++i)
+			//{
+			//	dat[i] = floatData[i];
+			//}
+			//ImGui::PlotHistogram(
+			//	std::string(name + " Graph Top").c_str(),	// Plot Name
+			//	dat,										// Data
+			//	(int)floatData.size(),						// Amount of data to show
+			//	0,											// Offset
+			//	"",											// Overlay Text
+			//	0,											// Scale Min
+			//	(float)stackAlloc->TopStackSize_Bytes(),		// Scale Max
+			//	ImVec2(100, 100)							// Graph size
+			//);
+			//delete dat;
 		}
 	}
 
 	void MemoryGui::TestAllocationsIntsDoubleStackBottom(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount)
 	{
+		floatData;
 		if (allocAmount <= 0U || deallocAmount <= 0U)
 		{
 			return;
@@ -553,37 +571,38 @@ namespace CustomMemoryManager
 				++(mData.find(name)->second.mNumAllocations_Bottom);
 			}
 
-			if (floatData.size() < 101U)
-			{
-				floatData.push_back((float)stackAlloc->UsedBytes_Bottom());
-			}
-			else
-			{
-				floatData.push_back((float)stackAlloc->UsedBytes_Bottom());
-				floatData.pop_front();
-			}
+			//if (floatData.size() < 101U)
+			//{
+			//	floatData.push_back((float)stackAlloc->UsedBytes_Bottom());
+			//}
+			//else
+			//{
+			//	floatData.push_back((float)stackAlloc->UsedBytes_Bottom());
+			//	floatData.pop_front();
+			//}
 
-			float *dat = new float[floatData.size()];
-			for (std::uint32_t i = 0; i < floatData.size(); ++i)
-			{
-				dat[i] = floatData[i];
-			}
-			ImGui::PlotHistogram(
-				std::string(name + " Graph Bottom").c_str(),	// Plot Name
-				dat,										// Data
-				(int)floatData.size(),						// Amount of data to show
-				0,											// Offset
-				"",											// Overlay Text
-				0,											// Scale Min
-				(float)stackAlloc->BottomStackSize_Bytes(),		// Scale Max
-				ImVec2(100, 100)							// Graph size
-			);
-			delete dat;
+			//float *dat = new float[floatData.size()];
+			//for (std::uint32_t i = 0; i < floatData.size(); ++i)
+			//{
+			//	dat[i] = floatData[i];
+			//}
+			//ImGui::PlotHistogram(
+			//	std::string(name + " Graph Bottom").c_str(),	// Plot Name
+			//	dat,										// Data
+			//	(int)floatData.size(),						// Amount of data to show
+			//	0,											// Offset
+			//	"",											// Overlay Text
+			//	0,											// Scale Min
+			//	(float)stackAlloc->BottomStackSize_Bytes(),		// Scale Max
+			//	ImVec2(100, 100)							// Graph size
+			//);
+			//delete dat;
 		}
 	}
 
 	void MemoryGui::TestAllocationsIntsPool(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount)
 	{
+		floatData;
 		if (allocAmount <= 0U || deallocAmount <= 0U)
 		{
 			return;
@@ -627,32 +646,32 @@ namespace CustomMemoryManager
 			++(mData.find(name)->second.mNumAllocations);
 		}
 
-		if (floatData.size() < 101U)
-		{
-			floatData.push_back((float)stackAlloc->UsedSpace_Bytes());
-		}
-		else
-		{
-			floatData.push_back((float)stackAlloc->UsedSpace_Bytes());
-			floatData.pop_front();
-		}
+		//if (floatData.size() < 101U)
+		//{
+		//	floatData.push_back((float)stackAlloc->UsedSpace_Bytes());
+		//}
+		//else
+		//{
+		//	floatData.push_back((float)stackAlloc->UsedSpace_Bytes());
+		//	floatData.pop_front();
+		//}
 
-		float *dat = new float[floatData.size()];
-		for (std::uint32_t i = 0; i < floatData.size(); ++i)
-		{
-			dat[i] = floatData[i];
-		}
-		ImGui::PlotHistogram(
-			std::string(name + " Graph").c_str(),	// Plot Name
-			dat,									// Data
-			(int)floatData.size(),						// Amount of data to show
-			0,										// Offset
-			"",										// Overlay Text
-			0,										// Scale Min
-			(float)stackAlloc->PoolSize_Bytes(),	// Scale Max
-			ImVec2(100, 100)						// Graph size
-		);
-		delete dat;
+		//float *dat = new float[floatData.size()];
+		//for (std::uint32_t i = 0; i < floatData.size(); ++i)
+		//{
+		//	dat[i] = floatData[i];
+		//}
+		//ImGui::PlotHistogram(
+		//	std::string(name + " Graph").c_str(),	// Plot Name
+		//	dat,									// Data
+		//	(int)floatData.size(),						// Amount of data to show
+		//	0,										// Offset
+		//	"",										// Overlay Text
+		//	0,										// Scale Min
+		//	(float)stackAlloc->PoolSize_Bytes(),	// Scale Max
+		//	ImVec2(100, 100)						// Graph size
+		//);
+		//delete dat;
 	}
 
 	void MemoryGui::TestAllocationsIntsMalloc(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>&, const std::string& name, int allocAmount, int deallocAmount)
@@ -694,8 +713,39 @@ namespace CustomMemoryManager
 		}
 	}
 
+	void MemoryGui::GraphHistorgram(const std::string& name, std::deque<float>& floatData, float usedSpace, float scaleMax)
+	{
+		if (floatData.size() < 101U)
+		{
+			floatData.push_back(usedSpace);
+		}
+		else
+		{
+			floatData.push_back(usedSpace);
+			floatData.pop_front();
+		}
+
+		float *dat = new float[floatData.size()];
+		for (std::uint32_t i = 0; i < floatData.size(); ++i)
+		{
+			dat[i] = floatData[i];
+		}
+		ImGui::PlotHistogram(
+			std::string(name + " Graph").c_str(),	// Plot Name
+			dat,									// Data
+			(int)floatData.size(),					// Amount of data to show
+			0,										// Offset
+			"",										// Overlay Text
+			0,										// Scale Min
+			scaleMax,								// Scale Max
+			ImVec2(100, 100)						// Graph size
+		);
+		delete dat;
+	}
+
 	void MemoryGui::EndGui()
 	{
 
 	}
 }
+#endif // MemDebug

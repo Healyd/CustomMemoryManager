@@ -17,6 +17,7 @@
 #include <time.h>
 #include <string>
 #include "Object.h"
+#include "MemoryTest.h"
 
 using namespace Test;
 
@@ -159,16 +160,51 @@ int main(int, char**)
 	CREATE_STACK("Stack1", 800 * sizeof(std::uint32_t));
 	CREATE_STACK("Stack2", 400 * sizeof(std::uint32_t));
 	CREATE_STACK("Stack3", 1000 * sizeof(std::uint32_t));
+	CREATE_STACK("Stack4", 800 * sizeof(std::string));
 
 	CREATE_DSTACK("DoubleStack1", 800 * sizeof(std::uint32_t));
-	CREATE_DSTACK("DoubleStack2", 400 * sizeof(std::uint32_t));
+	CREATE_DSTACK("DoubleStack2", 1000 * sizeof(std::uint32_t));
 
-	CREATE_POOL("UINT32_Pool", Object, 400 * sizeof(Object));
+	CREATE_POOL("UINT32_Pool", std::uint32_t, 400 * sizeof(std::uint32_t));
+	CREATE_POOL("string_Pool", std::string, 400 * sizeof(std::string));
+	CREATE_POOL("Object_Pool", Object, 1000 * sizeof(Object));
 
-	Object* ptrs = POOL_ALLOC("UINT32_Pool") Object();		// calls the constructor
-	POOL_DEALLOC(ptrs, "UINT32_Pool", Object);				// calls the destructor
-
+#ifdef MemDebug
 	CustomMemoryManager::MemoryGui memoryGui(GLOBAL_MEMORY_MANAGER);
+	MemoryTest<std::uint32_t> memoryTestInts
+	(
+		{
+		{ "Stack1", 100, CustomMemoryManager::MemoryManager::AllocType::STACK },
+		{ "Stack2", 10, CustomMemoryManager::MemoryManager::AllocType::STACK },
+		{ "Stack4", 50, CustomMemoryManager::MemoryManager::AllocType::STACK },
+		{ "UINT32_Pool", 100, CustomMemoryManager::MemoryManager::AllocType::POOL },
+		{ "DoubleStack1", 100, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK },
+		{ "DoubleStack2", 10, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK }
+		}
+	);
+	MemoryTest<std::string> memoryTestString
+	(
+		{
+		{ "Stack4", 50, CustomMemoryManager::MemoryManager::AllocType::STACK },
+		{ "string_Pool", 100, CustomMemoryManager::MemoryManager::AllocType::POOL}
+		}
+	);
+	MemoryTest<Object> memoryTestObject
+	(
+		{
+		{ "Object_Pool", 100, CustomMemoryManager::MemoryManager::AllocType::POOL }
+		}
+	);
+#endif // MemDebug
+
+
+
+
+	//CREATE_POOL("UINT32_Pool", Object, 400 * sizeof(Object));
+
+	//Object* ptrs = POOL_ALLOC("UINT32_Pool") Object();		// calls the constructor
+	//POOL_DEALLOC(ptrs, "UINT32_Pool", Object);				// calls the destructor
+
 
 		//std::vector<std::uint32_t*> IntVector(200);
 		//for (std::uint32_t i = 0U; i < 200; ++i)
@@ -179,7 +215,7 @@ int main(int, char**)
 		//srand((std::size_t)(time(NULL)));
 
 		// Setup style
-		ImGui::StyleColorsDark();
+	ImGui::StyleColorsDark();
 	//ImGui::StyleColorsClassic();
 
 	// Load Fonts
@@ -218,7 +254,14 @@ int main(int, char**)
 		}
 		ImGui_ImplDX11_NewFrame();
 
+#ifdef MemDebug
 		memoryGui.RunGui();
+		memoryTestInts.Run();
+		memoryTestString.Run();
+		memoryTestObject.Run();
+#endif // MemDebug
+
+		//memoryTestInts.TestStackAllocator_Ints("Stack1", 100, 100);
 
 		/*std::uint32_t numObjectsToDeallocate = rand() % 100 + 1;
 		std::uint32_t numObjectsToAllocate = rand() % 100 + 1;

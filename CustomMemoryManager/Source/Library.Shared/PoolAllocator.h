@@ -22,6 +22,9 @@ namespace CustomMemoryManager::Allocators
 		virtual void deallocate(void* ptr, Info info = Info::NONE) override;
 		void deallocate(void* ptr, std::size_t numObjects);
 
+		virtual std::size_t Size_Bytes() const override;
+		virtual std::size_t UsedSize_Bytes() const override;
+
 		void Clear();
 
 		std::size_t PoolSize_Bytes() const;

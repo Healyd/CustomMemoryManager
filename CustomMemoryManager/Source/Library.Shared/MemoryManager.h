@@ -22,13 +22,29 @@ namespace CustomMemoryManager
 			MAX
 		};
 
+#ifdef MemDebug
+		struct Data
+		{
+			float mAverageAllocationTime{ 0.0f };
+			float mAverageDeallocationTime{ 0.0f };
+			std::uint64_t mNumAllocations{ 0U };
+			std::uint64_t mNumDeallocations{ 0U };
+
+			float mAverageAllocationTime_Bottom{ 0.0f };
+			float mAverageDeallocationTime_Bottom{ 0.0f };
+			std::uint64_t mNumAllocations_Bottom{ 0U };
+			std::uint64_t mNumDeallocations_Bottom{ 0U };
+		};
+#endif // MemDebug
+
+
 	public:
 		MemoryManager() = default;
 		MemoryManager(const MemoryManager&) = delete;
 		MemoryManager(MemoryManager&&) = delete;
 		MemoryManager& operator=(const MemoryManager&) = delete;
 		MemoryManager& operator=(MemoryManager&&) = delete;
-		~MemoryManager() = default;
+		~MemoryManager();
 
 		bool CreateAllocator(const std::string& name, const std::size_t size, const AllocType type);
 		template <typename T>
@@ -40,12 +56,19 @@ namespace CustomMemoryManager
 		Allocators::IAllocator* Get(const std::string& name, const AllocType type);
 		std::vector<std::string> Get(const AllocType type);
 
+#ifdef MemDebug
+		const Data* const GetData(const std::string& name);
+#endif // MemDebug
+
 		//void IsValid(const std::string& name, const AllocType type);
 
 	private:
 		std::unordered_map<std::string, Allocators::StackAllocator> mStackAllocators;
 		std::unordered_map<std::string, Allocators::DoubleEndedStackAllocator> mDoubleStackAllocators;
 		std::unordered_map<std::string, Allocators::IAllocator*> mPoolAllocators;
+#ifdef MemDebug
+		std::unordered_map<std::string, Data> mAllocatorData;
+#endif // MemDebug
 	};
 
 	template <typename T>
@@ -58,7 +81,10 @@ namespace CustomMemoryManager
 			if (mPoolAllocators.find(name) == mPoolAllocators.end())
 			{
 				mPoolAllocators.emplace(std::move(name), std::move(new Allocators::PoolAllocator<T>(size)));
-				isCreated;
+#ifdef MemDebug
+				mAllocatorData.emplace(std::move(name), Data());
+#endif // MemDebug
+				isCreated = true;
 			}
 		}
 		return isCreated;
@@ -67,9 +93,9 @@ namespace CustomMemoryManager
 
 //inline CustomMemoryManager::MemoryManager gMemoryManager;
 
-inline void* operator new(std::size_t size, const std::string& name, CustomMemoryManager::MemoryManager& memoryManager, const CustomMemoryManager::MemoryManager::AllocType type)
+inline void* operator new(std::size_t size, const std::string& name, CustomMemoryManager::MemoryManager& memoryManager, const CustomMemoryManager::MemoryManager::AllocType type, CustomMemoryManager::Allocators::Info info = CustomMemoryManager::Allocators::Info::NONE)
 {
-	return memoryManager.Allocate(size, name, type);
+	return memoryManager.Allocate(size, name, type, info);
 }
 
 //inline void* operator new[] (std::size_t size, const std::string& name)
@@ -77,9 +103,9 @@ inline void* operator new(std::size_t size, const std::string& name, CustomMemor
 //	return gMemoryManager.Allocate(size, name);
 //}
 
-inline void operator delete(void* ptr, const std::string& name, CustomMemoryManager::MemoryManager& memoryManager, const CustomMemoryManager::MemoryManager::AllocType type)
+inline void operator delete(void* ptr, const std::string& name, CustomMemoryManager::MemoryManager& memoryManager, const CustomMemoryManager::MemoryManager::AllocType type, CustomMemoryManager::Allocators::Info info)
 {
-	memoryManager.Deallocate(ptr, name, type);
+	memoryManager.Deallocate(ptr, name, type, info);
 }
 
 //inline void operator delete[](void* ptr)
@@ -95,13 +121,14 @@ inline CustomMemoryManager::MemoryManager gMemoryManager;
 #define DEFAULT_DSTACK "DefaultDoubleStack"
 
 #define STACK_ALLOC(name) new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::STACK)
-#define DSTACK_ALLOC_TOP(name, side) new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK)
-#define DSTACK_ALLOC_BOTTOM(name, side) new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK)
+#define DSTACK_ALLOC_TOP(name) new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::TOP)
+#define DSTACK_ALLOC_BOTTOM(name) new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::BOTTOM)
 #define POOL_ALLOC(name) new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::POOL)
+//#define POOL_ALLOC(name, size) gMemoryManager.Allocate(size, name, CustomMemoryManager::MemoryManager::AllocType::POOL)
 
 #define STACK_DEALLOC(name, ptr) gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::MemoryManager::AllocType::STACK)
-#define DSTACK_DEALLOC_TOP(name, ptr, side) gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::TOP)
-#define DSTACK_DEALLOC_BOTTOM(name, ptr, side) gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::BOTTOM)
+#define DSTACK_DEALLOC_TOP(name, ptr) gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::TOP)
+#define DSTACK_DEALLOC_BOTTOM(name, ptr) gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::BOTTOM)
 #define POOL_DEALLOC(ptr, name, type) ptr->~type(); gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::MemoryManager::AllocType::POOL);
 
 #define CREATE_STACK(name, size) gMemoryManager.CreateAllocator(name, size, CustomMemoryManager::MemoryManager::AllocType::STACK)

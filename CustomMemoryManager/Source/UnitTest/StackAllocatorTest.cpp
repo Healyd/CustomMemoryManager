@@ -139,7 +139,7 @@ namespace UnitTest
 			
 			Foo* ptr3 = static_cast<Foo*>(new ("Stack1", memoryManager, MemoryManager::AllocType::STACK) Foo());
 			ptr3->~Foo();
-			operator delete (ptr3, "Stack1", memoryManager, MemoryManager::AllocType::STACK);
+			operator delete (ptr3, "Stack1", memoryManager, MemoryManager::AllocType::STACK, Allocators::Info::NONE);
 			//memoryManager.Deallocate(ptr3, "Stack1", MemoryManager::AllocType::STACK);
 
 			MemPtr<Foo> memPtr2 = static_cast<Foo*>(new ("Stack1", memoryManager, MemoryManager::AllocType::STACK) Foo());

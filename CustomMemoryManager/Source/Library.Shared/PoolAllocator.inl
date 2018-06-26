@@ -49,11 +49,11 @@ namespace CustomMemoryManager::Allocators
 	template <typename T>
 	void* PoolAllocator<T>::allocate(std::size_t numObjects, Info)
 	{
+		numObjects /= sizeof(T);
 		if (mNotInUse.empty() || numObjects == 0U)
 		{
 			return nullptr;
 		}
-
 		if (numObjects == 1U)
 		{
 			//const chunk& hunk = mNotInUse2.front();
@@ -163,6 +163,20 @@ namespace CustomMemoryManager::Allocators
 	template <typename T>
 	std::size_t PoolAllocator<T>::UsedSpace_Bytes() const
 	{
+		return (mInUse.size() * sizeof(T));
+	}
+
+	template <typename T>
+	std::size_t PoolAllocator<T>::Size_Bytes() const
+	{
+		return mPoolSize_bytes;
+	}
+
+	template <typename T>
+	std::size_t PoolAllocator<T>::UsedSize_Bytes() const
+	{
+		std::size_t size = sizeof(T);
+		size;
 		return (mInUse.size() * sizeof(T));
 	}
 

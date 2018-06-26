@@ -51,6 +51,9 @@ namespace CustomMemoryManager::Allocators
 		virtual void deallocate(void* ptr, Info info = Info::NONE) override;
 		void deallocate();
 
+		inline virtual std::size_t Size_Bytes() const override { return (std::size_t) 0; };
+		inline virtual std::size_t UsedSize_Bytes() const override { return (std::size_t) 0; };
+
 		const void * const GetStackTop() const;
 		void Clear();
 		std::size_t StackSize_Bytes() const;

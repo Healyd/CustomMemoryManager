@@ -5,3 +5,10 @@ Custom Memory Manager
 	-	Pool Allocator
 		-	Chunk Detection (quick allocation for arrays)
 		-	Defragmentation
+		
+	- Manager
+		- should track the time it takes to allocate memory, not the gui
+		
+		-_DEBUG for debug
+		-_DEBUGOPTIMIZED for debug optimized
+		- MemDebug for debug and debug optimized

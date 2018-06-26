@@ -104,7 +104,7 @@ namespace CustomMemoryManager::Allocators
 
 	void* DoubleEndedStackAllocator::allocateTop(std::size_t allocAmount_bytes)
 	{
-		// Cache mStackCurrent as a std::intptr_t.
+		// Cache mTopStackCurrent as a std::intptr_t.
 		std::intptr_t currentStackLocation = reinterpret_cast<std::intptr_t>(mTopStackCurrent);
 
 		// Determine the stack space we have to work with.
@@ -121,7 +121,7 @@ namespace CustomMemoryManager::Allocators
 		mTopStackCurrent = reinterpret_cast<void*>(currentStackLocation - allocAmount_bytes);
 
 		// Store the address to this alloc location.
-		mAllocLocationsTop[mTopIndex] = reinterpret_cast<std::intptr_t>(mTopStackCurrent);
+		mAllocLocationsTop[mTopIndex] = currentStackLocation;// reinterpret_cast<std::intptr_t>(mTopStackCurrent);
 		++mTopIndex;
 
 		// Get the current stack top location.

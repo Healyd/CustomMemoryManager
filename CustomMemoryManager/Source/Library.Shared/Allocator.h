@@ -3,6 +3,15 @@
 #include <cstdint>
 
 //#ifdef _DEBUG
+//#define MemDebug
+//#endif // _DEBUG
+//
+//#ifdef _DEBUGOPTIMIZED
+//#define MemDebug
+//#endif // _DEBUGOPTIMIZED
+
+
+//#ifdef _DEBUG
 //	#define ALLOCATOR_DEBUG
 //#endif // DEBUG
 
@@ -23,5 +32,7 @@ namespace CustomMemoryManager::Allocators
 	public:
 		virtual void* allocate(std::size_t allocAmount_bytes, Info info = Info::NONE) = 0;
 		virtual void deallocate(void* ptr, Info info = Info::NONE) = 0;
+		virtual std::size_t Size_Bytes() const = 0;
+		virtual std::size_t UsedSize_Bytes() const = 0;
 	};
 }

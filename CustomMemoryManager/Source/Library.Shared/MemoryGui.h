@@ -1,4 +1,7 @@
 #pragma once
+
+#ifdef MemDebug
+
 #include "imgui-1.61/imgui.h"
 #include <cstdint>
 #include <unordered_map>
@@ -37,6 +40,8 @@ namespace CustomMemoryManager
 		void TestAllocationsIntsDoubleStackBottom(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount);
 		void TestAllocationsIntsPool(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount);
 		void TestAllocationsIntsMalloc(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount);
+
+		void GraphHistorgram(const std::string& name, std::deque<float>& floatData, float usedSpace, float scaleMax);
 		
 		struct MemoryGuiData
 		{
@@ -85,10 +90,10 @@ namespace CustomMemoryManager
 
 
 		// RANDOM VARIABLES that will be removed
-		float data[4] = { 1, 1, 1, 1 };
-		float data2[200];
-		float amount{ 0 };
-		std::uint32_t mUsedBytes_Stack{ 0 };
+		//float data[4] = { 1, 1, 1, 1 };
+		//float data2[200];
+		//float amount{ 0 };
+		//std::uint32_t mUsedBytes_Stack{ 0 };
 
 		MemoryManager* mMemoryManager{ nullptr };
 
@@ -99,3 +104,4 @@ namespace CustomMemoryManager
 		std::chrono::time_point<std::chrono::steady_clock> end;
 	};
 }
+#endif // MemDebug

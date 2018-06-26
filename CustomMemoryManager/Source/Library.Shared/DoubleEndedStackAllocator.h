@@ -37,6 +37,9 @@ namespace CustomMemoryManager::Allocators
 		void dallocateTop();
 		void dallocateBottom();
 
+		inline virtual std::size_t Size_Bytes() const override { return (std::size_t) 0; };
+		inline virtual std::size_t UsedSize_Bytes() const override { return (std::size_t) 0; };
+
 		const void * const GetStackTop() const;
 		const void * const GetStackBottom() const;
 
