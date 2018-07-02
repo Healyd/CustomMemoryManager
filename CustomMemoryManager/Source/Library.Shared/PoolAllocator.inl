@@ -47,7 +47,7 @@ namespace CustomMemoryManager::Allocators
 	}
 
 	template <typename T>
-	void* PoolAllocator<T>::allocate(std::size_t numObjects, Info)
+	void* PoolAllocator<T>::allocate(std::size_t numObjects, std::size_t, Info)
 	{
 		numObjects /= sizeof(T);
 		if (mNotInUse.empty() || numObjects == 0U)

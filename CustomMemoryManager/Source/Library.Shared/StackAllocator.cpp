@@ -64,7 +64,7 @@ namespace CustomMemoryManager::Allocators
 		return *this;
 	}
 
-	void* StackAllocator::allocate(std::size_t allocAmount_bytes, Info)
+	void* StackAllocator::allocate(std::size_t allocAmount_bytes, std::size_t, Info)
 	{
 		// Cache mStackCurrent as a std::intptr_t.
 		std::intptr_t currentStackLocation = reinterpret_cast<std::intptr_t>(mStackCurrent);

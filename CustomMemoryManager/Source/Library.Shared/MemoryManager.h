@@ -117,24 +117,20 @@ inline CustomMemoryManager::MemoryManager gMemoryManager;
 
 #define GLOBAL_MEMORY_MANAGER gMemoryManager
 
-#define DEFAULT_STACK "DefaultStack"
-#define DEFAULT_DSTACK "DefaultDoubleStack"
+#define DEFAULT_STACK	"DefaultStack"
+#define DEFAULT_DSTACK	"DefaultDoubleStack"
+#define DEFAULT_POOL	"DefaultPool"
 
-#define STACK_ALLOC(name) new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::STACK)
-#define DSTACK_ALLOC_TOP(name) new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::TOP)
-#define DSTACK_ALLOC_BOTTOM(name) new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::BOTTOM)
-#define POOL_ALLOC(name) new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::POOL)
-//#define POOL_ALLOC(name, size) gMemoryManager.Allocate(size, name, CustomMemoryManager::MemoryManager::AllocType::POOL)
+#define STACK_ALLOC(name)			new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::STACK)
+#define DSTACK_ALLOC_TOP(name)		new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::TOP)
+#define DSTACK_ALLOC_BOTTOM(name)	new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::BOTTOM)
+#define POOL_ALLOC(name)			new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::POOL)
 
-#define STACK_DEALLOC(name, ptr) gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::MemoryManager::AllocType::STACK)
-#define DSTACK_DEALLOC_TOP(name, ptr) gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::TOP)
-#define DSTACK_DEALLOC_BOTTOM(name, ptr) gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::BOTTOM)
-#define POOL_DEALLOC(ptr, name, type) ptr->~type(); gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::MemoryManager::AllocType::POOL);
+#define STACK_DEALLOC(name, ptr)			gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::MemoryManager::AllocType::STACK)
+#define DSTACK_DEALLOC_TOP(name, ptr)		gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::TOP)
+#define DSTACK_DEALLOC_BOTTOM(name, ptr)	gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::BOTTOM)
+#define POOL_DEALLOC(ptr, name, type)		ptr->~type(); gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::MemoryManager::AllocType::POOL);
 
-#define CREATE_STACK(name, size) gMemoryManager.CreateAllocator(name, size, CustomMemoryManager::MemoryManager::AllocType::STACK)
-#define CREATE_DSTACK(name, size) gMemoryManager.CreateAllocator(name, size, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK)
-#define CREATE_POOL(name, type, size) gMemoryManager.CreateAllocator<type>(name, size, CustomMemoryManager::MemoryManager::AllocType::POOL)
-
-//#define STACK_ALLOC(name) new (name, sMemoryManager, CustomMemoryManager::MemoryManager::AllocType::STACK)
-//#define DSTACK_ALLOC(name) new (name, sMemoryManager, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK)
-//#define POOL_ALLOC(name) new (name, sMemoryManager, CustomMemoryManager::MemoryManager::AllocType::POOL)
+#define CREATE_STACK(name, size)		gMemoryManager.CreateAllocator(name, size, CustomMemoryManager::MemoryManager::AllocType::STACK)
+#define CREATE_DSTACK(name, size)		gMemoryManager.CreateAllocator(name, size, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK)
+#define CREATE_POOL(name, type, size)	gMemoryManager.CreateAllocator<type>(name, size, CustomMemoryManager::MemoryManager::AllocType::POOL)

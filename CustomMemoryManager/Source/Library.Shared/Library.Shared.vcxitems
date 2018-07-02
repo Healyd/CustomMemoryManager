@@ -16,6 +16,7 @@
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)Allocator.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)DoubleEndedStackAllocator.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)HeapAllocator.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)imgui-1.61\imconfig.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)imgui-1.61\imgui.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)imgui-1.61\imgui_internal.h" />
@@ -29,6 +30,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)DoubleEndedStackAllocator.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)HeapAllocator.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)imgui-1.61\imgui.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)imgui-1.61\imgui_demo.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)imgui-1.61\imgui_draw.cpp" />

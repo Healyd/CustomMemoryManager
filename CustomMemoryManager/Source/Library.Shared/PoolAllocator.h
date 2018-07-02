@@ -18,7 +18,7 @@ namespace CustomMemoryManager::Allocators
 		PoolAllocator& operator=(PoolAllocator&&) = default;
 		~PoolAllocator();
 
-		virtual void* allocate(std::size_t numObjects, Info info = Info::NONE) override;
+		virtual void* allocate(std::size_t numObjects, std::size_t alignment = 0U, Info info = Info::NONE) override;
 		virtual void deallocate(void* ptr, Info info = Info::NONE) override;
 		void deallocate(void* ptr, std::size_t numObjects);
 

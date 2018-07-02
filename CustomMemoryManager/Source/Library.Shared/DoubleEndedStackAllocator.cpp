@@ -12,11 +12,11 @@ namespace CustomMemoryManager::Allocators
 	DoubleEndedStackAllocator::DoubleEndedStackAllocator(std::size_t topStackSize_bytes, std::size_t bottomStackSize_bytes, std::size_t alignment)
 		: mTopStackSize_bytes(topStackSize_bytes), mBottomStackSize_bytes(bottomStackSize_bytes), mAlignment(alignment)
 	{
-#ifdef ALLOCATOR_DEBUG
+#ifdef _DEBUG
 		mBottomStackStart = std::calloc(1U, topStackSize_bytes + bottomStackSize_bytes);
 #else
 		mBottomStackStart = std::malloc(topStackSize_bytes + bottomStackSize_bytes);
-#endif // ALLOCATOR_DEBUG
+#endif // _DEBUG
 
 		mBottomStackCurrent = mBottomStackStart;
 		mAllocLocationsBottom = new std::intptr_t[mBottomStackSize_bytes];
@@ -89,7 +89,7 @@ namespace CustomMemoryManager::Allocators
 		}
 	}
 
-	void* DoubleEndedStackAllocator::allocate(std::size_t allocAmount_bytes, Info info)
+	void* DoubleEndedStackAllocator::allocate(std::size_t allocAmount_bytes, std::size_t, Info info)
 	{
 		if (info == Info::TOP)
 		{

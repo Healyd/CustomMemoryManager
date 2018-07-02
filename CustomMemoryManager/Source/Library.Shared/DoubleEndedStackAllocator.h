@@ -30,7 +30,7 @@ namespace CustomMemoryManager::Allocators
 		DoubleEndedStackAllocator& operator=(DoubleEndedStackAllocator&& other);
 		~DoubleEndedStackAllocator();
 
-		inline virtual void* allocate(std::size_t, Info info = Info::NONE) override;
+		inline virtual void* allocate(std::size_t, std::size_t alignment = 0U, Info info = Info::NONE) override;
 		void* allocateTop(std::size_t allocateAmount_bytes);
 		void* allocateBottom(std::size_t allocateAmount_bytes);
 		virtual void deallocate(void*, Info info = Info::NONE) override;

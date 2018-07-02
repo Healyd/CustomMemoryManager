@@ -49,6 +49,9 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)StopWatch.h">
       <Filter>Misc</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)HeapAllocator.h">
+      <Filter>Allocators</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)StackAllocator.cpp">
@@ -72,6 +75,9 @@
     </ClCompile>
     <ClCompile Include="$(MSBuildThisFileDirectory)StopWatch.cpp">
       <Filter>Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)HeapAllocator.cpp">
+      <Filter>Allocators</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

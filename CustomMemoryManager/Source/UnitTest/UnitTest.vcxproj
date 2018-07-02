@@ -250,6 +250,7 @@
   <ItemGroup>
     <ClCompile Include="DoubleEndedStackTest.cpp" />
     <ClCompile Include="Foo.cpp" />
+    <ClCompile Include="HeapAllocatorTest.cpp" />
     <ClCompile Include="PoolAllocatorTest.cpp" />
     <ClCompile Include="StackAllocatorTest.cpp" />
     <ClCompile Include="stdafx.cpp">
