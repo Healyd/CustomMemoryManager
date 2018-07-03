@@ -18,6 +18,12 @@ namespace CustomMemoryManager::Allocators
 		virtual std::size_t Size_Bytes() const override;
 		virtual std::size_t UsedSize_Bytes() const override;
 
+#ifdef MemDebug
+		std::size_t NumNodes() const;
+		std::size_t NumActiveNodes() const;
+		std::size_t NumInActiveNodes() const;
+#endif // MemDebug
+
 	private:
 		struct HeapNode
 		{
@@ -27,14 +33,20 @@ namespace CustomMemoryManager::Allocators
 			HeapNode* mNext{ nullptr };
 		};
 
-		void PushBackNode(HeapNode* node, HeapNode* end);
-		HeapNode* RemoveNode(void* ptr, HeapNode* head, HeapNode* end);
-		HeapNode* FindNode(void* ptr, HeapNode* head, HeapNode* end);
-		HeapNode* FindNodeFirstFitSize(std::size_t size_bytes, HeapNode* head, HeapNode* end);
+		void PushBackNode(HeapNode* node, HeapNode** head, HeapNode** end);
+		HeapNode* RemoveNode(void* ptr, HeapNode** head, HeapNode** end);
+		HeapNode* FindNode(void* ptr, HeapNode** head, HeapNode** end);
+		HeapNode* FindNodeFirstFitSize(std::size_t size_bytes, HeapNode** head, HeapNode** end);
 
 		void* mHeapStart{ nullptr };
 		std::size_t mHeapSize_Bytes{ 0U };
 		std::size_t mHeapUsedSize_Bytes{ 0U };
+
+#ifdef MemDebug
+		std::size_t mNumActiveNodes{ 0U };
+		std::size_t mNumInActiveNodes{ 0U };
+#endif // MemDebug
+
 
 		HeapNode* mActiveLocationsList_Head{ nullptr };
 		HeapNode* mActiveLocationsList_End{ nullptr };

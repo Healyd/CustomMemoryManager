@@ -1,5 +1,6 @@
 #include "CppUnitTest.h"
 #include "HeapAllocator.h"
+#include "Foo.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace CustomMemoryManager::Allocators;
@@ -38,6 +39,23 @@ namespace UnitTest
 			heap.deallocate(ptr1);
 
 			Assert::AreEqual((std::size_t)0U, heap.UsedSize_Bytes(), L"Used Size 3");
+		}
+
+		TEST_METHOD(AllocDealloc_Foo)
+		{
+			HeapAllocator heap(40 * sizeof(Foo));
+
+			Foo* fooArray = static_cast<Foo*>(heap.allocate(20 * sizeof(Foo)));
+			Assert::IsNotNull(fooArray, L"Foo array null.");
+
+			Assert::AreEqual((std::size_t)(20*sizeof(Foo)), heap.UsedSize_Bytes());
+
+			heap.deallocate(fooArray);
+
+			Assert::AreEqual((std::size_t)(0U), heap.UsedSize_Bytes());
+
+			Foo* foo1 = static_cast<Foo*>(heap.allocate(sizeof(Foo)));
+			Assert::IsNotNull(foo1, L"Foo1 null.");
 		}
 	};
 }
