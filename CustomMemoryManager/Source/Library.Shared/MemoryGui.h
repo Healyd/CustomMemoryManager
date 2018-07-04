@@ -30,15 +30,18 @@ namespace CustomMemoryManager
 		//void SetMemoryManager(MemoryManager& manager);
 
 	private:
+		void ShowAllocatorSelector(const std::string& checkBoxName, bool& mShowWindow, std::vector<std::string> allocatorNames);
+
 		void StackGuiWindow();
 		void DoubleStackGuiWindow();
 		void PoolGuiWindow();
+		void HeapGuiWindow();
 		void MallocGuiWindow();
 
-		void TestAllocationsIntsStack(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount);
-		void TestAllocationsIntsDoubleStackTop(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount);
-		void TestAllocationsIntsDoubleStackBottom(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount);
-		void TestAllocationsIntsPool(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount);
+		//void TestAllocationsIntsStack(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount);
+		//void TestAllocationsIntsDoubleStackTop(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount);
+		//void TestAllocationsIntsDoubleStackBottom(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount);
+		//void TestAllocationsIntsPool(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount);
 		void TestAllocationsIntsMalloc(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount);
 
 		void GraphHistorgram(const std::string& name, std::deque<float>& floatData, float usedSpace, float scaleMax);
@@ -62,24 +65,16 @@ namespace CustomMemoryManager
 			std::uint64_t mNumDeallocations_Bottom{ 0U };
 		};
 
-		//struct MemoryGuiData_DoubleStack : public MemoryGuiData
-		//{
-		//	std::vector<std::uint32_t*> mIntVector_Bottom;
-		//	std::deque<float> mGraphData_Bottom;
-
-		//	float mAverageAllocationTime_Bottom{ 0.0f };
-		//	float mAverageDeallocationTime_Bottom{ 0.0f };
-		//	std::uint64_t mNumAllocations_Bottom{ 0U };
-		//	std::uint64_t mNumDeallocations_Bottom{ 0U };
-		//};
-
 		std::unordered_map<std::string, MemoryGuiData> mData;
+
+		std::unordered_map<std::string, std::deque<float>> mGraphData;
 
 		// Window Bools
 		bool mShowStackWindows{ false };
 		bool mShowDoubleStackWindows{ false };
 		bool mShowPoolWindows{ false };
 		bool mShowMallocWindows{ false };
+		bool mShowHeapWindows{ false };
 
 		const std::string mMallocName = "MALLOC";
 

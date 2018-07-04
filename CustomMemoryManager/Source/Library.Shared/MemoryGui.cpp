@@ -15,46 +15,52 @@ namespace CustomMemoryManager
 		std::vector<std::string> stackNames = mMemoryManager->Get(MemoryManager::AllocType::STACK);
 		for (const auto& name : stackNames)
 		{
-			std::vector<std::uint32_t*> IntVector;
-			for (std::uint32_t i = 0U; i < 200; ++i)
-			{
-				IntVector.push_back(static_cast<std::uint32_t*>(mMemoryManager->Allocate(sizeof(std::uint32_t), name, CustomMemoryManager::MemoryManager::AllocType::STACK)));
-			}
-			mData.emplace(std::pair<std::string, MemoryGuiData>(name, { IntVector, std::deque<float>() }));
-			//mStackIntPtrVectors.emplace(std::pair<std::string, std::vector<std::uint32_t*>>(name, IntVector));
-			//mStackGraphData.emplace(std::pair<std::string, std::deque<float>>(name, std::deque<float>()));
+			//std::vector<std::uint32_t*> IntVector;
+			//for (std::uint32_t i = 0U; i < 200; ++i)
+			//{
+			//	IntVector.push_back(static_cast<std::uint32_t*>(mMemoryManager->Allocate(sizeof(std::uint32_t), name, CustomMemoryManager::MemoryManager::AllocType::STACK)));
+			//}
+			//mData.emplace(std::pair<std::string, MemoryGuiData>(name, { IntVector, std::deque<float>() }));
+			mGraphData.emplace( std::move(std::pair<std::string, std::deque<float>>(name, std::deque<float>())) );
 		}
 
 		// Double Stack Initialization
 		std::vector<std::string> doubleStackNames = mMemoryManager->Get(MemoryManager::AllocType::DOUBLESTACK);
 		for (const auto& name : doubleStackNames)
 		{
-			std::vector<std::uint32_t*> IntVector, IntVector_Bot;
-			for (std::uint32_t i = 0U; i < 200; ++i)
-			{
-				IntVector.push_back(static_cast<std::uint32_t*>(mMemoryManager->Allocate(sizeof(std::uint32_t), name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, Allocators::Info::TOP)));
-				IntVector_Bot.push_back(static_cast<std::uint32_t*>(mMemoryManager->Allocate(sizeof(std::uint32_t), name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, Allocators::Info::BOTTOM)));
-			}
-			MemoryGuiData d;
-			d.mIntVector = IntVector;
-			d.mGraphData = std::deque<float>();
-			d.mIntVector_Bottom = IntVector_Bot;
-			d.mGraphData_Bottom = std::deque<float>();
-			mData.emplace(std::pair<std::string, MemoryGuiData>(name, d));
-			//mStackIntPtrVectors.emplace(std::pair<std::string, std::vector<std::uint32_t*>>(name, IntVector));
-			//mStackGraphData.emplace(std::pair<std::string, std::deque<float>>(name, std::deque<float>()));
+			//std::vector<std::uint32_t*> IntVector, IntVector_Bot;
+			//for (std::uint32_t i = 0U; i < 200; ++i)
+			//{
+			//	IntVector.push_back(static_cast<std::uint32_t*>(mMemoryManager->Allocate(sizeof(std::uint32_t), name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, Allocators::Info::TOP)));
+			//	IntVector_Bot.push_back(static_cast<std::uint32_t*>(mMemoryManager->Allocate(sizeof(std::uint32_t), name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, Allocators::Info::BOTTOM)));
+			//}
+			//MemoryGuiData d;
+			//d.mIntVector = IntVector;
+			//d.mGraphData = std::deque<float>();
+			//d.mIntVector_Bottom = IntVector_Bot;
+			//d.mGraphData_Bottom = std::deque<float>();
+			//mData.emplace(std::pair<std::string, MemoryGuiData>(name, d));
+			mGraphData.emplace(std::move(std::pair<std::string, std::deque<float>>(name+"_top", std::deque<float>())));
+			mGraphData.emplace(std::move(std::pair<std::string, std::deque<float>>(name+"_bot", std::deque<float>())));
 		}
 
 		// Pool Initialization (currently only support for std::uint32_t pools)
 		std::vector<std::string> poolNames = mMemoryManager->Get(MemoryManager::AllocType::POOL);
 		for (const auto& name : poolNames)
 		{
-			std::vector<std::uint32_t*> IntVector;
-			for (std::uint32_t i = 0U; i < 200; ++i)
-			{
-				IntVector.push_back(static_cast<std::uint32_t*>(mMemoryManager->Allocate(1, name, CustomMemoryManager::MemoryManager::AllocType::POOL)));
-			}
-			mData.emplace(std::pair<std::string, MemoryGuiData>(name, { IntVector, std::deque<float>() }));
+			//std::vector<std::uint32_t*> IntVector;
+			//for (std::uint32_t i = 0U; i < 200; ++i)
+			//{
+			//	IntVector.push_back(static_cast<std::uint32_t*>(mMemoryManager->Allocate(1, name, CustomMemoryManager::MemoryManager::AllocType::POOL)));
+			//}
+			//mData.emplace(std::pair<std::string, MemoryGuiData>(name, { IntVector, std::deque<float>() }));
+			mGraphData.emplace(std::move(std::pair<std::string, std::deque<float>>(name, std::deque<float>())));
+		}
+
+		std::vector<std::string> heapNames = mMemoryManager->Get(MemoryManager::AllocType::HEAP);
+		for (const auto& name : heapNames)
+		{
+			mGraphData.emplace(std::move(std::pair<std::string, std::deque<float>>(name, std::deque<float>())));
 		}
 
 		// Malloc Initialization
@@ -76,32 +82,10 @@ namespace CustomMemoryManager
 
 		if (mMemoryManager != nullptr)
 		{
-			// Stack Allocators
-			ImGui::Checkbox("Show Stacks Window", &mShowStackWindows);
-			std::vector<std::string> stackNames = mMemoryManager->Get(MemoryManager::AllocType::STACK);
-			for (const std::string& name : stackNames)
-			{
-				std::string text = "\t\t" + name + " Window";
-				ImGui::Text(text.c_str());
-			}
-
-			// Double-Ended Stack Allocators
-			ImGui::Checkbox("Show Double Stacks Window", &mShowDoubleStackWindows);
-			std::vector<std::string> doubleStackNames = mMemoryManager->Get(MemoryManager::AllocType::DOUBLESTACK);
-			for (const std::string& name : doubleStackNames)
-			{
-				std::string text = "\t\t" + name + " Window";
-				ImGui::Text(text.c_str());
-			}
-
-			// Pool Allocators
-			ImGui::Checkbox("Show Pools Window", &mShowPoolWindows);
-			std::vector<std::string> poolNames = mMemoryManager->Get(MemoryManager::AllocType::POOL);
-			for (const std::string& name : poolNames)
-			{
-				std::string text = "\t\t" + name + " Window";
-				ImGui::Text(text.c_str());
-			}
+			ShowAllocatorSelector("Show Stack Window", mShowStackWindows, mMemoryManager->Get(MemoryManager::AllocType::STACK));
+			ShowAllocatorSelector("Show Double Stacks Window", mShowDoubleStackWindows, mMemoryManager->Get(MemoryManager::AllocType::DOUBLESTACK));
+			ShowAllocatorSelector("Show Pools Window", mShowPoolWindows, mMemoryManager->Get(MemoryManager::AllocType::POOL));
+			ShowAllocatorSelector("Show Heaps Window", mShowHeapWindows, mMemoryManager->Get(MemoryManager::AllocType::HEAP));
 
 			// Malloc
 			ImGui::Checkbox("Show Malloc Window", &mShowMallocWindows);
@@ -114,6 +98,7 @@ namespace CustomMemoryManager
 		StackGuiWindow();
 		DoubleStackGuiWindow();
 		PoolGuiWindow();
+		HeapGuiWindow();
 		MallocGuiWindow();
 	}
 
@@ -144,10 +129,6 @@ namespace CustomMemoryManager
 					ImGui::Text("%s Average Deallocation Time: %f microseconds", name.c_str(), data->mAverageDeallocationTime / data->mNumDeallocations);
 					ImGui::Text("%s Num Allocations: %u", name.c_str(), data->mNumAllocations);
 					ImGui::Text("%s Num Dellocations: %u", name.c_str(), data->mNumDeallocations);
-					//ImGui::Text("%s Average Allocation Time: %f microseconds", name.c_str(), mData.find(name)->second.mAverageAllocationTime / mData.find(name)->second.mNumAllocations);
-					//ImGui::Text("%s Average Deallocation Time: %f microseconds", name.c_str(), mData.find(name)->second.mAverageDeallocationTime / mData.find(name)->second.mNumDeallocations);
-					//ImGui::Text("%s Num Allocations: %u", name.c_str(), mData.find(name)->second.mNumAllocations);
-					//ImGui::Text("%s Num Dellocations: %u", name.c_str(), mData.find(name)->second.mNumDeallocations);
 
 					if (ImGui::Button(std::string(name + " Alloc a std::uint32_t").c_str()))
 					{
@@ -172,8 +153,7 @@ namespace CustomMemoryManager
 					}
 #endif //_DEBUG
 
-					//TestAllocationsIntsStack(mData.find(name)->second.mIntVector, mData.find(name)->second.mGraphData, name, 100, 100);
-					GraphHistorgram(name, mData.find(name)->second.mGraphData, static_cast<float>(stack->UsedSpace_Bytes()), static_cast<float>(stack->StackSize_Bytes()));
+					GraphHistorgram(name, mGraphData.find(name)->second/*.mGraphData*/, static_cast<float>(stack->UsedSpace_Bytes()), static_cast<float>(stack->StackSize_Bytes()));
 
 					ImGui::Text("");
 					ImGui::Separator();
@@ -276,8 +256,8 @@ namespace CustomMemoryManager
 
 					//TestAllocationsIntsDoubleStackTop(mData.find(name)->second.mIntVector, mData.find(name)->second.mGraphData, name, 100/2, 100/2);
 					//TestAllocationsIntsDoubleStackBottom(mData.find(name)->second.mIntVector_Bottom, mData.find(name)->second.mGraphData_Bottom, name, 100/2, 100/2);
-					GraphHistorgram(name + " Top", mData.find(name)->second.mGraphData, static_cast<float>(stack->UsedBytes_Top()), static_cast<float>(stack->TopStackSize_Bytes()));
-					GraphHistorgram(name + " Bottom", mData.find(name)->second.mGraphData_Bottom, static_cast<float>(stack->UsedBytes_Bottom()), static_cast<float>(stack->BottomStackSize_Bytes()));
+					GraphHistorgram(name + " Top", mGraphData.find(name+"_top")->second/*.mGraphData*/, static_cast<float>(stack->UsedBytes_Top()), static_cast<float>(stack->TopStackSize_Bytes()));
+					GraphHistorgram(name + " Bottom", mGraphData.find(name+"_bot")->second/*.mGraphData_Bottom*/, static_cast<float>(stack->UsedBytes_Bottom()), static_cast<float>(stack->BottomStackSize_Bytes()));
 
 
 					ImGui::Text("");
@@ -323,7 +303,7 @@ namespace CustomMemoryManager
 					ImGui::Text("%s Num Dellocations: %u", name.c_str(), data->mNumDeallocations);
 
 					//TestAllocationsIntsPool(mData.find(name)->second.mIntVector, mData.find(name)->second.mGraphData, name, 100, 100);
-					GraphHistorgram(name, mData.find(name)->second.mGraphData, static_cast<float>(pool->UsedSize_Bytes()), static_cast<float>(pool->Size_Bytes()));
+					GraphHistorgram(name, mGraphData.find(name)->second/*.mGraphData*/, static_cast<float>(pool->UsedSize_Bytes()), static_cast<float>(pool->Size_Bytes()));
 
 					ImGui::Text("");
 					ImGui::Separator();
@@ -334,6 +314,54 @@ namespace CustomMemoryManager
 		if (ImGui::Button("Close"))
 		{
 			mShowPoolWindows = false;
+		}
+		ImGui::End();
+	}
+
+	void MemoryGui::HeapGuiWindow()
+	{
+		if (!mShowHeapWindows)
+		{
+			return;
+		}
+
+		ImGui::Begin("Heaps Window");
+
+		if (mMemoryManager != nullptr)
+		{
+			std::vector<std::string> heapNames = mMemoryManager->Get(MemoryManager::AllocType::HEAP);
+			for (const std::string& name : heapNames)
+			{
+				Allocators::HeapAllocator* heap = static_cast<Allocators::HeapAllocator*>(mMemoryManager->Get(name, MemoryManager::AllocType::HEAP));
+				if (heap != nullptr)
+				{
+					const MemoryManager::Data* const data = mMemoryManager->GetData(name);
+
+					ImGui::TextColored(ImVec4(0, 1, 0, 1), name.c_str());
+
+					ImGui::Text("%s Size (Bytes): %u", name.c_str(), heap->Size_Bytes());
+					ImGui::Text("%s Used Space (Bytes): %i", name.c_str(), heap->UsedSize_Bytes());
+
+					ImGui::Text("%s Average Allocation Time: %f microseconds", name.c_str(), data->mAverageAllocationTime / data->mNumAllocations);
+					ImGui::Text("%s Average Deallocation Time: %f microseconds", name.c_str(), data->mAverageDeallocationTime / data->mNumDeallocations);
+					ImGui::Text("%s Num Allocations: %u", name.c_str(), data->mNumAllocations);
+					ImGui::Text("%s Num Dellocations: %u", name.c_str(), data->mNumDeallocations);
+
+					ImGui::Text("%s Num Active Nodes: %u", name.c_str(), heap->NumActiveNodes());
+					ImGui::Text("%s Num InActive Nodes: %u", name.c_str(), heap->NumInActiveNodes());
+					ImGui::Text("%s Num Nodes: %u", name.c_str(), heap->NumNodes());
+
+					GraphHistorgram(name, mGraphData.find(name)->second, static_cast<float>(heap->UsedSize_Bytes()), static_cast<float>(heap->Size_Bytes()));
+
+					ImGui::Text("");
+					ImGui::Separator();
+				}
+			}
+		}
+
+		if (ImGui::Button("Close"))
+		{
+			mShowHeapWindows = false;
 		}
 		ImGui::End();
 	}
@@ -372,307 +400,307 @@ namespace CustomMemoryManager
 		ImGui::End();
 	}
 
-	void MemoryGui::TestAllocationsIntsStack(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount)
-	{
-		floatData;
-		if (allocAmount <= 0U || deallocAmount <= 0U)
-		{
-			return;
-		}
+	//void MemoryGui::TestAllocationsIntsStack(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount)
+	//{
+	//	floatData;
+	//	if (allocAmount <= 0U || deallocAmount <= 0U)
+	//	{
+	//		return;
+	//	}
 
-		std::size_t numObjectsToDeallocate = rand() % deallocAmount + 1;
-		std::size_t numObjectsToAllocate = rand() % allocAmount + 1;
+	//	std::size_t numObjectsToDeallocate = rand() % deallocAmount + 1;
+	//	std::size_t numObjectsToAllocate = rand() % allocAmount + 1;
 
-		Library::StopWatch stopWatch;
+	//	Library::StopWatch stopWatch;
 
-		for (std::uint32_t i = 0; i < numObjectsToDeallocate; ++i)
-		{
-			if (!intPtrVectors.empty())
-			{
-				std::uint32_t* intPtr = intPtrVectors.back();
-				intPtrVectors.pop_back();
-				stopWatch.Start();
-				mMemoryManager->Deallocate(intPtr, name, CustomMemoryManager::MemoryManager::AllocType::STACK);
-				stopWatch.Stop();
-				mData.find(name)->second.mAverageDeallocationTime += stopWatch.Elapsed().count();
-				++(mData.find(name)->second.mNumDeallocations);
-			}
-		}
+	//	for (std::uint32_t i = 0; i < numObjectsToDeallocate; ++i)
+	//	{
+	//		if (!intPtrVectors.empty())
+	//		{
+	//			std::uint32_t* intPtr = intPtrVectors.back();
+	//			intPtrVectors.pop_back();
+	//			stopWatch.Start();
+	//			mMemoryManager->Deallocate(intPtr, name, CustomMemoryManager::MemoryManager::AllocType::STACK);
+	//			stopWatch.Stop();
+	//			mData.find(name)->second.mAverageDeallocationTime += stopWatch.Elapsed().count();
+	//			++(mData.find(name)->second.mNumDeallocations);
+	//		}
+	//	}
 
-		stopWatch.Reset();
+	//	stopWatch.Reset();
 
-		CustomMemoryManager::Allocators::StackAllocator* stackAlloc = static_cast<CustomMemoryManager::Allocators::StackAllocator*>(mMemoryManager->Get(name, CustomMemoryManager::MemoryManager::AllocType::STACK));
-		std::size_t x = (stackAlloc->StackSize_Bytes() - stackAlloc->UsedSpace_Bytes()) / sizeof(std::uint32_t) + 1;
-		if (numObjectsToAllocate >= x)
-		{
-			numObjectsToAllocate = x;
-		}
+	//	CustomMemoryManager::Allocators::StackAllocator* stackAlloc = static_cast<CustomMemoryManager::Allocators::StackAllocator*>(mMemoryManager->Get(name, CustomMemoryManager::MemoryManager::AllocType::STACK));
+	//	std::size_t x = (stackAlloc->StackSize_Bytes() - stackAlloc->UsedSpace_Bytes()) / sizeof(std::uint32_t) + 1;
+	//	if (numObjectsToAllocate >= x)
+	//	{
+	//		numObjectsToAllocate = x;
+	//	}
 
-		for (std::uint32_t i = 0; i < numObjectsToAllocate; ++i)
-		{
-			stopWatch.Start();
-			std::uint32_t* ptr = static_cast<std::uint32_t*>(mMemoryManager->Allocate(sizeof(std::uint32_t), name, CustomMemoryManager::MemoryManager::AllocType::STACK));
-			stopWatch.Stop();
-			intPtrVectors.push_back(ptr);
-			mData.find(name)->second.mAverageAllocationTime += stopWatch.Elapsed().count();
-			++(mData.find(name)->second.mNumAllocations);
-		}
+	//	for (std::uint32_t i = 0; i < numObjectsToAllocate; ++i)
+	//	{
+	//		stopWatch.Start();
+	//		std::uint32_t* ptr = static_cast<std::uint32_t*>(mMemoryManager->Allocate(sizeof(std::uint32_t), name, CustomMemoryManager::MemoryManager::AllocType::STACK));
+	//		stopWatch.Stop();
+	//		intPtrVectors.push_back(ptr);
+	//		mData.find(name)->second.mAverageAllocationTime += stopWatch.Elapsed().count();
+	//		++(mData.find(name)->second.mNumAllocations);
+	//	}
 
-		//if (floatData.size() < 101U)
-		//{
-		//	floatData.push_back((float)stackAlloc->UsedSpace_Bytes());
-		//}
-		//else
-		//{
-		//	floatData.push_back((float)stackAlloc->UsedSpace_Bytes());
-		//	floatData.pop_front();
-		//}
+	//	//if (floatData.size() < 101U)
+	//	//{
+	//	//	floatData.push_back((float)stackAlloc->UsedSpace_Bytes());
+	//	//}
+	//	//else
+	//	//{
+	//	//	floatData.push_back((float)stackAlloc->UsedSpace_Bytes());
+	//	//	floatData.pop_front();
+	//	//}
 
-		//float *dat = new float[floatData.size()];
-		//for (std::uint32_t i = 0; i < floatData.size(); ++i)
-		//{
-		//	dat[i] = floatData[i];
-		//}
-		//ImGui::PlotHistogram(
-		//	std::string(name + " Graph").c_str(),	// Plot Name
-		//	dat,									// Data
-		//	(int)floatData.size(),						// Amount of data to show
-		//	0,										// Offset
-		//	"",										// Overlay Text
-		//	0,										// Scale Min
-		//	(float)stackAlloc->StackSize_Bytes(),	// Scale Max
-		//	ImVec2(100, 100)						// Graph size
-		//);
-		//delete dat;
-	}
+	//	//float *dat = new float[floatData.size()];
+	//	//for (std::uint32_t i = 0; i < floatData.size(); ++i)
+	//	//{
+	//	//	dat[i] = floatData[i];
+	//	//}
+	//	//ImGui::PlotHistogram(
+	//	//	std::string(name + " Graph").c_str(),	// Plot Name
+	//	//	dat,									// Data
+	//	//	(int)floatData.size(),						// Amount of data to show
+	//	//	0,										// Offset
+	//	//	"",										// Overlay Text
+	//	//	0,										// Scale Min
+	//	//	(float)stackAlloc->StackSize_Bytes(),	// Scale Max
+	//	//	ImVec2(100, 100)						// Graph size
+	//	//);
+	//	//delete dat;
+	//}
 
-	void MemoryGui::TestAllocationsIntsDoubleStackTop(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount)
-	{
-		floatData;
-		if (allocAmount <= 0U || deallocAmount <= 0U)
-		{
-			return;
-		}
+	//void MemoryGui::TestAllocationsIntsDoubleStackTop(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount)
+	//{
+	//	floatData;
+	//	if (allocAmount <= 0U || deallocAmount <= 0U)
+	//	{
+	//		return;
+	//	}
 
-		// Top
-		{
-			std::size_t numObjectsToDeallocate = rand() % deallocAmount + 1;
-			std::size_t numObjectsToAllocate = rand() % allocAmount + 1;
+	//	// Top
+	//	{
+	//		std::size_t numObjectsToDeallocate = rand() % deallocAmount + 1;
+	//		std::size_t numObjectsToAllocate = rand() % allocAmount + 1;
 
-			Library::StopWatch stopWatch;
+	//		Library::StopWatch stopWatch;
 
-			for (std::uint32_t i = 0; i < numObjectsToDeallocate; ++i)
-			{
-				if (!intPtrVectors.empty())
-				{
-					std::uint32_t* intPtr = intPtrVectors.back();
-					intPtrVectors.pop_back();
-					stopWatch.Start();
-					mMemoryManager->Deallocate(intPtr, name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::TOP);
-					stopWatch.Stop();
-					mData.find(name)->second.mAverageDeallocationTime += stopWatch.Elapsed().count();
-					++(mData.find(name)->second.mNumDeallocations);
-				}
-			}
+	//		for (std::uint32_t i = 0; i < numObjectsToDeallocate; ++i)
+	//		{
+	//			if (!intPtrVectors.empty())
+	//			{
+	//				std::uint32_t* intPtr = intPtrVectors.back();
+	//				intPtrVectors.pop_back();
+	//				stopWatch.Start();
+	//				mMemoryManager->Deallocate(intPtr, name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::TOP);
+	//				stopWatch.Stop();
+	//				mData.find(name)->second.mAverageDeallocationTime += stopWatch.Elapsed().count();
+	//				++(mData.find(name)->second.mNumDeallocations);
+	//			}
+	//		}
 
-			stopWatch.Reset();
+	//		stopWatch.Reset();
 
-			CustomMemoryManager::Allocators::DoubleEndedStackAllocator* stackAlloc = static_cast<CustomMemoryManager::Allocators::DoubleEndedStackAllocator*>(mMemoryManager->Get(name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK));
-			std::size_t x = (stackAlloc->TopStackSize_Bytes() - stackAlloc->UsedBytes_Top()) / sizeof(std::uint32_t) + 1;
-			if (numObjectsToAllocate >= x)
-			{
-				numObjectsToAllocate = x;
-			}
+	//		CustomMemoryManager::Allocators::DoubleEndedStackAllocator* stackAlloc = static_cast<CustomMemoryManager::Allocators::DoubleEndedStackAllocator*>(mMemoryManager->Get(name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK));
+	//		std::size_t x = (stackAlloc->TopStackSize_Bytes() - stackAlloc->UsedBytes_Top()) / sizeof(std::uint32_t) + 1;
+	//		if (numObjectsToAllocate >= x)
+	//		{
+	//			numObjectsToAllocate = x;
+	//		}
 
-			for (std::uint32_t i = 0; i < numObjectsToAllocate; ++i)
-			{
-				stopWatch.Start();
-				std::uint32_t* ptr = static_cast<std::uint32_t*>(mMemoryManager->Allocate(sizeof(std::uint32_t), name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, Allocators::Info::TOP));
-				stopWatch.Stop();
-				intPtrVectors.push_back(ptr);
-				mData.find(name)->second.mAverageAllocationTime += stopWatch.Elapsed().count();
-				++(mData.find(name)->second.mNumAllocations);
-			}
+	//		for (std::uint32_t i = 0; i < numObjectsToAllocate; ++i)
+	//		{
+	//			stopWatch.Start();
+	//			std::uint32_t* ptr = static_cast<std::uint32_t*>(mMemoryManager->Allocate(sizeof(std::uint32_t), name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, Allocators::Info::TOP));
+	//			stopWatch.Stop();
+	//			intPtrVectors.push_back(ptr);
+	//			mData.find(name)->second.mAverageAllocationTime += stopWatch.Elapsed().count();
+	//			++(mData.find(name)->second.mNumAllocations);
+	//		}
 
-			//if (floatData.size() < 101U)
-			//{
-			//	floatData.push_back((float)stackAlloc->UsedBytes_Top());
-			//}
-			//else
-			//{
-			//	floatData.push_back((float)stackAlloc->UsedBytes_Top());
-			//	floatData.pop_front();
-			//}
+	//		//if (floatData.size() < 101U)
+	//		//{
+	//		//	floatData.push_back((float)stackAlloc->UsedBytes_Top());
+	//		//}
+	//		//else
+	//		//{
+	//		//	floatData.push_back((float)stackAlloc->UsedBytes_Top());
+	//		//	floatData.pop_front();
+	//		//}
 
-			//float *dat = new float[floatData.size()];
-			//for (std::uint32_t i = 0; i < floatData.size(); ++i)
-			//{
-			//	dat[i] = floatData[i];
-			//}
-			//ImGui::PlotHistogram(
-			//	std::string(name + " Graph Top").c_str(),	// Plot Name
-			//	dat,										// Data
-			//	(int)floatData.size(),						// Amount of data to show
-			//	0,											// Offset
-			//	"",											// Overlay Text
-			//	0,											// Scale Min
-			//	(float)stackAlloc->TopStackSize_Bytes(),		// Scale Max
-			//	ImVec2(100, 100)							// Graph size
-			//);
-			//delete dat;
-		}
-	}
+	//		//float *dat = new float[floatData.size()];
+	//		//for (std::uint32_t i = 0; i < floatData.size(); ++i)
+	//		//{
+	//		//	dat[i] = floatData[i];
+	//		//}
+	//		//ImGui::PlotHistogram(
+	//		//	std::string(name + " Graph Top").c_str(),	// Plot Name
+	//		//	dat,										// Data
+	//		//	(int)floatData.size(),						// Amount of data to show
+	//		//	0,											// Offset
+	//		//	"",											// Overlay Text
+	//		//	0,											// Scale Min
+	//		//	(float)stackAlloc->TopStackSize_Bytes(),		// Scale Max
+	//		//	ImVec2(100, 100)							// Graph size
+	//		//);
+	//		//delete dat;
+	//	}
+	//}
 
-	void MemoryGui::TestAllocationsIntsDoubleStackBottom(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount)
-	{
-		floatData;
-		if (allocAmount <= 0U || deallocAmount <= 0U)
-		{
-			return;
-		}
+	//void MemoryGui::TestAllocationsIntsDoubleStackBottom(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount)
+	//{
+	//	floatData;
+	//	if (allocAmount <= 0U || deallocAmount <= 0U)
+	//	{
+	//		return;
+	//	}
 
-		// Bottom
-		{
-			std::size_t numObjectsToDeallocate = rand() % deallocAmount + 1;
-			std::size_t numObjectsToAllocate = rand() % allocAmount + 1;
+	//	// Bottom
+	//	{
+	//		std::size_t numObjectsToDeallocate = rand() % deallocAmount + 1;
+	//		std::size_t numObjectsToAllocate = rand() % allocAmount + 1;
 
-			Library::StopWatch stopWatch;
+	//		Library::StopWatch stopWatch;
 
-			for (std::uint32_t i = 0; i < numObjectsToDeallocate; ++i)
-			{
-				if (!intPtrVectors.empty())
-				{
-					std::uint32_t* intPtr = intPtrVectors.back();
-					intPtrVectors.pop_back();
-					stopWatch.Start();
-					mMemoryManager->Deallocate(intPtr, name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::BOTTOM);
-					stopWatch.Stop();
-					mData.find(name)->second.mAverageDeallocationTime_Bottom += stopWatch.Elapsed().count();
-					++(mData.find(name)->second.mNumDeallocations_Bottom);
-				}
-			}
+	//		for (std::uint32_t i = 0; i < numObjectsToDeallocate; ++i)
+	//		{
+	//			if (!intPtrVectors.empty())
+	//			{
+	//				std::uint32_t* intPtr = intPtrVectors.back();
+	//				intPtrVectors.pop_back();
+	//				stopWatch.Start();
+	//				mMemoryManager->Deallocate(intPtr, name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::BOTTOM);
+	//				stopWatch.Stop();
+	//				mData.find(name)->second.mAverageDeallocationTime_Bottom += stopWatch.Elapsed().count();
+	//				++(mData.find(name)->second.mNumDeallocations_Bottom);
+	//			}
+	//		}
 
-			stopWatch.Reset();
+	//		stopWatch.Reset();
 
-			CustomMemoryManager::Allocators::DoubleEndedStackAllocator* stackAlloc = static_cast<CustomMemoryManager::Allocators::DoubleEndedStackAllocator*>(mMemoryManager->Get(name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK));
-			std::size_t x = (stackAlloc->BottomStackSize_Bytes() - stackAlloc->UsedBytes_Bottom()) / sizeof(std::uint32_t) + 1;
-			if (numObjectsToAllocate >= x)
-			{
-				numObjectsToAllocate = x;
-			}
+	//		CustomMemoryManager::Allocators::DoubleEndedStackAllocator* stackAlloc = static_cast<CustomMemoryManager::Allocators::DoubleEndedStackAllocator*>(mMemoryManager->Get(name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK));
+	//		std::size_t x = (stackAlloc->BottomStackSize_Bytes() - stackAlloc->UsedBytes_Bottom()) / sizeof(std::uint32_t) + 1;
+	//		if (numObjectsToAllocate >= x)
+	//		{
+	//			numObjectsToAllocate = x;
+	//		}
 
-			for (std::uint32_t i = 0; i < numObjectsToAllocate; ++i)
-			{
-				stopWatch.Start();
-				std::uint32_t* ptr = static_cast<std::uint32_t*>(mMemoryManager->Allocate(sizeof(std::uint32_t), name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, Allocators::Info::BOTTOM));
-				stopWatch.Stop();
-				intPtrVectors.push_back(ptr);
-				mData.find(name)->second.mAverageAllocationTime_Bottom += stopWatch.Elapsed().count();
-				++(mData.find(name)->second.mNumAllocations_Bottom);
-			}
+	//		for (std::uint32_t i = 0; i < numObjectsToAllocate; ++i)
+	//		{
+	//			stopWatch.Start();
+	//			std::uint32_t* ptr = static_cast<std::uint32_t*>(mMemoryManager->Allocate(sizeof(std::uint32_t), name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, Allocators::Info::BOTTOM));
+	//			stopWatch.Stop();
+	//			intPtrVectors.push_back(ptr);
+	//			mData.find(name)->second.mAverageAllocationTime_Bottom += stopWatch.Elapsed().count();
+	//			++(mData.find(name)->second.mNumAllocations_Bottom);
+	//		}
 
-			//if (floatData.size() < 101U)
-			//{
-			//	floatData.push_back((float)stackAlloc->UsedBytes_Bottom());
-			//}
-			//else
-			//{
-			//	floatData.push_back((float)stackAlloc->UsedBytes_Bottom());
-			//	floatData.pop_front();
-			//}
+	//		//if (floatData.size() < 101U)
+	//		//{
+	//		//	floatData.push_back((float)stackAlloc->UsedBytes_Bottom());
+	//		//}
+	//		//else
+	//		//{
+	//		//	floatData.push_back((float)stackAlloc->UsedBytes_Bottom());
+	//		//	floatData.pop_front();
+	//		//}
 
-			//float *dat = new float[floatData.size()];
-			//for (std::uint32_t i = 0; i < floatData.size(); ++i)
-			//{
-			//	dat[i] = floatData[i];
-			//}
-			//ImGui::PlotHistogram(
-			//	std::string(name + " Graph Bottom").c_str(),	// Plot Name
-			//	dat,										// Data
-			//	(int)floatData.size(),						// Amount of data to show
-			//	0,											// Offset
-			//	"",											// Overlay Text
-			//	0,											// Scale Min
-			//	(float)stackAlloc->BottomStackSize_Bytes(),		// Scale Max
-			//	ImVec2(100, 100)							// Graph size
-			//);
-			//delete dat;
-		}
-	}
+	//		//float *dat = new float[floatData.size()];
+	//		//for (std::uint32_t i = 0; i < floatData.size(); ++i)
+	//		//{
+	//		//	dat[i] = floatData[i];
+	//		//}
+	//		//ImGui::PlotHistogram(
+	//		//	std::string(name + " Graph Bottom").c_str(),	// Plot Name
+	//		//	dat,										// Data
+	//		//	(int)floatData.size(),						// Amount of data to show
+	//		//	0,											// Offset
+	//		//	"",											// Overlay Text
+	//		//	0,											// Scale Min
+	//		//	(float)stackAlloc->BottomStackSize_Bytes(),		// Scale Max
+	//		//	ImVec2(100, 100)							// Graph size
+	//		//);
+	//		//delete dat;
+	//	}
+	//}
 
-	void MemoryGui::TestAllocationsIntsPool(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount)
-	{
-		floatData;
-		if (allocAmount <= 0U || deallocAmount <= 0U)
-		{
-			return;
-		}
+	//void MemoryGui::TestAllocationsIntsPool(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount)
+	//{
+	//	floatData;
+	//	if (allocAmount <= 0U || deallocAmount <= 0U)
+	//	{
+	//		return;
+	//	}
 
-		std::size_t numObjectsToDeallocate = rand() % deallocAmount + 1;
-		std::size_t numObjectsToAllocate = rand() % allocAmount + 1;
+	//	std::size_t numObjectsToDeallocate = rand() % deallocAmount + 1;
+	//	std::size_t numObjectsToAllocate = rand() % allocAmount + 1;
 
-		Library::StopWatch stopWatch;
+	//	Library::StopWatch stopWatch;
 
-		for (std::uint32_t i = 0; i < numObjectsToDeallocate; ++i)
-		{
-			if (!intPtrVectors.empty())
-			{
-				std::uint32_t* intPtr = intPtrVectors.back();
-				intPtrVectors.pop_back();
-				stopWatch.Start();
-				mMemoryManager->Deallocate(intPtr, name, CustomMemoryManager::MemoryManager::AllocType::POOL);
-				stopWatch.Stop();
-				mData.find(name)->second.mAverageDeallocationTime += stopWatch.Elapsed().count();
-				++(mData.find(name)->second.mNumDeallocations);
-			}
-		}
+	//	for (std::uint32_t i = 0; i < numObjectsToDeallocate; ++i)
+	//	{
+	//		if (!intPtrVectors.empty())
+	//		{
+	//			std::uint32_t* intPtr = intPtrVectors.back();
+	//			intPtrVectors.pop_back();
+	//			stopWatch.Start();
+	//			mMemoryManager->Deallocate(intPtr, name, CustomMemoryManager::MemoryManager::AllocType::POOL);
+	//			stopWatch.Stop();
+	//			mData.find(name)->second.mAverageDeallocationTime += stopWatch.Elapsed().count();
+	//			++(mData.find(name)->second.mNumDeallocations);
+	//		}
+	//	}
 
-		stopWatch.Reset();
+	//	stopWatch.Reset();
 
-		CustomMemoryManager::Allocators::PoolAllocator<std::uint32_t>* stackAlloc = static_cast<CustomMemoryManager::Allocators::PoolAllocator<std::uint32_t>*>(mMemoryManager->Get(name, CustomMemoryManager::MemoryManager::AllocType::POOL));
-		std::size_t x = (stackAlloc->PoolSize_Bytes() - stackAlloc->UsedSpace_Bytes()) / sizeof(std::uint32_t) + 1;
-		if (numObjectsToAllocate >= x)
-		{
-			numObjectsToAllocate = x;
-		}
+	//	CustomMemoryManager::Allocators::PoolAllocator<std::uint32_t>* stackAlloc = static_cast<CustomMemoryManager::Allocators::PoolAllocator<std::uint32_t>*>(mMemoryManager->Get(name, CustomMemoryManager::MemoryManager::AllocType::POOL));
+	//	std::size_t x = (stackAlloc->PoolSize_Bytes() - stackAlloc->UsedSpace_Bytes()) / sizeof(std::uint32_t) + 1;
+	//	if (numObjectsToAllocate >= x)
+	//	{
+	//		numObjectsToAllocate = x;
+	//	}
 
-		for (std::uint32_t i = 0; i < numObjectsToAllocate; ++i)
-		{
-			stopWatch.Start();
-			std::uint32_t* ptr = static_cast<std::uint32_t*>(mMemoryManager->Allocate(1, name, CustomMemoryManager::MemoryManager::AllocType::POOL));
-			stopWatch.Stop();
-			intPtrVectors.push_back(ptr);
-			mData.find(name)->second.mAverageAllocationTime += stopWatch.Elapsed().count();
-			++(mData.find(name)->second.mNumAllocations);
-		}
+	//	for (std::uint32_t i = 0; i < numObjectsToAllocate; ++i)
+	//	{
+	//		stopWatch.Start();
+	//		std::uint32_t* ptr = static_cast<std::uint32_t*>(mMemoryManager->Allocate(1, name, CustomMemoryManager::MemoryManager::AllocType::POOL));
+	//		stopWatch.Stop();
+	//		intPtrVectors.push_back(ptr);
+	//		mData.find(name)->second.mAverageAllocationTime += stopWatch.Elapsed().count();
+	//		++(mData.find(name)->second.mNumAllocations);
+	//	}
 
-		//if (floatData.size() < 101U)
-		//{
-		//	floatData.push_back((float)stackAlloc->UsedSpace_Bytes());
-		//}
-		//else
-		//{
-		//	floatData.push_back((float)stackAlloc->UsedSpace_Bytes());
-		//	floatData.pop_front();
-		//}
+	//	//if (floatData.size() < 101U)
+	//	//{
+	//	//	floatData.push_back((float)stackAlloc->UsedSpace_Bytes());
+	//	//}
+	//	//else
+	//	//{
+	//	//	floatData.push_back((float)stackAlloc->UsedSpace_Bytes());
+	//	//	floatData.pop_front();
+	//	//}
 
-		//float *dat = new float[floatData.size()];
-		//for (std::uint32_t i = 0; i < floatData.size(); ++i)
-		//{
-		//	dat[i] = floatData[i];
-		//}
-		//ImGui::PlotHistogram(
-		//	std::string(name + " Graph").c_str(),	// Plot Name
-		//	dat,									// Data
-		//	(int)floatData.size(),						// Amount of data to show
-		//	0,										// Offset
-		//	"",										// Overlay Text
-		//	0,										// Scale Min
-		//	(float)stackAlloc->PoolSize_Bytes(),	// Scale Max
-		//	ImVec2(100, 100)						// Graph size
-		//);
-		//delete dat;
-	}
+	//	//float *dat = new float[floatData.size()];
+	//	//for (std::uint32_t i = 0; i < floatData.size(); ++i)
+	//	//{
+	//	//	dat[i] = floatData[i];
+	//	//}
+	//	//ImGui::PlotHistogram(
+	//	//	std::string(name + " Graph").c_str(),	// Plot Name
+	//	//	dat,									// Data
+	//	//	(int)floatData.size(),						// Amount of data to show
+	//	//	0,										// Offset
+	//	//	"",										// Overlay Text
+	//	//	0,										// Scale Min
+	//	//	(float)stackAlloc->PoolSize_Bytes(),	// Scale Max
+	//	//	ImVec2(100, 100)						// Graph size
+	//	//);
+	//	//delete dat;
+	//}
 
 	void MemoryGui::TestAllocationsIntsMalloc(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>&, const std::string& name, int allocAmount, int deallocAmount)
 	{
@@ -746,6 +774,16 @@ namespace CustomMemoryManager
 	void MemoryGui::EndGui()
 	{
 
+	}
+
+	void MemoryGui::ShowAllocatorSelector(const std::string& checkBoxName, bool& mShowWindow, std::vector<std::string> allocatorNames)
+	{
+		ImGui::Checkbox(checkBoxName.c_str(), &mShowWindow);
+		for (const std::string& name : allocatorNames)
+		{
+			std::string text = "\t\t" + name + " Window";
+			ImGui::Text(text.c_str());
+		}
 	}
 }
 #endif // MemDebug

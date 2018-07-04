@@ -1,6 +1,7 @@
 #include "CppUnitTest.h"
 #include "HeapAllocator.h"
 #include "Foo.h"
+#include <vector>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace CustomMemoryManager::Allocators;
@@ -56,6 +57,24 @@ namespace UnitTest
 
 			Foo* foo1 = static_cast<Foo*>(heap.allocate(sizeof(Foo)));
 			Assert::IsNotNull(foo1, L"Foo1 null.");
+		}
+
+		TEST_METHOD(AllocLoop)
+		{
+			HeapAllocator heap(400*sizeof(Foo));
+			std::vector<Foo*> ptrs;
+			for (std::uint32_t i = 0U; i < 4000; ++i)
+			{
+				ptrs.push_back(static_cast<Foo*>(heap.allocate(sizeof(Foo))));
+			}
+
+			heap.allocate(sizeof(Foo));
+
+			for (std::uint32_t i = 0U; i < 4000; ++i)
+			{
+				heap.deallocate(ptrs.back());
+				ptrs.pop_back();
+			}
 		}
 	};
 }

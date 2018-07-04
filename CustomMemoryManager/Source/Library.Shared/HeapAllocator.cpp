@@ -57,10 +57,10 @@ namespace CustomMemoryManager::Allocators
 				// Create a node with remaining space
 				temp = new HeapNode(
 					{
-						foundNode->mSize_Bytes - allocAmount_bytes,													// new available size
-						static_cast<void*>(static_cast<std::intptr_t*>(foundNode->mPtr) + allocAmount_bytes),		// new available location
-						nullptr,																					// new previous location
-						nullptr																						// new next location
+						foundNode->mSize_Bytes - allocAmount_bytes,														// new available size
+						reinterpret_cast<void*>(reinterpret_cast<std::intptr_t>(foundNode->mPtr) + allocAmount_bytes),	// new available location
+						nullptr,																						// new previous location
+						nullptr																							// new next location
 					}
 				);
 
@@ -94,6 +94,10 @@ namespace CustomMemoryManager::Allocators
 
 	void HeapAllocator::deallocate(void* ptr, Info)
 	{
+		/*if (ptr == nullptr)
+		{
+			return;
+		}*/
 		HeapNode* temp = RemoveNode(ptr, &mActiveLocationsList_Head, &mActiveLocationsList_End);
 		if (temp != nullptr)
 		{
