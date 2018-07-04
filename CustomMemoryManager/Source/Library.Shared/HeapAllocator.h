@@ -7,10 +7,10 @@ namespace CustomMemoryManager::Allocators
 	{
 	public:
 		HeapAllocator(std::size_t heapSize_bytes);
-		HeapAllocator(const HeapAllocator&) = default;
-		HeapAllocator(HeapAllocator&&) = default;
-		HeapAllocator& operator=(const HeapAllocator&) = default;
-		HeapAllocator& operator=(HeapAllocator&&) = default;
+		HeapAllocator(const HeapAllocator&) = delete;
+		HeapAllocator(HeapAllocator&&) = delete;
+		HeapAllocator& operator=(const HeapAllocator&) = delete;
+		HeapAllocator& operator=(HeapAllocator&&) = delete;
 		~HeapAllocator();
 
 		virtual void* allocate(std::size_t allocAmount_bytes, std::size_t alignment = 0U, Info info = Info::NONE) override;

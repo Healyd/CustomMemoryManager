@@ -10,6 +10,26 @@ namespace UnitTest
 	TEST_CLASS(PoolAllocatorTest)
 	{
 	public:
+		TEST_METHOD_INITIALIZE(Initialize)
+		{
+#ifdef _DEBUG
+			_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF);
+			_CrtMemCheckpoint(&sStartMemState);
+#endif
+		}
+
+		TEST_METHOD_CLEANUP(Cleanup)
+		{
+#ifdef _DEBUG
+			_CrtMemState endMemState, diffMemState;
+			_CrtMemCheckpoint(&endMemState);
+			if (_CrtMemDifference(&diffMemState, &sStartMemState, &endMemState))
+			{
+				_CrtMemDumpStatistics(&diffMemState);
+				Assert::Fail(L"Memory Leaks!");
+			}
+#endif
+		}
 
 		TEST_METHOD(Constructor)
 		{
@@ -149,5 +169,8 @@ namespace UnitTest
 			Assert::IsNotNull(fooArray2);
 			Assert::AreEqual((std::size_t)10, fooPool.PoolSize_NumObjects());
 		}
+
+			private:
+				_CrtMemState PoolAllocatorTest::sStartMemState;
 	};
 }

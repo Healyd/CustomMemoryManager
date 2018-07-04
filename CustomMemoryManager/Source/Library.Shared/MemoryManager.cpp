@@ -18,9 +18,17 @@ namespace CustomMemoryManager
 				delete it.second;
 			}
 		}
+		if (!mHeapAllocators.empty())
+		{
+			for (auto& it : mHeapAllocators)
+			{
+				delete it.second;
+			}
+		}
 		mStackAllocators.clear();
-		mPoolAllocators.clear();
 		mDoubleStackAllocators.clear();
+		mPoolAllocators.clear();
+		mHeapAllocators.clear();
 	}
 
 	bool MemoryManager::CreateAllocator(const std::string& name, const std::size_t size, const AllocType type)
@@ -45,6 +53,18 @@ namespace CustomMemoryManager
 			if (mDoubleStackAllocators.find(name) == mDoubleStackAllocators.end())
 			{
 				mDoubleStackAllocators.emplace(std::move(name), std::move(Allocators::DoubleEndedStackAllocator(size / 2, size / 2, 0U)));
+#ifdef MemDebug
+				mAllocatorData.emplace(std::move(name), Data());
+#endif // MemDebug
+				isCreated = true;
+			}
+		}
+		else if (type == AllocType::HEAP)
+		{
+			// If Not found: then add it.
+			if (mHeapAllocators.find(name) == mHeapAllocators.end())
+			{
+				mHeapAllocators.emplace(std::move(name), std::move(new Allocators::HeapAllocator(size)));
 #ifdef MemDebug
 				mAllocatorData.emplace(std::move(name), Data());
 #endif // MemDebug
@@ -86,9 +106,9 @@ namespace CustomMemoryManager
 			{
 #ifdef MemDebug
 				Library::StopWatch stopWatch;
-				
+
 				stopWatch.Start();
-				void* ptr = it->second.allocate(allocAmount_bytes, info);
+				void* ptr = it->second.allocate(allocAmount_bytes, 0U, info);
 				stopWatch.Stop();
 
 				// if the ptr was actually allocated
@@ -108,10 +128,10 @@ namespace CustomMemoryManager
 				}
 				return ptr;
 #else
-				return it->second.allocate(allocAmount_bytes, info);
+				return it->second.allocate(allocAmount_bytes, 0U, info);
 #endif // MemDebug
-					}
-				}
+			}
+		}
 		else if (type == AllocType::POOL)
 		{
 			const std::unordered_map<std::string, Allocators::IAllocator*>::iterator it = mPoolAllocators.find(name);
@@ -134,8 +154,30 @@ namespace CustomMemoryManager
 #endif // MemDebug
 			}
 		}
-		return nullptr;
+		else if (type == AllocType::HEAP)
+		{
+			const std::unordered_map<std::string, Allocators::HeapAllocator*>::iterator it = mHeapAllocators.find(name);
+			if (it != mHeapAllocators.end())
+			{
+#ifdef MemDebug
+				Library::StopWatch stopWatch;
+				stopWatch.Start();
+				void* ptr = it->second->allocate(allocAmount_bytes);
+				stopWatch.Stop();
+				if (ptr != nullptr)
+				{
+					Data& data = mAllocatorData.find(name)->second;
+					data.mAverageAllocationTime += stopWatch.Elapsed().count();
+					++(data.mNumAllocations);
+				}
+				return ptr;
+#else
+				return it->second->allocate(allocAmount_bytes);
+#endif // MemDebug
 			}
+		}
+		return nullptr;
+	}
 
 	//MemData MemoryManager::Allocate_GetData(std::size_t allocAmount_bytes, const std::string& name, const AllocType type)
 	//{
@@ -206,6 +248,24 @@ namespace CustomMemoryManager
 #endif // MemDebug
 			}
 		}
+		else if (type == AllocType::HEAP)
+		{
+			const std::unordered_map<std::string, Allocators::HeapAllocator*>::iterator it = mHeapAllocators.find(name);
+			if (it != mHeapAllocators.end())
+			{
+#ifdef MemDebug
+				Library::StopWatch stopWatch;
+				stopWatch.Start();
+#endif // MemDebug
+				it->second->deallocate(ptr);
+#ifdef MemDebug
+				stopWatch.Stop();
+				Data& data = mAllocatorData.find(name)->second;
+				data.mAverageDeallocationTime += stopWatch.Elapsed().count();
+				++(data.mNumDeallocations);
+#endif // MemDebug
+			}
+		}
 	}
 
 	Allocators::IAllocator* MemoryManager::Get(const std::string& name, const AllocType type)
@@ -230,6 +290,14 @@ namespace CustomMemoryManager
 		{
 			const std::unordered_map<std::string, Allocators::IAllocator*>::iterator it = mPoolAllocators.find(name);
 			if (it != mPoolAllocators.end())
+			{
+				return it->second;
+			}
+		}
+		else if (type == AllocType::HEAP)
+		{
+			const std::unordered_map<std::string, Allocators::HeapAllocator*>::iterator it = mHeapAllocators.find(name);
+			if (it != mHeapAllocators.end())
 			{
 				return it->second;
 			}
@@ -261,6 +329,13 @@ namespace CustomMemoryManager
 				keys.push_back(pool.first);
 			}
 		}
+		else if (type == AllocType::HEAP)
+		{
+			for (const auto& heap : mHeapAllocators)
+			{
+				keys.push_back(heap.first);
+			}
+		}
 		return keys;
 	}
 
@@ -275,4 +350,4 @@ namespace CustomMemoryManager
 		return &(it->second);
 	}
 #endif // MemDebug
-		}
+}

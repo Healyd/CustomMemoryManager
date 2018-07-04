@@ -12,10 +12,10 @@ namespace CustomMemoryManager::Allocators
 	{
 	public:
 		PoolAllocator(std::size_t poolSize_bytes, std::size_t alignment = 0U);
-		PoolAllocator(const PoolAllocator&) = default;
-		PoolAllocator(PoolAllocator&&) = default;
-		PoolAllocator& operator=(const PoolAllocator&) = default;
-		PoolAllocator& operator=(PoolAllocator&&) = default;
+		PoolAllocator(const PoolAllocator&) = delete;
+		PoolAllocator(PoolAllocator&&) = delete;
+		PoolAllocator& operator=(const PoolAllocator&) = delete;
+		PoolAllocator& operator=(PoolAllocator&&) = delete;
 		~PoolAllocator();
 
 		virtual void* allocate(std::size_t numObjects, std::size_t alignment = 0U, Info info = Info::NONE) override;

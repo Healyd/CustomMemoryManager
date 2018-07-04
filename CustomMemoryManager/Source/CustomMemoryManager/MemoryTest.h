@@ -18,6 +18,7 @@ private:
 	void TestDStackAllocatorTop(const std::string& name, std::size_t allocAmount, std::size_t deallocAmount);
 	void TestDStackAllocatorBottom(const std::string& name, std::size_t allocAmount, std::size_t deallocAmount);
 	void TestPoolAllocator(const std::string& name, std::size_t allocAmount, std::size_t deallocAmount);
+	void TestHeapAllocator(const std::string& name, std::size_t allocAmount, std::size_t deallocAmount);
 
 	std::vector<std::tuple<std::string, std::size_t, CustomMemoryManager::MemoryManager::AllocType>> mTestNames;
 	std::unordered_map<std::string, std::vector<T*>> mPointers;
@@ -42,7 +43,7 @@ void MemoryTest<T>::Run()
 		CustomMemoryManager::MemoryManager::AllocType type = std::get<2>(it);
 		if (type == CustomMemoryManager::MemoryManager::AllocType::STACK)
 		{
-			//						name	  alloc		 dealloc
+			//				  (name			  , alloc		   , dealloc        )
 			TestStackAllocator(std::get<0>(it), std::get<1>(it), std::get<1>(it));
 		}
 		else if (type == CustomMemoryManager::MemoryManager::AllocType::POOL)
@@ -53,6 +54,10 @@ void MemoryTest<T>::Run()
 		{
 			TestDStackAllocatorTop(std::get<0>(it), std::get<1>(it), std::get<1>(it));
 			TestDStackAllocatorBottom(std::get<0>(it), std::get<1>(it), std::get<1>(it));
+		}
+		else if (type == CustomMemoryManager::MemoryManager::AllocType::HEAP)
+		{
+			TestHeapAllocator(std::get<0>(it), std::get<1>(it), std::get<1>(it));
 		}
 	}
 }
@@ -214,6 +219,46 @@ void MemoryTest<T>::TestPoolAllocator(const std::string& name, std::size_t alloc
 	{
 		//T* ptr = static_cast<T*>(GLOBAL_MEMORY_MANAGER.Allocate(sizeof(T), name, CustomMemoryManager::MemoryManager::AllocType::POOL));
 		T* ptr = POOL_ALLOC(name) T();
+		if (ptr != nullptr)
+			pointers.push_back(ptr);
+	}
+}
+
+template <typename T>
+void MemoryTest<T>::TestHeapAllocator(const std::string& name, std::size_t allocAmount, std::size_t deallocAmount)
+{
+	if (allocAmount <= 0U || deallocAmount <= 0U)
+	{
+		return;
+	}
+
+	std::size_t numObjectsToDeallocate = rand() % deallocAmount + 1;
+	std::size_t numObjectsToAllocate = rand() % allocAmount + 1;
+
+	std::vector<T*>& pointers = mPointers.find(name)->second;
+
+	for (std::uint32_t i = 0U; i < numObjectsToDeallocate; ++i)
+	{
+		if (!pointers.empty())
+		{
+			T* ptr = pointers.back();
+			pointers.pop_back();
+			HEAP_DEALLOC(ptr, name, T);
+		}
+	}
+
+	CustomMemoryManager::Allocators::HeapAllocator* heapAllocator = static_cast<CustomMemoryManager::Allocators::HeapAllocator*>(GLOBAL_MEMORY_MANAGER.Get(name, CustomMemoryManager::MemoryManager::AllocType::HEAP));
+
+	// number of objects left we can allocate
+	std::size_t x = (heapAllocator->Size_Bytes() - heapAllocator->UsedSize_Bytes()) / sizeof(T) + 1;
+	if (numObjectsToAllocate >= x)
+	{
+		numObjectsToAllocate = x;
+	}
+
+	for (std::uint32_t i = 0U; i < numObjectsToAllocate; ++i)
+	{
+		T* ptr = HEAP_ALLOC(name) T();
 		if (ptr != nullptr)
 			pointers.push_back(ptr);
 	}

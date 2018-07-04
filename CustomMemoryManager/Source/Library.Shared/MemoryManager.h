@@ -3,6 +3,7 @@
 #include "StackAllocator.h"
 #include "DoubleEndedStackAllocator.h"
 #include "PoolAllocator.h"
+#include "HeapAllocator.h"
 #include <unordered_map>
 #include <string>
 #include <vector>
@@ -19,6 +20,7 @@ namespace CustomMemoryManager
 			STACK,
 			DOUBLESTACK,
 			POOL,
+			HEAP,
 			MAX
 		};
 
@@ -66,6 +68,7 @@ namespace CustomMemoryManager
 		std::unordered_map<std::string, Allocators::StackAllocator> mStackAllocators;
 		std::unordered_map<std::string, Allocators::DoubleEndedStackAllocator> mDoubleStackAllocators;
 		std::unordered_map<std::string, Allocators::IAllocator*> mPoolAllocators;
+		std::unordered_map<std::string, Allocators::HeapAllocator*> mHeapAllocators;
 #ifdef MemDebug
 		std::unordered_map<std::string, Data> mAllocatorData;
 #endif // MemDebug
@@ -120,17 +123,21 @@ inline CustomMemoryManager::MemoryManager gMemoryManager;
 #define DEFAULT_STACK	"DefaultStack"
 #define DEFAULT_DSTACK	"DefaultDoubleStack"
 #define DEFAULT_POOL	"DefaultPool"
+#define DEFAULT_HEAP	"DefaultHeap"
 
 #define STACK_ALLOC(name)			new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::STACK)
 #define DSTACK_ALLOC_TOP(name)		new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::TOP)
 #define DSTACK_ALLOC_BOTTOM(name)	new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::BOTTOM)
 #define POOL_ALLOC(name)			new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::POOL)
+#define HEAP_ALLOC(name)			new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::HEAP)
 
 #define STACK_DEALLOC(name, ptr)			gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::MemoryManager::AllocType::STACK)
 #define DSTACK_DEALLOC_TOP(name, ptr)		gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::TOP)
 #define DSTACK_DEALLOC_BOTTOM(name, ptr)	gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::BOTTOM)
 #define POOL_DEALLOC(ptr, name, type)		ptr->~type(); gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::MemoryManager::AllocType::POOL);
+#define HEAP_DEALLOC(ptr, name, type)		ptr->~type(); gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::MemoryManager::AllocType::HEAP);
 
 #define CREATE_STACK(name, size)		gMemoryManager.CreateAllocator(name, size, CustomMemoryManager::MemoryManager::AllocType::STACK)
 #define CREATE_DSTACK(name, size)		gMemoryManager.CreateAllocator(name, size, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK)
 #define CREATE_POOL(name, type, size)	gMemoryManager.CreateAllocator<type>(name, size, CustomMemoryManager::MemoryManager::AllocType::POOL)
+#define CREATE_HEAP(name, size)			gMemoryManager.CreateAllocator(name, size, CustomMemoryManager::MemoryManager::AllocType::HEAP)
