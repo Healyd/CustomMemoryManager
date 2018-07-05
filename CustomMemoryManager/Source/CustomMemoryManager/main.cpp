@@ -169,7 +169,7 @@ int main(int, char**)
 	CREATE_POOL("string_Pool", std::string, 400 * sizeof(std::string));
 	CREATE_POOL("Object_Pool", Object, 1000 * sizeof(Object));
 
-	CREATE_HEAP("Heap1", 1000);
+	CREATE_HEAP("Heap1", 10000);
 
 #ifdef MemDebug
 	CustomMemoryManager::MemoryGui memoryGui(GLOBAL_MEMORY_MANAGER);
@@ -182,21 +182,22 @@ int main(int, char**)
 		{ "UINT32_Pool", 100, CustomMemoryManager::MemoryManager::AllocType::POOL },
 		{ "DoubleStack1", 100, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK },
 		{ "DoubleStack2", 10, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK },
-		{ "Heap1", 3, CustomMemoryManager::MemoryManager::AllocType::HEAP }
+		{ "Heap1", 50, CustomMemoryManager::MemoryManager::AllocType::HEAP }
 		}
 	);
 	MemoryTest<std::string> memoryTestString
 	(
 		{
 		{ "Stack4", 50, CustomMemoryManager::MemoryManager::AllocType::STACK },
-		{ "string_Pool", 100, CustomMemoryManager::MemoryManager::AllocType::POOL}
+		{ "string_Pool", 100, CustomMemoryManager::MemoryManager::AllocType::POOL},
+		{ "Heap1", 50, CustomMemoryManager::MemoryManager::AllocType::HEAP }
 		}
 	);
 	MemoryTest<Object> memoryTestObject
 	(
 		{
 		{ "Object_Pool", 100, CustomMemoryManager::MemoryManager::AllocType::POOL },
-		{ "Heap1", 2, CustomMemoryManager::MemoryManager::AllocType::HEAP }
+		{ "Heap1", 50, CustomMemoryManager::MemoryManager::AllocType::HEAP }
 		}
 	);
 #endif // MemDebug

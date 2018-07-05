@@ -1,5 +1,6 @@
 #include "Allocator.h"
 #include <deque>
+#include <unordered_map>
 
 namespace CustomMemoryManager::Allocators
 {
@@ -34,6 +35,7 @@ namespace CustomMemoryManager::Allocators
 		};
 
 		void PushBackNode(HeapNode* node, HeapNode** head, HeapNode** end);
+		void PushFrontNode(HeapNode* node, HeapNode** head, HeapNode** end);
 		HeapNode* RemoveNode(void* ptr, HeapNode** head, HeapNode** end);
 		HeapNode* FindNode(void* ptr, HeapNode** head, HeapNode** end);
 		HeapNode* FindNodeFirstFitSize(std::size_t size_bytes, HeapNode** head, HeapNode** end);
@@ -53,7 +55,9 @@ namespace CustomMemoryManager::Allocators
 		HeapNode* mInActiveLocationsList_Head{ nullptr };
 		HeapNode* mInActiveLocationsList_End{ nullptr };
 
-		
+		//std::unordered_map<void*, HeapNode> mInActive;
+		//std::unordered_map<void*, HeapNode> mActive;
+
 		std::deque<void*> mInUse;
 		std::deque<void*> mNotInUse;
 	};

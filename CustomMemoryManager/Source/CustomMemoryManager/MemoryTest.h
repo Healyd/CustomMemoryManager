@@ -31,6 +31,7 @@ MemoryTest<T>::MemoryTest(const std::vector<std::tuple<std::string, std::size_t,
 	for (const auto& it : names)
 	{
 		mPointers.emplace(std::move(std::get<0>(it)), std::vector<T*>());
+		//mPointers.emplace(std::move(std::get<0>(it) + "_Malloc"), std::vector<T*>());
 	}
 	srand((std::uint32_t)time(NULL));
 }

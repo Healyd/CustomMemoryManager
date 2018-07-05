@@ -23,7 +23,6 @@ namespace CustomMemoryManager
 		MemoryGui& operator=(MemoryGui&&) = delete;
 		~MemoryGui() = default;
 
-		void InitializeGui();
 		void RunGui();
 		void EndGui();
 
@@ -31,6 +30,7 @@ namespace CustomMemoryManager
 
 	private:
 		void ShowAllocatorSelector(const std::string& checkBoxName, bool& mShowWindow, std::vector<std::string> allocatorNames);
+		void ShowAllocatorData();
 
 		void StackGuiWindow();
 		void DoubleStackGuiWindow();
@@ -38,10 +38,6 @@ namespace CustomMemoryManager
 		void HeapGuiWindow();
 		void MallocGuiWindow();
 
-		//void TestAllocationsIntsStack(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount);
-		//void TestAllocationsIntsDoubleStackTop(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount);
-		//void TestAllocationsIntsDoubleStackBottom(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount);
-		//void TestAllocationsIntsPool(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount);
 		void TestAllocationsIntsMalloc(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount);
 
 		void GraphHistorgram(const std::string& name, std::deque<float>& floatData, float usedSpace, float scaleMax);

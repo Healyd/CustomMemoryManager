@@ -8,8 +8,12 @@ namespace CustomMemoryManager::Allocators
 	{
 		mHeapStart = std::malloc(heapSize_bytes);
 
+		//mInActive.reserve(heapSize_bytes);
+		//mActive.reserve(heapSize_bytes);
+
 		mInActiveLocationsList_Head = new HeapNode({ heapSize_bytes, mHeapStart, nullptr, nullptr }); // size, loc, prev, next
 		mInActiveLocationsList_End = mInActiveLocationsList_Head;
+		//mInActive.emplace(mHeapStart, *mInActiveLocationsList_Head);
 #ifdef MemDebug
 		++mNumInActiveNodes;
 #endif // MemDebug
@@ -47,7 +51,8 @@ namespace CustomMemoryManager::Allocators
 	{
 		void* ptr = nullptr;
 
-		HeapNode* foundNode = FindNodeFirstFitSize(allocAmount_bytes, &mInActiveLocationsList_Head, &mInActiveLocationsList_Head);
+		// Search InActive List.
+		HeapNode* foundNode = FindNodeFirstFitSize(allocAmount_bytes, &mInActiveLocationsList_Head, &mInActiveLocationsList_End);
 
 		if (foundNode != nullptr)
 		{
@@ -55,33 +60,38 @@ namespace CustomMemoryManager::Allocators
 			if (foundNode->mSize_Bytes > allocAmount_bytes)
 			{
 				// Create a node with remaining space
-				temp = new HeapNode(
-					{
-						foundNode->mSize_Bytes - allocAmount_bytes,														// new available size
-						reinterpret_cast<void*>(reinterpret_cast<std::intptr_t>(foundNode->mPtr) + allocAmount_bytes),	// new available location
-						nullptr,																						// new previous location
-						nullptr																							// new next location
-					}
-				);
+				if (foundNode->mSize_Bytes - allocAmount_bytes != 0U)
+				{
+					temp = new HeapNode(
+						{
+							foundNode->mSize_Bytes - allocAmount_bytes,														// new available size
+							reinterpret_cast<void*>(reinterpret_cast<std::intptr_t>(foundNode->mPtr) + allocAmount_bytes),	// new available location
+							nullptr,																						// new previous location
+							nullptr																							// new next location
+						}
+					);
 
-				foundNode->mSize_Bytes = allocAmount_bytes;
+					foundNode->mSize_Bytes = allocAmount_bytes;
 
-				// Push back InActive List.
-				PushBackNode(temp, &mInActiveLocationsList_Head, &mInActiveLocationsList_End);
+					// Push back InActive List.
+					PushBackNode(temp, &mInActiveLocationsList_Head, &mInActiveLocationsList_End);
+					//mInActive.emplace(temp->mPtr, *temp);
 #ifdef MemDebug
-				++mNumInActiveNodes;
+					++mNumInActiveNodes;
 #endif // MemDebug
+				}
 			}
 
 			// Remove InActive List.
 			temp = RemoveNode(foundNode->mPtr, &mInActiveLocationsList_Head, &mInActiveLocationsList_End);
 			assert(temp != nullptr);
+			//mInActive.erase(foundNode->mPtr);
 
 			mHeapUsedSize_Bytes += allocAmount_bytes;
 
 			// Push back Active List.
 			PushBackNode(temp, &mActiveLocationsList_Head, &mActiveLocationsList_End);
-
+			//mActive.emplace(temp->mPtr, *temp);
 #ifdef MemDebug
 			--mNumInActiveNodes;
 			++mNumActiveNodes;
@@ -94,20 +104,25 @@ namespace CustomMemoryManager::Allocators
 
 	void HeapAllocator::deallocate(void* ptr, Info)
 	{
-		/*if (ptr == nullptr)
+		if (ptr == nullptr)
 		{
 			return;
-		}*/
-		HeapNode* temp = RemoveNode(ptr, &mActiveLocationsList_Head, &mActiveLocationsList_End);
-		if (temp != nullptr)
-		{
-			mHeapUsedSize_Bytes -= temp->mSize_Bytes;
-			PushBackNode(temp, &mInActiveLocationsList_Head, &mInActiveLocationsList_End);
-#ifdef MemDebug
-			--mNumActiveNodes;
-			++mNumInActiveNodes;
-#endif // MemDebug
 		}
+
+		//if (mActive.find(ptr) != mActive.end())
+		//{
+			//mActive.erase(ptr);
+			HeapNode* temp = RemoveNode(ptr, &mActiveLocationsList_Head, &mActiveLocationsList_End);
+			if (temp != nullptr)
+			{
+				mHeapUsedSize_Bytes -= temp->mSize_Bytes;
+				PushFrontNode(temp, &mInActiveLocationsList_Head, &mInActiveLocationsList_End);
+#ifdef MemDebug
+				--mNumActiveNodes;
+				++mNumInActiveNodes;
+#endif // MemDebug
+			}
+		//}
 	}
 
 	std::size_t HeapAllocator::Size_Bytes() const
@@ -155,6 +170,23 @@ namespace CustomMemoryManager::Allocators
 		node->mPrevious = *end;
 		node->mNext = nullptr;
 		*end = node;
+	}
+
+	void HeapAllocator::PushFrontNode(HeapNode* node, HeapNode** head, HeapNode** end)
+	{
+		if (*head == nullptr && *end == nullptr)
+		{
+			*head = node;
+			*end = node;
+			node->mNext = nullptr;
+			node->mPrevious = nullptr;
+			return;
+		}
+		assert(*head != nullptr);
+		(*head)->mPrevious = node;
+		node->mNext = *head;
+		node->mPrevious = nullptr;
+		*head = node;
 	}
 
 	HeapAllocator::HeapNode* HeapAllocator::RemoveNode(void* ptr, HeapNode** head, HeapNode** end)
