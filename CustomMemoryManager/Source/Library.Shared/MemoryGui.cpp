@@ -375,6 +375,18 @@ namespace CustomMemoryManager
 		ImGui::End();
 	}
 
+	void MemoryGui::ShowBaseData(const std::string& name, const Allocators::IAllocator* const allocator, const MemoryManager::Data* const data)
+	{
+		ImGui::TextColored(ImVec4(0, 1, 0, 1), name.c_str());
+
+		ImGui::Text("%s Size (Bytes): %u", name.c_str(), allocator->Size_Bytes());
+		ImGui::Text("%s Used Space (Bytes): %i", name.c_str(), allocator->UsedSize_Bytes());
+		ImGui::Text("%s Average Allocation Time: %f microseconds", name.c_str(), data->mAverageAllocationTime / data->mNumAllocations);
+		ImGui::Text("%s Average Deallocation Time: %f microseconds", name.c_str(), data->mAverageDeallocationTime / data->mNumDeallocations);
+		ImGui::Text("%s Num Allocations: %u", name.c_str(), data->mNumAllocations);
+		ImGui::Text("%s Num Dellocations: %u", name.c_str(), data->mNumDeallocations);
+	}
+
 	void MemoryGui::TestAllocationsIntsMalloc(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>&, const std::string& name, int allocAmount, int deallocAmount)
 	{
 		if (allocAmount <= 0U || deallocAmount <= 0U)

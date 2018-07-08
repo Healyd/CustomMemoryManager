@@ -147,18 +147,25 @@ namespace UnitTest
 			PoolAllocator<Foo> fooPool(10 * sizeof(Foo));
 			
 			Foo* foo1 = static_cast<Foo*>(fooPool.allocate(1 * sizeof(Foo)));
+			new (foo1) Foo();
 			Assert::IsNotNull(foo1);
 			Assert::AreEqual((std::size_t)1, fooPool.PoolSize_NumObjects());
 
 			Foo* foo2 = static_cast<Foo*>(fooPool.allocate(1 * sizeof(Foo)));
+			new (foo2) Foo();
 			Assert::IsNotNull(foo2);
 			Assert::AreEqual((std::size_t)2, fooPool.PoolSize_NumObjects());
 
 			Foo* fooArray1 = static_cast<Foo*>(fooPool.allocate(7 * sizeof(Foo)));
+			for (int i = 0; i < 7; ++i)
+			{
+				new (&fooArray1[i]) Foo();
+			}
 			Assert::IsNotNull(fooArray1);
 			Assert::AreEqual((std::size_t)9, fooPool.PoolSize_NumObjects());
 
 			Foo* foo3 = static_cast<Foo*>(fooPool.allocate(1 * sizeof(Foo)));
+			new (foo3) Foo();
 			Assert::IsNotNull(foo3);
 			Assert::AreEqual((std::size_t)10, fooPool.PoolSize_NumObjects());
 
@@ -166,6 +173,10 @@ namespace UnitTest
 			Assert::AreEqual((std::size_t)3, fooPool.PoolSize_NumObjects());
 
 			Foo* fooArray2 = static_cast<Foo*>(fooPool.allocate(7 * sizeof(Foo)));
+			for (int i = 0; i < 7; ++i)
+			{
+				new (&fooArray2[i]) Foo();
+			}
 			Assert::IsNotNull(fooArray2);
 			Assert::AreEqual((std::size_t)10, fooPool.PoolSize_NumObjects());
 		}

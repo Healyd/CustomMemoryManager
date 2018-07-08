@@ -8,10 +8,14 @@
 #include <set>
 #include <deque>
 #include "StopWatch.h"
+#include "MemoryManager.h"
 
 namespace CustomMemoryManager
 {
-	class MemoryManager;
+	namespace Allocators
+	{
+		class IAllocator;
+	}
 
 	class MemoryGui final
 	{
@@ -30,13 +34,14 @@ namespace CustomMemoryManager
 
 	private:
 		void ShowAllocatorSelector(const std::string& checkBoxName, bool& mShowWindow, std::vector<std::string> allocatorNames);
-		void ShowAllocatorData();
 
 		void StackGuiWindow();
 		void DoubleStackGuiWindow();
 		void PoolGuiWindow();
 		void HeapGuiWindow();
 		void MallocGuiWindow();
+
+		void ShowBaseData(const std::string& name, const Allocators::IAllocator* const allocator, const MemoryManager::Data* const data);
 
 		void TestAllocationsIntsMalloc(std::vector<std::uint32_t*>& intPtrVectors, std::deque<float>& floatData, const std::string& name, int allocAmount, int deallocAmount);
 

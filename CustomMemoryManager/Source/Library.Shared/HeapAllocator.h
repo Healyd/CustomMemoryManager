@@ -1,6 +1,7 @@
 #include "Allocator.h"
 #include <deque>
 #include <unordered_map>
+#include <list>
 
 namespace CustomMemoryManager::Allocators
 {
@@ -30,8 +31,11 @@ namespace CustomMemoryManager::Allocators
 		{
 			std::size_t mSize_Bytes{ 0U };
 			void* mPtr{ nullptr };
-			HeapNode* mPrevious{ nullptr };
+			HeapNode* mPrevious{ nullptr };		// for the mLocationsActive/Inactive lists
 			HeapNode* mNext{ nullptr };
+			HeapNode* mMemPrevious{ nullptr };	// for the mLocations list
+			HeapNode* mMemNext{ nullptr };
+			bool mIsActive{ false };
 		};
 
 		void PushBackNode(HeapNode* node, HeapNode** head, HeapNode** end);
@@ -54,6 +58,11 @@ namespace CustomMemoryManager::Allocators
 		HeapNode* mActiveLocationsList_End{ nullptr };
 		HeapNode* mInActiveLocationsList_Head{ nullptr };
 		HeapNode* mInActiveLocationsList_End{ nullptr };
+
+		HeapNode* mLocations_Head{ nullptr };
+		HeapNode* mLocations_End{ nullptr };
+
+		//std::list<HeapNode> mLocations_Head;
 
 		//std::unordered_map<void*, HeapNode> mInActive;
 		//std::unordered_map<void*, HeapNode> mActive;

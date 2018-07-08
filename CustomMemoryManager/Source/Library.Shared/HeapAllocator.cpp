@@ -8,12 +8,9 @@ namespace CustomMemoryManager::Allocators
 	{
 		mHeapStart = std::malloc(heapSize_bytes);
 
-		//mInActive.reserve(heapSize_bytes);
-		//mActive.reserve(heapSize_bytes);
-
-		mInActiveLocationsList_Head = new HeapNode({ heapSize_bytes, mHeapStart, nullptr, nullptr }); // size, loc, prev, next
+		mLocations_Head = new HeapNode({ heapSize_bytes, mHeapStart });	// size, loc
+		mInActiveLocationsList_Head = mLocations_Head;
 		mInActiveLocationsList_End = mInActiveLocationsList_Head;
-		//mInActive.emplace(mHeapStart, *mInActiveLocationsList_Head);
 #ifdef MemDebug
 		++mNumInActiveNodes;
 #endif // MemDebug
@@ -75,7 +72,6 @@ namespace CustomMemoryManager::Allocators
 
 					// Push back InActive List.
 					PushBackNode(temp, &mInActiveLocationsList_Head, &mInActiveLocationsList_End);
-					//mInActive.emplace(temp->mPtr, *temp);
 #ifdef MemDebug
 					++mNumInActiveNodes;
 #endif // MemDebug
@@ -85,13 +81,11 @@ namespace CustomMemoryManager::Allocators
 			// Remove InActive List.
 			temp = RemoveNode(foundNode->mPtr, &mInActiveLocationsList_Head, &mInActiveLocationsList_End);
 			assert(temp != nullptr);
-			//mInActive.erase(foundNode->mPtr);
 
 			mHeapUsedSize_Bytes += allocAmount_bytes;
 
 			// Push back Active List.
 			PushBackNode(temp, &mActiveLocationsList_Head, &mActiveLocationsList_End);
-			//mActive.emplace(temp->mPtr, *temp);
 #ifdef MemDebug
 			--mNumInActiveNodes;
 			++mNumActiveNodes;
@@ -109,20 +103,16 @@ namespace CustomMemoryManager::Allocators
 			return;
 		}
 
-		//if (mActive.find(ptr) != mActive.end())
-		//{
-			//mActive.erase(ptr);
-			HeapNode* temp = RemoveNode(ptr, &mActiveLocationsList_Head, &mActiveLocationsList_End);
-			if (temp != nullptr)
-			{
-				mHeapUsedSize_Bytes -= temp->mSize_Bytes;
-				PushFrontNode(temp, &mInActiveLocationsList_Head, &mInActiveLocationsList_End);
+		HeapNode* temp = RemoveNode(ptr, &mActiveLocationsList_Head, &mActiveLocationsList_End);
+		if (temp != nullptr)
+		{
+			mHeapUsedSize_Bytes -= temp->mSize_Bytes;
+			PushFrontNode(temp, &mInActiveLocationsList_Head, &mInActiveLocationsList_End);
 #ifdef MemDebug
-				--mNumActiveNodes;
-				++mNumInActiveNodes;
+			--mNumActiveNodes;
+			++mNumInActiveNodes;
 #endif // MemDebug
-			}
-		//}
+		}
 	}
 
 	std::size_t HeapAllocator::Size_Bytes() const
