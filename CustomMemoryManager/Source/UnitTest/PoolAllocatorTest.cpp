@@ -169,6 +169,10 @@ namespace UnitTest
 			Assert::IsNotNull(foo3);
 			Assert::AreEqual((std::size_t)10, fooPool.PoolSize_NumObjects());
 
+			for (int i = 0; i < 7; ++i)
+			{
+				fooArray1[i].~Foo();			// todo: I should handle destructor calls in the deallocation for pools
+			}
 			fooPool.deallocate(fooArray1, 7);
 			Assert::AreEqual((std::size_t)3, fooPool.PoolSize_NumObjects());
 

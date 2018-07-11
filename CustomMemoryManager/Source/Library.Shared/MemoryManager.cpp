@@ -1,14 +1,69 @@
 #include "MemoryManager.h"
 #include "StackAllocator.h"
 #include "StopWatch.h"
-
-#ifdef _DEBUGOPTIMIZED
-
-#endif // _DEBUGOPTIMIZED
-
+#include <ctime>
+#include <time.h>
+#include <fstream>
+#include <iostream>
+#include <iomanip>
 
 namespace CustomMemoryManager
 {
+#ifdef _MEMDEBUG
+	MemoryManager::MemoryManager()
+	{
+#ifdef _DEBUG
+		_wmkdir(L"Logs");
+		_wmkdir(L"Logs\\Debug");
+
+		auto time1 = std::chrono::system_clock::now();
+		std::time_t time2 = std::chrono::system_clock::to_time_t(time1);
+		char carray[100];
+		ctime_s(carray, sizeof(carray), &time2);
+		mDateTimeStamp = carray;
+
+		std::replace(mDateTimeStamp.begin(), mDateTimeStamp.end(), ':', '-');
+		std::replace(mDateTimeStamp.begin(), mDateTimeStamp.end(), '\n', '_');
+
+		char carray2[300] = "Logs\\Debug\\";
+
+		strcat_s(carray2, mDateTimeStamp.c_str());
+
+		wchar_t wcarray[300];
+		std::size_t num = 0U;
+		mbstowcs_s(&num, wcarray, carray2, 300);
+		_wmkdir(wcarray);
+
+		mOutputDirectory = "Logs\\Debug\\" + mDateTimeStamp + "\\";
+#endif // _DEBUG
+		
+#ifdef  _OUTPUTFILE
+		_wmkdir(L"Logs");
+		_wmkdir(L"Logs\\DebugOptimized");
+
+		auto time1 = std::chrono::system_clock::now();
+		std::time_t time2 = std::chrono::system_clock::to_time_t(time1);
+		char carray[100];
+		ctime_s(carray, sizeof(carray), &time2);
+		mDateTimeStamp = carray;
+
+		std::replace(mDateTimeStamp.begin(), mDateTimeStamp.end(), ':', '-');
+		std::replace(mDateTimeStamp.begin(), mDateTimeStamp.end(), '\n', '_');
+
+		char carray2[300] = "Logs\\DebugOptimized\\";
+
+		strcat_s(carray2, mDateTimeStamp.c_str());
+
+		wchar_t wcarray[300];
+		std::size_t num = 0U;
+		mbstowcs_s(&num, wcarray, carray2, 300);
+		_wmkdir(wcarray);
+
+		mOutputDirectory = "Logs\\DebugOptimized\\" + mDateTimeStamp + "\\";
+#endif
+	}
+#endif // _MEMDEBUG
+
 	MemoryManager::~MemoryManager()
 	{
 		if (!mPoolAllocators.empty())
@@ -41,7 +96,7 @@ namespace CustomMemoryManager
 			if (mStackAllocators.find(name) == mStackAllocators.end())
 			{
 				mStackAllocators.emplace(std::move(name), std::move(Allocators::StackAllocator(size)));
-#ifdef MemDebug
+#ifdef _MEMDEBUG
 				mAllocatorData.emplace(std::move(name), Data());
 #endif // MemDeug
 				isCreated = true;
@@ -53,9 +108,9 @@ namespace CustomMemoryManager
 			if (mDoubleStackAllocators.find(name) == mDoubleStackAllocators.end())
 			{
 				mDoubleStackAllocators.emplace(std::move(name), std::move(Allocators::DoubleEndedStackAllocator(size / 2, size / 2, 0U)));
-#ifdef MemDebug
+#ifdef _MEMDEBUG
 				mAllocatorData.emplace(std::move(name), Data());
-#endif // MemDebug
+#endif // _MEMDEBUG
 				isCreated = true;
 			}
 		}
@@ -65,9 +120,9 @@ namespace CustomMemoryManager
 			if (mHeapAllocators.find(name) == mHeapAllocators.end())
 			{
 				mHeapAllocators.emplace(std::move(name), std::move(new Allocators::HeapAllocator(size)));
-#ifdef MemDebug
+#ifdef _MEMDEBUG
 				mAllocatorData.emplace(std::move(name), Data());
-#endif // MemDebug
+#endif // _MEMDEBUG
 				isCreated = true;
 			}
 		}
@@ -75,14 +130,14 @@ namespace CustomMemoryManager
 		return isCreated;
 	}
 
-	void* MemoryManager::Allocate(std::size_t allocAmount_bytes, const std::string& name, const AllocType type, const Allocators::Info info)
+	void* MemoryManager::Allocate(std::size_t allocAmount_bytes, const std::string& name, const AllocType type, const std::string fileName, const std::size_t lineNumber, Allocators::Info info)
 	{
 		if (type == AllocType::STACK)
 		{
 			const std::unordered_map<std::string, Allocators::StackAllocator>::iterator it = mStackAllocators.find(name);
 			if (it != mStackAllocators.end())
 			{
-#ifdef MemDebug
+#ifdef _MEMDEBUG
 				Library::StopWatch stopWatch;
 				stopWatch.Start();
 				void* ptr = it->second.allocate(allocAmount_bytes);
@@ -93,10 +148,16 @@ namespace CustomMemoryManager
 					data.mAverageAllocationTime += stopWatch.Elapsed().count();
 					++(data.mNumAllocations);
 				}
+#if (defined(_DEBUG) || defined(_OUTPUTFILE)) && !defined(_NOOUTPUTFILE) || defined(_STACK)
+				OutputFile(name, fileName, lineNumber, allocAmount_bytes, ptr);
+#else
+				fileName; lineNumber;
+#endif // _DEBUG
 				return ptr;
 #else
+				fileName; lineNumber;
 				return it->second.allocate(allocAmount_bytes);
-#endif // MemDebug
+#endif // _MEMDEBUG
 			}
 		}
 		else if (type == AllocType::DOUBLESTACK)
@@ -104,7 +165,7 @@ namespace CustomMemoryManager
 			const std::unordered_map<std::string, Allocators::DoubleEndedStackAllocator>::iterator it = mDoubleStackAllocators.find(name);
 			if (it != mDoubleStackAllocators.end())
 			{
-#ifdef MemDebug
+#ifdef _MEMDEBUG
 				Library::StopWatch stopWatch;
 
 				stopWatch.Start();
@@ -126,10 +187,13 @@ namespace CustomMemoryManager
 						++(data.mNumAllocations_Bottom);
 					}
 				}
+#if (defined(_DEBUG) || defined(_OUTPUTFILE)) && !defined(_NOOUTPUTFILE) || defined(_DSTACK)
+				OutputFile(name, fileName, lineNumber, allocAmount_bytes, ptr);
+#endif // _DEBUG
 				return ptr;
 #else
 				return it->second.allocate(allocAmount_bytes, 0U, info);
-#endif // MemDebug
+#endif // _MEMDEBUG
 			}
 		}
 		else if (type == AllocType::POOL)
@@ -137,7 +201,7 @@ namespace CustomMemoryManager
 			const std::unordered_map<std::string, Allocators::IAllocator*>::iterator it = mPoolAllocators.find(name);
 			if (it != mPoolAllocators.end())
 			{
-#ifdef MemDebug
+#ifdef _MEMDEBUG
 				Library::StopWatch stopWatch;
 				stopWatch.Start();
 				void* ptr = it->second->allocate(allocAmount_bytes);
@@ -148,10 +212,13 @@ namespace CustomMemoryManager
 					data.mAverageAllocationTime += stopWatch.Elapsed().count();
 					++(data.mNumAllocations);
 				}
+#if (defined(_DEBUG) || defined(_OUTPUTFILE)) && !defined(_NOOUTPUTFILE) || defined(_POOL)
+				OutputFile(name, fileName, lineNumber, allocAmount_bytes, ptr);
+#endif // _DEBUG
 				return ptr;
 #else
 				return it->second->allocate(allocAmount_bytes);		// TODO: update, 'allocAmount_bytes' doesn't match with input actual of 'numObjects' (i hacked it)
-#endif // MemDebug
+#endif // _MEMDEBUG
 			}
 		}
 		else if (type == AllocType::HEAP)
@@ -159,7 +226,7 @@ namespace CustomMemoryManager
 			const std::unordered_map<std::string, Allocators::HeapAllocator*>::iterator it = mHeapAllocators.find(name);
 			if (it != mHeapAllocators.end())
 			{
-#ifdef MemDebug
+#ifdef _MEMDEBUG
 				Library::StopWatch stopWatch;
 				stopWatch.Start();
 				void* ptr = it->second->allocate(allocAmount_bytes);
@@ -170,10 +237,13 @@ namespace CustomMemoryManager
 					data.mAverageAllocationTime += stopWatch.Elapsed().count();
 					++(data.mNumAllocations);
 				}
+#if (defined(_DEBUG) || defined(_OUTPUTFILE)) && !defined(_NOOUTPUTFILE) || defined(_HEAP)
+				OutputFile(name, fileName, lineNumber, allocAmount_bytes, ptr);
+#endif // _DEBUG
 				return ptr;
 #else
 				return it->second->allocate(allocAmount_bytes);
-#endif // MemDebug
+#endif // _MEMDEBUG
 			}
 		}
 		return nullptr;
@@ -184,24 +254,25 @@ namespace CustomMemoryManager
 	//	return MemData(Allocate(allocAmount_bytes, name, type), type, name, *this);
 	//}
 
-	void MemoryManager::Deallocate(void* ptr, const std::string& name, const AllocType type, const Allocators::Info info)
+	void MemoryManager::Deallocate(void* ptr, const std::string& name, const AllocType type, const std::string fileName, const std::size_t lineNumber, const Allocators::Info info)
 	{
+		lineNumber;
 		if (type == AllocType::STACK)
 		{
 			const std::unordered_map<std::string, Allocators::StackAllocator>::iterator it = mStackAllocators.find(name);
 			if (it != mStackAllocators.end())
 			{
-#ifdef MemDebug
+#ifdef _MEMDEBUG
 				Library::StopWatch stopWatch;
 				stopWatch.Start();
-#endif // MemDebug
+#endif // _MEMDEBUG
 				it->second.deallocate(ptr);
-#ifdef MemDebug
+#ifdef _MEMDEBUG
 				stopWatch.Stop();
 				Data& data = mAllocatorData.find(name)->second;
 				data.mAverageDeallocationTime += stopWatch.Elapsed().count();
 				++(data.mNumDeallocations);
-#endif // MemDebug
+#endif // _MEMDEBUG
 			}
 		}
 		else if (type == AllocType::DOUBLESTACK)
@@ -209,12 +280,12 @@ namespace CustomMemoryManager
 			const std::unordered_map<std::string, Allocators::DoubleEndedStackAllocator>::iterator it = mDoubleStackAllocators.find(name);
 			if (it != mDoubleStackAllocators.end())
 			{
-#ifdef MemDebug
+#ifdef _MEMDEBUG
 				Library::StopWatch stopWatch;
 				stopWatch.Start();
-#endif // MemDebug
+#endif // _MEMDEBUG
 				it->second.deallocate(nullptr, info);
-#ifdef MemDebug
+#ifdef _MEMDEBUG
 				stopWatch.Stop();
 				Data& data = mAllocatorData.find(name)->second;
 				if (info == Allocators::Info::TOP)
@@ -227,7 +298,7 @@ namespace CustomMemoryManager
 					data.mAverageDeallocationTime_Bottom += stopWatch.Elapsed().count();
 					++(data.mNumDeallocations_Bottom);
 				}
-#endif // MemDebug
+#endif // _MEMDEBUG
 			}
 		}
 		else if (type == AllocType::POOL)
@@ -235,17 +306,17 @@ namespace CustomMemoryManager
 			const std::unordered_map<std::string, Allocators::IAllocator*>::iterator it = mPoolAllocators.find(name);
 			if (it != mPoolAllocators.end())
 			{
-#ifdef MemDebug
+#ifdef _MEMDEBUG
 				Library::StopWatch stopWatch;
 				stopWatch.Start();
-#endif // MemDebug
+#endif // _MEMDEBUG
 				it->second->deallocate(ptr);
-#ifdef MemDebug
+#ifdef _MEMDEBUG
 				stopWatch.Stop();
 				Data& data = mAllocatorData.find(name)->second;
 				data.mAverageDeallocationTime += stopWatch.Elapsed().count();
 				++(data.mNumDeallocations);
-#endif // MemDebug
+#endif // _MEMDEBUG
 			}
 		}
 		else if (type == AllocType::HEAP)
@@ -253,17 +324,17 @@ namespace CustomMemoryManager
 			const std::unordered_map<std::string, Allocators::HeapAllocator*>::iterator it = mHeapAllocators.find(name);
 			if (it != mHeapAllocators.end())
 			{
-#ifdef MemDebug
+#ifdef _MEMDEBUG
 				Library::StopWatch stopWatch;
 				stopWatch.Start();
-#endif // MemDebug
+#endif // _MEMDEBUG
 				it->second->deallocate(ptr);
-#ifdef MemDebug
+#ifdef _MEMDEBUG
 				stopWatch.Stop();
 				Data& data = mAllocatorData.find(name)->second;
 				data.mAverageDeallocationTime += stopWatch.Elapsed().count();
 				++(data.mNumDeallocations);
-#endif // MemDebug
+#endif // _MEMDEBUG
 			}
 		}
 	}
@@ -339,7 +410,7 @@ namespace CustomMemoryManager
 		return keys;
 	}
 
-#ifdef MemDebug
+#ifdef _MEMDEBUG
 	const MemoryManager::Data* const MemoryManager::GetData(const std::string& name)
 	{
 		std::unordered_map<std::string, Data>::iterator it = mAllocatorData.find(name);
@@ -349,5 +420,21 @@ namespace CustomMemoryManager
 		}
 		return &(it->second);
 	}
-#endif // MemDebug
+
+	void MemoryManager::OutputFile(const std::string& allocatorName, const std::string& fileName, const std::size_t lineNumber, std::size_t allocationSize_bytes, void* ptr)
+	{
+		std::string dir(mOutputDirectory + allocatorName + ".txt");
+		FILE* outfile;
+		fopen_s(&outfile, dir.c_str(), "a+");
+		if (outfile != nullptr)
+		{
+#ifdef _WIN64
+			fprintf_s(outfile, "%s\tLine: %zu\t%zu\t%llX\n", fileName.c_str(), lineNumber, allocationSize_bytes, reinterpret_cast<std::intptr_t>(ptr));
+#else	// _WIN32
+			fprintf_s(outfile, "%s\tLine: %u\t%u\t%X\n", fileName.c_str(), lineNumber, allocationSize_bytes, reinterpret_cast<std::intptr_t>(ptr));
+#endif
+		}
+		fclose(outfile);
+	}
+#endif // _MEMDEBUG
 }

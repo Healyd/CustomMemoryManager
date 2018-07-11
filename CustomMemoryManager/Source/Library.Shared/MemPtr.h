@@ -54,7 +54,7 @@ namespace CustomMemoryManager
 	template <typename T>
 	inline T* MakeMemPtr_Raw(const std::string& name, MemoryManager::AllocType type, MemoryManager& manager)
 	{
-		return static_cast<T*>(new (name, manager, type) T());
+		return static_cast<T*>(new (name, manager, type, "makememptr_raw", 0U) T());
 	}
 
 	template <typename T>

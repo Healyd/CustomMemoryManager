@@ -13,6 +13,6 @@ namespace Test
 		Object& operator=(Object&&) = default;
 		~Object();
 
-		std::string data = "data";
+		std::string data = "dataObject";
 	};
 }

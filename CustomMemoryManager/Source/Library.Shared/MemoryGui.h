@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef MemDebug
+#ifdef _MEMDEBUG
 
 #include "imgui-1.61/imgui.h"
 #include <cstdint>
@@ -100,4 +100,4 @@ namespace CustomMemoryManager
 		std::chrono::time_point<std::chrono::steady_clock> end;
 	};
 }
-#endif // MemDebug
+#endif // _MEMDEBUG

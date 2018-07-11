@@ -137,12 +137,12 @@ namespace UnitTest
 			Assert::IsTrue(memoryManager.CreateAllocator("Stack1", 43*sizeof(Foo), MemoryManager::AllocType::STACK), L"Allocator Not Created.");
 			
 			
-			Foo* ptr3 = static_cast<Foo*>(new ("Stack1", memoryManager, MemoryManager::AllocType::STACK) Foo());
+			Foo* ptr3 = static_cast<Foo*>(new ("Stack1", memoryManager, MemoryManager::AllocType::STACK, __FILE__, __LINE__) Foo());
 			ptr3->~Foo();
-			operator delete (ptr3, "Stack1", memoryManager, MemoryManager::AllocType::STACK, Allocators::Info::NONE);
+			operator delete (ptr3, "Stack1", memoryManager, MemoryManager::AllocType::STACK, "none", 0U, Allocators::Info::NONE);
 			//memoryManager.Deallocate(ptr3, "Stack1", MemoryManager::AllocType::STACK);
 
-			MemPtr<Foo> memPtr2 = static_cast<Foo*>(new ("Stack1", memoryManager, MemoryManager::AllocType::STACK) Foo());
+			MemPtr<Foo> memPtr2 = static_cast<Foo*>(new ("Stack1", memoryManager, MemoryManager::AllocType::STACK, __FILE__, __LINE__) Foo());
 			memPtr2->~Foo();
 			memoryManager.Deallocate(memPtr2.Get(), "Stack1", MemoryManager::AllocType::STACK);
 

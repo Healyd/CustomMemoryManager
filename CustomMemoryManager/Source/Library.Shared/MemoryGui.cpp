@@ -1,5 +1,5 @@
 
-#ifdef MemDebug
+#ifdef _MEMDEBUG
 
 #include "MemoryGui.h"
 #include "MemoryManager.h"
@@ -456,4 +456,4 @@ namespace CustomMemoryManager
 		delete dat;
 	}
 }
-#endif // MemDebug
+#endif // _MEMDEBUG

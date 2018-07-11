@@ -240,12 +240,12 @@ void MemoryTest<T>::TestHeapAllocator(const std::string& name, std::size_t alloc
 
 	for (std::uint32_t i = 0U; i < numObjectsToDeallocate; ++i)
 	{
-		if (!pointers.empty())
-		{
-			T* ptr = pointers.back();
-			pointers.pop_back();
-			HEAP_DEALLOC(ptr, name, T);
-		}
+		if (pointers.empty())
+			break;
+		T* ptr = pointers.back();
+		pointers.pop_back();
+		ptr->~T();
+		HEAP_DEALLOC(ptr, name, T);
 	}
 
 	CustomMemoryManager::Allocators::HeapAllocator* heapAllocator = static_cast<CustomMemoryManager::Allocators::HeapAllocator*>(GLOBAL_MEMORY_MANAGER.Get(name, CustomMemoryManager::MemoryManager::AllocType::HEAP));
@@ -260,7 +260,8 @@ void MemoryTest<T>::TestHeapAllocator(const std::string& name, std::size_t alloc
 	for (std::uint32_t i = 0U; i < numObjectsToAllocate; ++i)
 	{
 		T* ptr = HEAP_ALLOC(name) T();
-		if (ptr != nullptr)
-			pointers.push_back(ptr);
+		if (ptr == nullptr)
+			break;
+		pointers.push_back(ptr);
 	}
 }

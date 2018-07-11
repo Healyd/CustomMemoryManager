@@ -75,12 +75,11 @@ namespace CustomMemoryManager::Allocators
 		newSpace; usedSpace;
 
 		// Too large: then no stack allocation.
-		//if (newSpace > mStackSize_bytes)
-		//{
-
-		//	//throw std::exception("Stack Overflow!");
-		//	//return nullptr;
-		//}
+		if (newSpace > mStackSize_bytes)
+		{
+			//throw std::exception("Stack Overflow!");
+			return nullptr;
+		}
 
 		// Store the address to this alloc location.
 		mAllocLocations[mIndex] = currentStackLocation;

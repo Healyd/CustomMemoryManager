@@ -169,9 +169,9 @@ int main(int, char**)
 	CREATE_POOL("string_Pool", std::string, 400 * sizeof(std::string));
 	CREATE_POOL("Object_Pool", Object, 1000 * sizeof(Object));
 
-	CREATE_HEAP("Heap1", 10000);
+	CREATE_HEAP("Heap1", 1000);
 
-#ifdef MemDebug
+#ifdef _MEMDEBUG
 	CustomMemoryManager::MemoryGui memoryGui(GLOBAL_MEMORY_MANAGER);
 	MemoryTest<std::uint32_t> memoryTestInts
 	(
@@ -200,7 +200,7 @@ int main(int, char**)
 		{ "Heap1", 50, CustomMemoryManager::MemoryManager::AllocType::HEAP }
 		}
 	);
-#endif // MemDebug
+#endif // _MEMDEBUG
 
 
 
@@ -259,12 +259,12 @@ int main(int, char**)
 		}
 		ImGui_ImplDX11_NewFrame();
 
-#ifdef MemDebug
+#ifdef _MEMDEBUG
 		memoryGui.RunGui();
 		memoryTestInts.Run();
 		memoryTestString.Run();
 		memoryTestObject.Run();
-#endif // MemDebug
+#endif // _MEMDEBUG
 
 		//memoryTestInts.TestStackAllocator_Ints("Stack1", 100, 100);
 

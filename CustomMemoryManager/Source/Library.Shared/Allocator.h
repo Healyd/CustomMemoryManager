@@ -3,11 +3,11 @@
 #include <cstdint>
 
 //#ifdef _DEBUG
-//#define MemDebug
+//#define _MEMDEBUG
 //#endif // _DEBUG
 //
 //#ifdef _DEBUGOPTIMIZED
-//#define MemDebug
+//#define _MEMDEBUG
 //#endif // _DEBUGOPTIMIZED
 
 

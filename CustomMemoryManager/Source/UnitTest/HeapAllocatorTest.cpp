@@ -76,5 +76,26 @@ namespace UnitTest
 				ptrs.pop_back();
 			}
 		}
+
+		TEST_METHOD(AllocLoop_string)
+		{
+			HeapAllocator heap(4000 * sizeof(std::string));
+			std::vector<std::string*> ptrs;
+			for (std::uint32_t i = 0U; i < 4000; ++i)
+			{
+				std::string* temp = static_cast<std::string*>(heap.allocate(sizeof(std::string)));
+				new (temp) std::string();
+				ptrs.push_back(temp);
+			}
+
+			heap.allocate(sizeof(std::string));
+
+			for (std::uint32_t i = 0U; i < 4000; ++i)
+			{
+				ptrs.front()->~basic_string();
+				heap.deallocate(ptrs.front());
+				ptrs.erase(ptrs.begin());
+			}
+		}
 	};
 }
