@@ -78,12 +78,11 @@ void MemoryTest<T>::TestStackAllocator(const std::string& name, std::size_t allo
 
 	for (std::size_t i = 0U; i < numObjectsToDeallocate; ++i)
 	{
-		if (!pointers.empty())
-		{
-			T* ptr = pointers.back();
-			pointers.pop_back();
-			STACK_DEALLOC(name, ptr);
-		}
+		if (pointers.empty())
+			break;
+		T* ptr = pointers.back();
+		pointers.pop_back();
+		STACK_DEALLOC(name, ptr);
 	}
 
 	CustomMemoryManager::Allocators::StackAllocator* stackAllocator = static_cast<CustomMemoryManager::Allocators::StackAllocator*>(GLOBAL_MEMORY_MANAGER.Get(name, CustomMemoryManager::MemoryManager::AllocType::STACK));
@@ -98,8 +97,9 @@ void MemoryTest<T>::TestStackAllocator(const std::string& name, std::size_t allo
 	for (std::size_t i = 0U; i < numObjectsToAllocate; ++i)
 	{
 		T* ptr = STACK_ALLOC(name) T();
-		if (ptr != nullptr)
-			pointers.push_back(ptr);
+		if (ptr == nullptr)
+			break;
+		pointers.push_back(ptr);
 	}
 }
 
@@ -118,13 +118,11 @@ void MemoryTest<T>::TestDStackAllocatorTop(const std::string& name, std::size_t 
 
 	for (std::uint32_t i = 0; i < numObjectsToDeallocate; ++i)
 	{
-		if (!pointers.empty())
-		{
-			T* ptr = pointers.back();
-			pointers.pop_back();
-			DSTACK_DEALLOC_TOP(name, ptr);
-			//GLOBAL_MEMORY_MANAGER.Deallocate(ptr, name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::TOP);
-		}
+		if (pointers.empty())
+			break;
+		T* ptr = pointers.back();
+		pointers.pop_back();
+		DSTACK_DEALLOC_TOP(name, ptr);
 	}
 
 	CustomMemoryManager::Allocators::DoubleEndedStackAllocator* stackAlloc = static_cast<CustomMemoryManager::Allocators::DoubleEndedStackAllocator*>(GLOBAL_MEMORY_MANAGER.Get(name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK));
@@ -138,8 +136,9 @@ void MemoryTest<T>::TestDStackAllocatorTop(const std::string& name, std::size_t 
 	{
 		//T* ptr = static_cast<T*>(GLOBAL_MEMORY_MANAGER.Allocate(sizeof(T), name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::TOP));
 		T* ptr = DSTACK_ALLOC_TOP(name) T();
-		if (ptr != nullptr)
-			pointers.push_back(ptr);
+		if (ptr == nullptr)
+			break;
+		pointers.push_back(ptr);
 	}
 }
 
@@ -158,13 +157,11 @@ void MemoryTest<T>::TestDStackAllocatorBottom(const std::string& name, std::size
 
 	for (std::uint32_t i = 0; i < numObjectsToDeallocate; ++i)
 	{
-		if (!pointers.empty())
-		{
-			T* ptr = pointers.back();
-			pointers.pop_back();
-			DSTACK_DEALLOC_BOTTOM(name, ptr);
-			//GLOBAL_MEMORY_MANAGER.Deallocate(ptr, name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::BOTTOM);
-		}
+		if (pointers.empty())
+			break;
+		T* ptr = pointers.back();
+		pointers.pop_back();
+		DSTACK_DEALLOC_BOTTOM(name, ptr);
 	}
 
 	CustomMemoryManager::Allocators::DoubleEndedStackAllocator* stackAlloc = static_cast<CustomMemoryManager::Allocators::DoubleEndedStackAllocator*>(GLOBAL_MEMORY_MANAGER.Get(name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK));
@@ -176,10 +173,10 @@ void MemoryTest<T>::TestDStackAllocatorBottom(const std::string& name, std::size
 
 	for (std::uint32_t i = 0; i < numObjectsToAllocate; ++i)
 	{
-		//T* ptr = static_cast<T*>(GLOBAL_MEMORY_MANAGER.Allocate(sizeof(T), name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, CustomMemoryManager::Allocators::Info::BOTTOM));
 		T* ptr = DSTACK_ALLOC_BOTTOM(name) T();
-		if (ptr != nullptr)
-			pointers.push_back(ptr);
+		if (ptr == nullptr)
+			break;
+		pointers.push_back(ptr);
 	}
 }
 
@@ -198,13 +195,11 @@ void MemoryTest<T>::TestPoolAllocator(const std::string& name, std::size_t alloc
 
 	for (std::uint32_t i = 0; i < numObjectsToDeallocate; ++i)
 	{
-		if (!pointers.empty())
-		{
-			T* ptr = pointers.back();
-			pointers.pop_back();
-			POOL_DEALLOC(ptr, name, T);
-			//GLOBAL_MEMORY_MANAGER.Deallocate(ptr, name, CustomMemoryManager::MemoryManager::AllocType::POOL);
-		}
+		if (pointers.empty())
+			break;
+		T* ptr = pointers.back();
+		pointers.pop_back();
+		POOL_DEALLOC(ptr, name, T);
 	}
 
 	CustomMemoryManager::Allocators::PoolAllocator<T>* stackAlloc = static_cast<CustomMemoryManager::Allocators::PoolAllocator<T>*>(GLOBAL_MEMORY_MANAGER.Get(name, CustomMemoryManager::MemoryManager::AllocType::POOL));
@@ -218,10 +213,10 @@ void MemoryTest<T>::TestPoolAllocator(const std::string& name, std::size_t alloc
 
 	for (std::uint32_t i = 0; i < numObjectsToAllocate; ++i)
 	{
-		//T* ptr = static_cast<T*>(GLOBAL_MEMORY_MANAGER.Allocate(sizeof(T), name, CustomMemoryManager::MemoryManager::AllocType::POOL));
 		T* ptr = POOL_ALLOC(name) T();
-		if (ptr != nullptr)
-			pointers.push_back(ptr);
+		if (ptr == nullptr)
+			break;
+		pointers.push_back(ptr);
 	}
 }
 
@@ -244,7 +239,6 @@ void MemoryTest<T>::TestHeapAllocator(const std::string& name, std::size_t alloc
 			break;
 		T* ptr = pointers.back();
 		pointers.pop_back();
-		ptr->~T();
 		HEAP_DEALLOC(ptr, name, T);
 	}
 
@@ -259,7 +253,9 @@ void MemoryTest<T>::TestHeapAllocator(const std::string& name, std::size_t alloc
 
 	for (std::uint32_t i = 0U; i < numObjectsToAllocate; ++i)
 	{
-		T* ptr = HEAP_ALLOC(name) T();
+		//T* ptr = HEAP_ALLOC_FIRSTFIT(name) T();
+		//T* ptr = HEAP_ALLOC_LASTFIT(name) T();
+		T* ptr = HEAP_ALLOC_BESTFIT(name) T();
 		if (ptr == nullptr)
 			break;
 		pointers.push_back(ptr);

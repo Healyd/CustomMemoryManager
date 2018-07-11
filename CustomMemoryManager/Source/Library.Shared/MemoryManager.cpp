@@ -130,7 +130,7 @@ namespace CustomMemoryManager
 		return isCreated;
 	}
 
-	void* MemoryManager::Allocate(std::size_t allocAmount_bytes, const std::string& name, const AllocType type, const std::string fileName, const std::size_t lineNumber, Allocators::Info info)
+	void* MemoryManager::Allocate(std::size_t allocAmount_bytes, const std::string& name, const AllocType type, const std::size_t alignment, std::string fileName, const std::size_t lineNumber, Allocators::Info info)
 	{
 		if (type == AllocType::STACK)
 		{
@@ -140,7 +140,7 @@ namespace CustomMemoryManager
 #ifdef _MEMDEBUG
 				Library::StopWatch stopWatch;
 				stopWatch.Start();
-				void* ptr = it->second.allocate(allocAmount_bytes);
+				void* ptr = it->second.allocate(allocAmount_bytes, alignment);
 				stopWatch.Stop();
 				if (ptr != nullptr)
 				{
@@ -156,7 +156,7 @@ namespace CustomMemoryManager
 				return ptr;
 #else
 				fileName; lineNumber;
-				return it->second.allocate(allocAmount_bytes);
+				return it->second.allocate(allocAmount_bytes, alignment);
 #endif // _MEMDEBUG
 			}
 		}
@@ -169,7 +169,7 @@ namespace CustomMemoryManager
 				Library::StopWatch stopWatch;
 
 				stopWatch.Start();
-				void* ptr = it->second.allocate(allocAmount_bytes, 0U, info);
+				void* ptr = it->second.allocate(allocAmount_bytes, alignment, info);
 				stopWatch.Stop();
 
 				// if the ptr was actually allocated
@@ -192,7 +192,7 @@ namespace CustomMemoryManager
 #endif // _DEBUG
 				return ptr;
 #else
-				return it->second.allocate(allocAmount_bytes, 0U, info);
+				return it->second.allocate(allocAmount_bytes, alignment, info);
 #endif // _MEMDEBUG
 			}
 		}
@@ -204,7 +204,7 @@ namespace CustomMemoryManager
 #ifdef _MEMDEBUG
 				Library::StopWatch stopWatch;
 				stopWatch.Start();
-				void* ptr = it->second->allocate(allocAmount_bytes);
+				void* ptr = it->second->allocate(allocAmount_bytes, alignment);
 				stopWatch.Stop();
 				if (ptr != nullptr)
 				{
@@ -217,7 +217,7 @@ namespace CustomMemoryManager
 #endif // _DEBUG
 				return ptr;
 #else
-				return it->second->allocate(allocAmount_bytes);		// TODO: update, 'allocAmount_bytes' doesn't match with input actual of 'numObjects' (i hacked it)
+				return it->second->allocate(allocAmount_bytes, alignment);		// TODO: update, 'allocAmount_bytes' doesn't match with input actual of 'numObjects' (i hacked it)
 #endif // _MEMDEBUG
 			}
 		}
@@ -229,7 +229,7 @@ namespace CustomMemoryManager
 #ifdef _MEMDEBUG
 				Library::StopWatch stopWatch;
 				stopWatch.Start();
-				void* ptr = it->second->allocate(allocAmount_bytes);
+				void* ptr = it->second->allocate(allocAmount_bytes, alignment, info);
 				stopWatch.Stop();
 				if (ptr != nullptr)
 				{
@@ -242,7 +242,7 @@ namespace CustomMemoryManager
 #endif // _DEBUG
 				return ptr;
 #else
-				return it->second->allocate(allocAmount_bytes);
+				return it->second->allocate(allocAmount_bytes, alignment, info);
 #endif // _MEMDEBUG
 			}
 		}

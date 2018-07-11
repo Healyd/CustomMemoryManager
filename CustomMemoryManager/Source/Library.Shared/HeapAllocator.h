@@ -15,7 +15,7 @@ namespace CustomMemoryManager::Allocators
 		HeapAllocator& operator=(HeapAllocator&&) = delete;
 		~HeapAllocator();
 
-		virtual void* allocate(std::size_t allocAmount_bytes, std::size_t alignment = 0U, Info info = Info::NONE) override;
+		virtual void* allocate(std::size_t allocAmount_bytes, std::size_t alignment = 0U, Info info = Info::HEAP_FIRSTFIT) override;
 		virtual void deallocate(void* ptr, Info info = Info::NONE) override;
 		virtual std::size_t Size_Bytes() const override;
 		virtual std::size_t UsedSize_Bytes() const override;
@@ -43,6 +43,8 @@ namespace CustomMemoryManager::Allocators
 		HeapNode* RemoveNode(void* ptr, HeapNode** head, HeapNode** end);
 		HeapNode* FindNode(void* ptr, HeapNode** head, HeapNode** end);
 		HeapNode* FindNodeFirstFitSize(std::size_t size_bytes, HeapNode** head, HeapNode** end);
+		HeapNode* FindNodeLastFitSize(std::size_t size_bytes, HeapNode** head, HeapNode** end);
+		HeapNode* FindNodeBestFitSize(std::size_t size_bytes, HeapNode** head, HeapNode** end);
 
 		void MemPushBackNode(HeapNode* node, HeapNode** head, HeapNode** end);
 		void MemPushFrontNode(HeapNode* node, HeapNode** head, HeapNode** end);

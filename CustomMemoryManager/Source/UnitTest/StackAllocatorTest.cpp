@@ -45,34 +45,33 @@ namespace UnitTest
 		TEST_METHOD(Alloc)
 		{
 			StackAllocator stackAllocator(8U);
-#ifdef _DEBUG
-			Assert::IsFalse(stackAllocator.IsStackOverflow(), L"O1");
-#endif //_DEBUG
+//#ifdef _DEBUG
+//			Assert::IsFalse(stackAllocator.IsStackOverflow(), L"O1");
+//#endif //_DEBUG
 
 			std::uint32_t* x = static_cast<std::uint32_t*>(stackAllocator.allocate(sizeof(std::uint32_t)));
 			*x = 1;
-			//Assert::IsNotNull(x);
+			Assert::IsNotNull(x);
 			//Assert::AreEqual((std::size_t)1U, stackAllocator.StackSize_NumObjects());
 			Assert::AreEqual(1U, *x);
 
 			std::uint32_t* y = static_cast<std::uint32_t*>(stackAllocator.allocate(sizeof(std::uint32_t)));
 			*y = 2;
-			//Assert::IsNotNull(y);
+			Assert::IsNotNull(y);
 			//Assert::AreEqual((std::size_t)2U, stackAllocator.StackSize_NumObjects());
 			Assert::AreEqual(1U, *x);
 			Assert::AreEqual(2U, *y);
 
 			Assert::AreEqual((std::size_t)8U, stackAllocator.UsedSpace_Bytes());
-#ifdef _DEBUG
-			Assert::IsFalse(stackAllocator.IsStackOverflow(), L"O2");
-#endif //_DEBUG
+//#ifdef _DEBUG
+//			Assert::IsFalse(stackAllocator.IsStackOverflow(), L"O2");
+//#endif //_DEBUG
 
 			std::uint32_t* z = static_cast<std::uint32_t*>(stackAllocator.allocate(sizeof(std::uint32_t)));
-			*z = 44;
-#ifdef _DEBUG
-			Assert::IsTrue(stackAllocator.IsStackOverflow(), L"O3");
-#endif //_DEBUG
-			//Assert::IsNull(z);
+			Assert::IsNull(z);
+//#ifdef _DEBUG
+//			Assert::IsTrue(stackAllocator.IsStackOverflow(), L"O3");
+//#endif //_DEBUG
 			//Assert::AreEqual((std::size_t)2U, stackAllocator.StackSize_NumObjects());
 			Assert::AreEqual(1U, *x);
 			Assert::AreEqual(2U, *y);
@@ -82,7 +81,7 @@ namespace UnitTest
 			Assert::AreEqual((std::size_t)0U, stackAllocator.UsedSpace_Bytes());
 
 			std::uint64_t* w = static_cast<std::uint64_t*>(stackAllocator.allocate(sizeof(std::uint64_t)));
-			//Assert::IsNotNull(w);
+			Assert::IsNotNull(w);
 			*w = 64U;
 			Assert::IsTrue(64U == *w);
 			//Assert::AreEqual((std::size_t)1U, stackAllocator.StackSize_NumObjects());
@@ -91,7 +90,7 @@ namespace UnitTest
 			//Assert::IsNull(another);
 			another;
 
-			Assert::AreNotEqual((std::size_t)8U, stackAllocator.UsedSpace_Bytes());		// should be 9 b/c of the bool
+			Assert::AreNotEqual((std::size_t)4U, stackAllocator.UsedSpace_Bytes());
 			//Assert::IsTrue(stackAllocator.IsStackOverflow());
 		}
 
@@ -137,19 +136,20 @@ namespace UnitTest
 			Assert::IsTrue(memoryManager.CreateAllocator("Stack1", 43*sizeof(Foo), MemoryManager::AllocType::STACK), L"Allocator Not Created.");
 			
 			
-			Foo* ptr3 = static_cast<Foo*>(new ("Stack1", memoryManager, MemoryManager::AllocType::STACK, __FILE__, __LINE__) Foo());
+			Foo* ptr3 = static_cast<Foo*>(new ("Stack1", memoryManager, MemoryManager::AllocType::STACK, 0U, __FILE__, __LINE__) Foo());
 			ptr3->~Foo();
-			operator delete (ptr3, "Stack1", memoryManager, MemoryManager::AllocType::STACK, "none", 0U, Allocators::Info::NONE);
+			memoryManager.Deallocate(ptr3, "Stack1", MemoryManager::AllocType::STACK);
+			//operator delete (ptr3, "Stack1", memoryManager, MemoryManager::AllocType::STACK, "none", 0U, Allocators::Info::NONE);
 			//memoryManager.Deallocate(ptr3, "Stack1", MemoryManager::AllocType::STACK);
 
-			MemPtr<Foo> memPtr2 = static_cast<Foo*>(new ("Stack1", memoryManager, MemoryManager::AllocType::STACK, __FILE__, __LINE__) Foo());
-			memPtr2->~Foo();
-			memoryManager.Deallocate(memPtr2.Get(), "Stack1", MemoryManager::AllocType::STACK);
+			//MemPtr<Foo> memPtr2 = static_cast<Foo*>(new ("Stack1", memoryManager, MemoryManager::AllocType::STACK, __FILE__, __LINE__) Foo());
+			//memPtr2->~Foo();
+			//memoryManager.Deallocate(memPtr2.Get(), "Stack1", MemoryManager::AllocType::STACK);
 
-			
-			MemPtr<Foo> memPtr = MakeMemPtr_Raw<Foo>("Stack1", MemoryManager::AllocType::STACK, memoryManager);
-			memPtr->~Foo();
-			memoryManager.Deallocate(memPtr.Get(), "Stack1", MemoryManager::AllocType::STACK);
+			//
+			//MemPtr<Foo> memPtr = MakeMemPtr_Raw<Foo>("Stack1", MemoryManager::AllocType::STACK, memoryManager);
+			//memPtr->~Foo();
+			//memoryManager.Deallocate(memPtr.Get(), "Stack1", MemoryManager::AllocType::STACK);
 		}
 
 		TEST_METHOD(MoreTesing)
@@ -163,6 +163,13 @@ namespace UnitTest
 
 			//Foo* ptr1 = PoolAlloc<Foo>("Pool1", memoryManager);
 			//Foo* ptr2 = POOL_ALLOC("Pool1", memoryManager) Foo();
+		}
+
+		TEST_METHOD(Alignment)
+		{
+			StackAllocator stackallocator(40*sizeof(std::uint32_t));
+
+			stackallocator.allocate(sizeof(std::uint32_t), 128U);
 		}
 
 	private:

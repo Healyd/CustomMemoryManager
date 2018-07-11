@@ -55,12 +55,31 @@ namespace CustomMemoryManager::Allocators
 		}
 	}
 
-	void* HeapAllocator::allocate(std::size_t allocAmount_bytes, std::size_t, Info)
+	void* HeapAllocator::allocate(std::size_t allocAmount_bytes, std::size_t, Info info)
 	{
 		void* ptr = nullptr;
 
+		if (info == CustomMemoryManager::Allocators::NONE)
+		{
+			info = CustomMemoryManager::Allocators::HEAP_FIRSTFIT;
+		}
+
 		// Search InActive List.
-		HeapNode* foundNode = FindNodeFirstFitSize(allocAmount_bytes, &mInActiveLocationsList_Head, &mInActiveLocationsList_End);
+		HeapNode* foundNode = nullptr;
+		switch (info)
+		{
+		case CustomMemoryManager::Allocators::HEAP_FIRSTFIT:
+			foundNode = FindNodeFirstFitSize(allocAmount_bytes, &mInActiveLocationsList_Head, &mInActiveLocationsList_End);
+			break;
+		case CustomMemoryManager::Allocators::HEAP_LASTFIT:
+			foundNode = FindNodeLastFitSize(allocAmount_bytes, &mInActiveLocationsList_Head, &mInActiveLocationsList_End);
+			break;
+		case CustomMemoryManager::Allocators::HEAP_BESTFIT:
+			foundNode = FindNodeBestFitSize(allocAmount_bytes, &mInActiveLocationsList_Head, &mInActiveLocationsList_End);
+			break;
+		default:
+			break;
+		}
 
 		if (foundNode != nullptr)
 		{
@@ -325,6 +344,7 @@ namespace CustomMemoryManager::Allocators
 		{
 			return nullptr;
 		}
+		assert(*head != nullptr && *end != nullptr);
 
 		// One Item.
 		if (*head == *end && (*head)->mSize_Bytes >= size_bytes)
@@ -342,6 +362,72 @@ namespace CustomMemoryManager::Allocators
 			}
 			current = current->mNext;
 		}
+		return current;
+	}
+
+	HeapAllocator::HeapNode* HeapAllocator::FindNodeLastFitSize(std::size_t size_bytes, HeapNode** head, HeapNode** end)
+	{
+		// Empty.
+		if (*head == nullptr && *end == nullptr)
+		{
+			return nullptr;
+		}
+		assert(*head != nullptr && *end != nullptr);
+
+		// One Item.
+		if (*head == *end && (*end)->mSize_Bytes >= size_bytes)
+		{
+			return *end;
+		}
+
+		// Greather Than One Item.
+		HeapNode* current = *end;
+		while (current != nullptr)
+		{
+			if (current->mSize_Bytes >= size_bytes)
+			{
+				break;
+			}
+			current = current->mPrevious;
+		}
+		return current;
+	}
+
+	HeapAllocator::HeapNode* HeapAllocator::FindNodeBestFitSize(std::size_t size_bytes, HeapNode** head, HeapNode** end)
+	{
+		// Empty.
+		if (*head == nullptr && *end == nullptr)
+		{
+			return nullptr;
+		}
+		assert(*head != nullptr && *end != nullptr);
+
+		// One Item.
+		if (*head == *end && (*head)->mSize_Bytes >= size_bytes)
+		{
+			return *head;
+		}
+
+		// Greather Than One Item.
+		HeapNode* current = *head;
+		std::size_t sizebytes_cache = std::numeric_limits<std::size_t>::max();
+		HeapNode* found = nullptr;
+		while (current != nullptr)
+		{
+			// if current size is large enough and is less than the previously cached size store it.
+			if (current->mSize_Bytes > size_bytes && current->mSize_Bytes < sizebytes_cache)
+			{
+				sizebytes_cache = current->mSize_Bytes;
+				found = current;
+			}
+			else if (current->mSize_Bytes == size_bytes)
+			{
+				found = current;
+				break;
+			}
+			current = current->mNext;
+		}
+		current = found;
 		return current;
 	}
 

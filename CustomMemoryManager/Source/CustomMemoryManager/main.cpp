@@ -108,19 +108,10 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
+#define PRINTT(...) printf(#__VA_ARGS__)
+
 int main(int, char**)
 {
-	//custommemorymanager::allocators::stackallocator stackallocator(4u);
-	//stackallocator;
-
-	//void* x = stackallocator.alloc(4);
-	//void* y = stackallocator.alloc(4);
-
-	//assert(x != nullptr);
-	//assert(y == nullptr);
-
-
-
 	// Create application window
 	WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, _T("ImGui Example"), NULL };
 	RegisterClassEx(&wc);
@@ -202,24 +193,7 @@ int main(int, char**)
 	);
 #endif // _MEMDEBUG
 
-
-
-
-	//CREATE_POOL("UINT32_Pool", Object, 400 * sizeof(Object));
-
-	//Object* ptrs = POOL_ALLOC("UINT32_Pool") Object();		// calls the constructor
-	//POOL_DEALLOC(ptrs, "UINT32_Pool", Object);				// calls the destructor
-
-
-		//std::vector<std::uint32_t*> IntVector(200);
-		//for (std::uint32_t i = 0U; i < 200; ++i)
-		//{
-		//	IntVector.push_back(static_cast<std::uint32_t*>(memoryManager.Allocate(sizeof(std::uint32_t), "Stack2", CustomMemoryManager::MemoryManager::AllocType::STACK)));
-		//}
-
-		//srand((std::size_t)(time(NULL)));
-
-		// Setup style
+	// Setup style
 	ImGui::StyleColorsDark();
 	//ImGui::StyleColorsClassic();
 
@@ -265,34 +239,6 @@ int main(int, char**)
 		memoryTestString.Run();
 		memoryTestObject.Run();
 #endif // _MEMDEBUG
-
-		//memoryTestInts.TestStackAllocator_Ints("Stack1", 100, 100);
-
-		/*std::uint32_t numObjectsToDeallocate = rand() % 100 + 1;
-		std::uint32_t numObjectsToAllocate = rand() % 100 + 1;
-
-		for (std::uint32_t i = 0; i < numObjectsToDeallocate; ++i)
-		{
-			if (!IntVector.empty())
-			{
-				std::uint32_t* intPtr = IntVector.back();
-				IntVector.pop_back();
-				memoryManager.Deallocate(intPtr, "Stack2", CustomMemoryManager::MemoryManager::AllocType::STACK);
-			}
-		}
-
-		CustomMemoryManager::Allocators::StackAllocator* stackAll = static_cast<CustomMemoryManager::Allocators::StackAllocator*>(memoryManager.Get("Stack2", CustomMemoryManager::MemoryManager::AllocType::STACK));
-		std::size_t x = (stackAll->StackSize_Bytes() - stackAll->UsedSpace_Bytes()) / sizeof(std::uint32_t) + 1;
-		if (numObjectsToAllocate >= x)
-		{
-			numObjectsToAllocate = x;
-		}
-
-		for (std::uint32_t i = 0; i < numObjectsToAllocate; ++i)
-		{
-			IntVector.push_back(static_cast<std::uint32_t*>(memoryManager.Allocate(sizeof(std::uint32_t), "Stack2", CustomMemoryManager::MemoryManager::AllocType::STACK)));
-		}*/
-
 
 		// 1. Show a simple window.
 		// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets automatically appears in a window called "Debug".

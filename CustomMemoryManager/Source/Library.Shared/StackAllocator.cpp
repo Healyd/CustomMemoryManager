@@ -64,32 +64,46 @@ namespace CustomMemoryManager::Allocators
 		return *this;
 	}
 
-	void* StackAllocator::allocate(std::size_t allocAmount_bytes, std::size_t, Info)
+	void* StackAllocator::allocate(std::size_t allocAmount_bytes, std::size_t alignment, Info)
 	{
+		if (alignment % 2U != 0U)
+		{
+			throw std::exception("Odd Bit Alignment");
+		}
+
+		if (alignment > 0U)
+		{
+			alignment = alignment - 1;
+		}
+
 		// Cache mStackCurrent as a std::intptr_t.
 		std::intptr_t currentStackLocation = reinterpret_cast<std::intptr_t>(mStackCurrent);
 
 		// Determine the stack space we have to work with.
 		std::uintptr_t usedSpace = currentStackLocation - reinterpret_cast<std::intptr_t>(mStackStart);
-		std::uintptr_t newSpace = usedSpace + allocAmount_bytes;
-		newSpace; usedSpace;
+		std::uintptr_t newSpace = usedSpace + allocAmount_bytes + alignment;
 
 		// Too large: then no stack allocation.
 		if (newSpace > mStackSize_bytes)
 		{
-			//throw std::exception("Stack Overflow!");
 			return nullptr;
 		}
 
 		// Store the address to this alloc location.
 		mAllocLocations[mIndex] = currentStackLocation;
 		++mIndex;
-		//++mNumObjects;
+
+		std::uintptr_t mask = ~(static_cast<std::uintptr_t>(alignment));
 
 		// Get the current stack top location.
 		void* temp = mStackCurrent;
-		mStackCurrent = reinterpret_cast<void*>(currentStackLocation + allocAmount_bytes);
-		return temp;
+		std::uintptr_t curPlusAlign = (reinterpret_cast<std::uintptr_t>(mStackCurrent) + alignment);
+		std::uintptr_t maskApply = curPlusAlign & mask;
+		void* temp2 = reinterpret_cast<void*>(maskApply);
+		//void* temp2 = reinterpret_cast<void*>((reinterpret_cast<std::uintptr_t>(mStackCurrent) + alignment) & mask);	// ~(static_cast<std::uintptr_t>(alignment - 1)));
+		mStackCurrent = reinterpret_cast<void*>(currentStackLocation + allocAmount_bytes + alignment);
+		temp2; temp;
+		return temp2;
 	}
 
 	void StackAllocator::deallocate(void*, Info)
@@ -99,7 +113,11 @@ namespace CustomMemoryManager::Allocators
 			return;
 			//throw std::exception("The Stack is Empty!");
 		}
-		mStackCurrent = reinterpret_cast<void*>(mAllocLocations[--mIndex]);
+		// todo: force deallocation to happen in order of the stack.
+		//if (reinterpret_cast<void*>(mAllocLocations[mIndex]) == ptr || ptr == nullptr)
+		//{
+			mStackCurrent = reinterpret_cast<void*>(mAllocLocations[--mIndex]);
+		//}
 
 		//--mNumObjects;
 	}
@@ -148,7 +166,7 @@ namespace CustomMemoryManager::Allocators
 		std::size_t endOfStack = reinterpret_cast<std::size_t>(mStackStart) + mStackSize_bytes;
 		//std::size_t endOfDebugStack = endOfStack + DEBUG_EXTRA_SPACE_BYTES;
 
-		for (std::size_t i = 0U; i < DEBUG_EXTRA_SPACE_BYTES; i+=sizeof(std::intptr_t))
+		for (std::size_t i = 0U; i < DEBUG_EXTRA_SPACE_BYTES; i += sizeof(std::intptr_t))
 		{
 			std::intptr_t* ptr = reinterpret_cast<std::intptr_t*>(endOfStack + i);
 			if (*ptr != NULL)

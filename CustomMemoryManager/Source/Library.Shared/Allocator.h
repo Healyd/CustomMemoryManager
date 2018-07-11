@@ -24,6 +24,9 @@ namespace CustomMemoryManager::Allocators
 		NONE,
 		TOP,
 		BOTTOM,
+		HEAP_FIRSTFIT,
+		HEAP_LASTFIT,
+		HEAP_BESTFIT,
 		MAX
 	};
 
