@@ -169,7 +169,8 @@ namespace UnitTest
 		{
 			StackAllocator stackallocator(40*sizeof(std::uint32_t));
 
-			stackallocator.allocate(sizeof(std::uint32_t), 128U);
+			stackallocator.allocate(sizeof(char), 4U);
+			stackallocator.allocate(sizeof(std::uint32_t), 4U);
 		}
 
 	private:

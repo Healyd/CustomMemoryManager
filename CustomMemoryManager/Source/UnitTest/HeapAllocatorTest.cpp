@@ -97,5 +97,31 @@ namespace UnitTest
 				ptrs.erase(ptrs.begin());
 			}
 		}
+
+		TEST_METHOD(NextFit)
+		{
+			HeapAllocator heap(4 * sizeof(std::uint32_t));
+
+			std::uint32_t* val1 = static_cast<std::uint32_t*>(heap.allocate(sizeof(std::uint32_t), 0U, CustomMemoryManager::Allocators::Info::HEAP_NEXTFIT));
+			Assert::IsNotNull(val1);
+
+			std::uint32_t* val2 = static_cast<std::uint32_t*>(heap.allocate(sizeof(std::uint32_t), 0U, CustomMemoryManager::Allocators::Info::HEAP_NEXTFIT));
+			Assert::IsNotNull(val2);
+
+			std::uint32_t* val3 = static_cast<std::uint32_t*>(heap.allocate(sizeof(std::uint32_t), 0U, CustomMemoryManager::Allocators::Info::HEAP_NEXTFIT));
+			Assert::IsNotNull(val3);
+
+			std::uint32_t* val4 = static_cast<std::uint32_t*>(heap.allocate(sizeof(std::uint32_t), 0U, CustomMemoryManager::Allocators::Info::HEAP_NEXTFIT));
+			Assert::IsNotNull(val4);
+
+			heap.deallocate(val1);
+			heap.deallocate(val4);
+
+			val1 = static_cast<std::uint32_t*>(heap.allocate(sizeof(std::uint32_t), 0U, CustomMemoryManager::Allocators::Info::HEAP_NEXTFIT));
+			Assert::IsNotNull(val1);
+
+			val4 = static_cast<std::uint32_t*>(heap.allocate(sizeof(std::uint32_t), 0U, CustomMemoryManager::Allocators::Info::HEAP_NEXTFIT));
+			Assert::IsNotNull(val4);
+		}
 	};
 }

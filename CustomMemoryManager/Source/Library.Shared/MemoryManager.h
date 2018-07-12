@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#define ALLOCATIONS_FOR_FILEOUTPUT -1
+
 //#define _OUTPUTFILE	// runs in debugoptimized mode
 #define _NOOUTPUTFILE
 //#define _STACK		// overrides _NOOUTPUTFILE
@@ -36,13 +38,13 @@ namespace CustomMemoryManager
 #ifdef _MEMDEBUG
 		struct Data
 		{
-			float mAverageAllocationTime{ 0.0f };
-			float mAverageDeallocationTime{ 0.0f };
+			float mSumAllocationTime{ 0.0f };
+			float mSumDeallocationTime{ 0.0f };
 			std::uint64_t mNumAllocations{ 0U };
 			std::uint64_t mNumDeallocations{ 0U };
 
-			float mAverageAllocationTime_Bottom{ 0.0f };
-			float mAverageDeallocationTime_Bottom{ 0.0f };
+			float mSumAllocationTime_Bottom{ 0.0f };
+			float mSumDeallocationTime_Bottom{ 0.0f };
 			std::uint64_t mNumAllocations_Bottom{ 0U };
 			std::uint64_t mNumDeallocations_Bottom{ 0U };
 		};
@@ -73,6 +75,8 @@ namespace CustomMemoryManager
 #ifdef _MEMDEBUG
 		const Data* const GetData(const std::string& name);
 		void OutputFile(const std::string& allocatorName, const std::string& fileName, const std::size_t lineNumber, std::size_t allocationSize_bytes, void* ptr);
+		void OutputFileAverages();
+		bool AreAllAllocationsOver() const;
 #endif // _MEMDEBUG
 
 		//void IsValid(const std::string& name, const AllocType type);
@@ -109,8 +113,6 @@ namespace CustomMemoryManager
 	}
 }
 
-//inline CustomMemoryManager::MemoryManager gMemoryManager;
-
 inline void* operator new(std::size_t size, const std::string& name, CustomMemoryManager::MemoryManager& memoryManager, const CustomMemoryManager::MemoryManager::AllocType type, const std::size_t alignment = 0U, std::string fileName = "none", const std::size_t lineNumber = 0U, CustomMemoryManager::Allocators::Info info = CustomMemoryManager::Allocators::Info::NONE)
 {
 	return memoryManager.Allocate(size, name, type, alignment, fileName, lineNumber, info);
@@ -143,12 +145,13 @@ inline CustomMemoryManager::MemoryManager gMemoryManager;
 #define DEFAULT_POOL	"DefaultPool"
 #define DEFAULT_HEAP	"DefaultHeap"
 
+//////////////////////////////////
+
 // STACK_ALLOC(std::string name, std::size_t alignment = 0U)
 #define STACK_ALLOC(...)				OVERLOADED_MACRO(STACK_ALLOC, __VA_ARGS__)
 #define STACK_ALLOC1(name)				STACK_ALLOC2(name, 0U) 
 #define STACK_ALLOC2(name, alignment)	new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::STACK,	alignment, __FILE__, __LINE__)
 
-//#define DSTACK_ALLOC_TOP(...)		OVERLOADED_MACRO(DSTACK_ALLOC, __)
 #define DSTACK_ALLOC_TOP(name)		new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK,	0U, __FILE__, __LINE__ , CustomMemoryManager::Allocators::Info::TOP)
 #define DSTACK_ALLOC_BOTTOM(name)	new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK,	0U, __FILE__, __LINE__ , CustomMemoryManager::Allocators::Info::BOTTOM)
 
@@ -156,12 +159,10 @@ inline CustomMemoryManager::MemoryManager gMemoryManager;
 
 #define HEAP_ALLOC_FIRSTFIT(name)	new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::HEAP,			0U, __FILE__, __LINE__, CustomMemoryManager::Allocators::Info::HEAP_FIRSTFIT)
 #define HEAP_ALLOC_LASTFIT(name)	new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::HEAP,			0U, __FILE__, __LINE__, CustomMemoryManager::Allocators::Info::HEAP_LASTFIT)
+#define HEAP_ALLOC_NEXTFIT(name)	new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::HEAP,			0U, __FILE__, __LINE__, CustomMemoryManager::Allocators::Info::HEAP_NEXTFIT)
 #define HEAP_ALLOC_BESTFIT(name)	new (name, gMemoryManager, CustomMemoryManager::MemoryManager::AllocType::HEAP,			0U, __FILE__, __LINE__, CustomMemoryManager::Allocators::Info::HEAP_BESTFIT)
 
-
-
-
-
+////////////////////////////////
 
 #define STACK_DEALLOC(name, ptr)			gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::MemoryManager::AllocType::STACK, __FILE__, __LINE__ )
 #define DSTACK_DEALLOC_TOP(name, ptr)		gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK, __FILE__, __LINE__ , CustomMemoryManager::Allocators::Info::TOP)

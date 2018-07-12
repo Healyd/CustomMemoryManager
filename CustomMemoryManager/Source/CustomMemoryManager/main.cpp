@@ -150,7 +150,7 @@ int main(int, char**)
 
 	CREATE_STACK("Stack1", 800 * sizeof(std::uint32_t));
 	CREATE_STACK("Stack2", 400 * sizeof(std::uint32_t));
-	CREATE_STACK("Stack3", 1000 * sizeof(std::uint32_t));
+	//CREATE_STACK("Stack3", 1000 * sizeof(std::uint32_t));
 	CREATE_STACK("Stack4", 800 * sizeof(std::string));
 
 	CREATE_DSTACK("DoubleStack1", 800 * sizeof(std::uint32_t));

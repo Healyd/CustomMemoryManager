@@ -12,6 +12,7 @@ namespace CustomMemoryManager::Allocators
 		mLocations_End = mLocations_Head;
 		mInActiveLocationsList_Head = mLocations_Head;
 		mInActiveLocationsList_End = mLocations_Head;
+		mNextFit = mLocations_Head;
 #ifdef _MEMDEBUG
 		++mNumInActiveNodes;
 #endif // _MEMDEBUG
@@ -74,6 +75,9 @@ namespace CustomMemoryManager::Allocators
 		case CustomMemoryManager::Allocators::HEAP_LASTFIT:
 			foundNode = FindNodeLastFitSize(allocAmount_bytes, &mInActiveLocationsList_Head, &mInActiveLocationsList_End);
 			break;
+		case CustomMemoryManager::Allocators::HEAP_NEXTFIT:
+			//foundNode = FindNodeNextFitSize(allocAmount_bytes);
+			break;
 		case CustomMemoryManager::Allocators::HEAP_BESTFIT:
 			foundNode = FindNodeBestFitSize(allocAmount_bytes, &mInActiveLocationsList_Head, &mInActiveLocationsList_End);
 			break;
@@ -102,6 +106,11 @@ namespace CustomMemoryManager::Allocators
 					// Push back InActive List.
 					MemInsertAfter(temp, &foundNode);
 					PushBackNode(temp, &mInActiveLocationsList_Head, &mInActiveLocationsList_End);
+
+					if (info == CustomMemoryManager::Allocators::Info::HEAP_NEXTFIT)
+					{
+						mNextFit = foundNode->mNext;
+					}
 #ifdef _MEMDEBUG
 					++mNumInActiveNodes;
 #endif // _MEMDEBUG
@@ -428,6 +437,73 @@ namespace CustomMemoryManager::Allocators
 			current = current->mNext;
 		}
 		current = found;
+		return current;
+	}
+
+	HeapAllocator::HeapNode* HeapAllocator::FindNodeNextFitSize(std::size_t size_bytes)// , HeapNode** head, HeapNode** end)
+	{
+		// Empty.
+		if (mInActiveLocationsList_Head == nullptr && mInActiveLocationsList_End == nullptr)
+		{
+			return nullptr;
+		}
+		assert(mInActiveLocationsList_Head != nullptr && mInActiveLocationsList_End != nullptr);
+
+		// One Item.
+		if (mInActiveLocationsList_Head == mInActiveLocationsList_End && mInActiveLocationsList_Head->mSize_Bytes >= size_bytes)
+		{
+			return mInActiveLocationsList_Head;
+		}
+
+		// Greather Than One Item.
+		HeapNode* current = mNextFit;
+		bool isFound = false;
+		while (current != nullptr)
+		{
+			if (current->mSize_Bytes >= size_bytes)
+			{
+				isFound = true;
+				break;
+			}
+			current = current->mNext;
+		}
+
+		if (!isFound)
+		{
+			HeapNode* oldNextFit = mNextFit;
+			mNextFit = mInActiveLocationsList_Head;
+			current = mNextFit;
+			while (current != nullptr)
+			{
+				if (current->mSize_Bytes >= size_bytes)
+				{
+					break;
+				}
+				else if (current == oldNextFit)		// we went full circle, break and return nullptr
+				{
+					current = nullptr;
+					break;
+				}
+				current = current->mNext;
+			}
+		}
+
+		//if (current != nullptr)
+		//{
+		//	mNextFit = current->mNext;
+		//}
+		//else
+		//{
+		//	mNextFit = mInActiveLocationsList_Head;
+		//}
+
+		//// If at the end then reset to the beginning
+		//if (mNextFit == nullptr)
+		//{
+		//	mNextFit = mInActiveLocationsList_Head;
+		//}
+
+
 		return current;
 	}
 

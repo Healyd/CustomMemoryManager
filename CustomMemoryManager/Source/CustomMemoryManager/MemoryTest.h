@@ -255,6 +255,7 @@ void MemoryTest<T>::TestHeapAllocator(const std::string& name, std::size_t alloc
 	{
 		//T* ptr = HEAP_ALLOC_FIRSTFIT(name) T();
 		//T* ptr = HEAP_ALLOC_LASTFIT(name) T();
+		//T* ptr = HEAP_ALLOC_NEXTFIT(name) T();
 		T* ptr = HEAP_ALLOC_BESTFIT(name) T();
 		if (ptr == nullptr)
 			break;

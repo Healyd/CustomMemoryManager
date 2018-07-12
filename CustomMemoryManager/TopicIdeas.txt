@@ -1,9 +1,15 @@
 Custom Memory Manager
 
+	-	Memory Alignment
+
 	-	Stack Allocator
 
 	-	Pool Allocator
 		-	Chunk Detection (quick allocation for arrays)
+		-	Defragmentation
+		
+	-	Heap Allocator
+		-	Next Fit
 		-	Defragmentation
 		
 	- Manager
@@ -11,4 +17,4 @@ Custom Memory Manager
 		
 		-_DEBUG for debug
 		-_DEBUGOPTIMIZED for debug optimized
-		- MemDebug for debug and debug optimized
+		-_MEMDEBUG for debug and debug optimized

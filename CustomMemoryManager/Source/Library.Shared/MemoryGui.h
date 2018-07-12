@@ -78,6 +78,7 @@ namespace CustomMemoryManager
 		bool mShowHeapWindows{ false };
 
 		const std::string mMallocName = "MALLOC";
+		bool doOnceFileOutput = true;
 
 #ifdef _DEBUG
 		std::set<std::string> mStackOverflowList;

@@ -12,6 +12,7 @@ namespace CustomMemoryManager
 #ifdef _MEMDEBUG
 	MemoryManager::MemoryManager()
 	{
+#if !defined(_NOOUTPUTFILE) || defined(_STACK) || defined(_DSTACK) || defined(_POOL) || defined(_HEAP) || (ALLOCATIONS_FOR_FILEOUTPUT > 0)
 #ifdef _DEBUG
 		_wmkdir(L"Logs");
 		_wmkdir(L"Logs\\Debug");
@@ -26,7 +27,6 @@ namespace CustomMemoryManager
 		std::replace(mDateTimeStamp.begin(), mDateTimeStamp.end(), '\n', '_');
 
 		char carray2[300] = "Logs\\Debug\\";
-
 		strcat_s(carray2, mDateTimeStamp.c_str());
 
 		wchar_t wcarray[300];
@@ -36,8 +36,8 @@ namespace CustomMemoryManager
 
 		mOutputDirectory = "Logs\\Debug\\" + mDateTimeStamp + "\\";
 #endif // _DEBUG
-		
-#ifdef  _OUTPUTFILE
+
+#ifdef  _DEBUGOPTIMIZED
 		_wmkdir(L"Logs");
 		_wmkdir(L"Logs\\DebugOptimized");
 
@@ -51,7 +51,6 @@ namespace CustomMemoryManager
 		std::replace(mDateTimeStamp.begin(), mDateTimeStamp.end(), '\n', '_');
 
 		char carray2[300] = "Logs\\DebugOptimized\\";
-
 		strcat_s(carray2, mDateTimeStamp.c_str());
 
 		wchar_t wcarray[300];
@@ -60,6 +59,7 @@ namespace CustomMemoryManager
 		_wmkdir(wcarray);
 
 		mOutputDirectory = "Logs\\DebugOptimized\\" + mDateTimeStamp + "\\";
+#endif
 #endif
 	}
 #endif // _MEMDEBUG
@@ -145,7 +145,7 @@ namespace CustomMemoryManager
 				if (ptr != nullptr)
 				{
 					Data& data = mAllocatorData.find(name)->second;
-					data.mAverageAllocationTime += stopWatch.Elapsed().count();
+					data.mSumAllocationTime += stopWatch.Elapsed().count();
 					++(data.mNumAllocations);
 				}
 #if (defined(_DEBUG) || defined(_OUTPUTFILE)) && !defined(_NOOUTPUTFILE) || defined(_STACK)
@@ -178,12 +178,12 @@ namespace CustomMemoryManager
 					Data& data = mAllocatorData.find(name)->second;
 					if (info == Allocators::Info::TOP)
 					{
-						data.mAverageAllocationTime += stopWatch.Elapsed().count();
+						data.mSumAllocationTime += stopWatch.Elapsed().count();
 						++(data.mNumAllocations);
 					}
 					else if (info == Allocators::Info::BOTTOM)
 					{
-						data.mAverageAllocationTime_Bottom += stopWatch.Elapsed().count();
+						data.mSumAllocationTime_Bottom += stopWatch.Elapsed().count();
 						++(data.mNumAllocations_Bottom);
 					}
 				}
@@ -209,7 +209,7 @@ namespace CustomMemoryManager
 				if (ptr != nullptr)
 				{
 					Data& data = mAllocatorData.find(name)->second;
-					data.mAverageAllocationTime += stopWatch.Elapsed().count();
+					data.mSumAllocationTime += stopWatch.Elapsed().count();
 					++(data.mNumAllocations);
 				}
 #if (defined(_DEBUG) || defined(_OUTPUTFILE)) && !defined(_NOOUTPUTFILE) || defined(_POOL)
@@ -234,8 +234,10 @@ namespace CustomMemoryManager
 				if (ptr != nullptr)
 				{
 					Data& data = mAllocatorData.find(name)->second;
-					data.mAverageAllocationTime += stopWatch.Elapsed().count();
+					data.mSumAllocationTime += stopWatch.Elapsed().count();
 					++(data.mNumAllocations);
+					//if (data.mNumAllocations < 20000)
+					//	std::cout << data.mSumAllocationTime / data.mNumAllocations << std::endl;
 				}
 #if (defined(_DEBUG) || defined(_OUTPUTFILE)) && !defined(_NOOUTPUTFILE) || defined(_HEAP)
 				OutputFile(name, fileName, lineNumber, allocAmount_bytes, ptr);
@@ -270,7 +272,7 @@ namespace CustomMemoryManager
 #ifdef _MEMDEBUG
 				stopWatch.Stop();
 				Data& data = mAllocatorData.find(name)->second;
-				data.mAverageDeallocationTime += stopWatch.Elapsed().count();
+				data.mSumDeallocationTime += stopWatch.Elapsed().count();
 				++(data.mNumDeallocations);
 #endif // _MEMDEBUG
 			}
@@ -290,12 +292,12 @@ namespace CustomMemoryManager
 				Data& data = mAllocatorData.find(name)->second;
 				if (info == Allocators::Info::TOP)
 				{
-					data.mAverageDeallocationTime += stopWatch.Elapsed().count();
+					data.mSumDeallocationTime += stopWatch.Elapsed().count();
 					++(data.mNumDeallocations);
 				}
 				else if (info == Allocators::Info::BOTTOM)
 				{
-					data.mAverageDeallocationTime_Bottom += stopWatch.Elapsed().count();
+					data.mSumDeallocationTime_Bottom += stopWatch.Elapsed().count();
 					++(data.mNumDeallocations_Bottom);
 				}
 #endif // _MEMDEBUG
@@ -314,7 +316,7 @@ namespace CustomMemoryManager
 #ifdef _MEMDEBUG
 				stopWatch.Stop();
 				Data& data = mAllocatorData.find(name)->second;
-				data.mAverageDeallocationTime += stopWatch.Elapsed().count();
+				data.mSumDeallocationTime += stopWatch.Elapsed().count();
 				++(data.mNumDeallocations);
 #endif // _MEMDEBUG
 			}
@@ -332,7 +334,7 @@ namespace CustomMemoryManager
 #ifdef _MEMDEBUG
 				stopWatch.Stop();
 				Data& data = mAllocatorData.find(name)->second;
-				data.mAverageDeallocationTime += stopWatch.Elapsed().count();
+				data.mSumDeallocationTime += stopWatch.Elapsed().count();
 				++(data.mNumDeallocations);
 #endif // _MEMDEBUG
 			}
@@ -435,6 +437,47 @@ namespace CustomMemoryManager
 #endif
 		}
 		fclose(outfile);
+	}
+
+	void MemoryManager::OutputFileAverages()
+	{
+		std::string directory(mOutputDirectory + std::to_string(ALLOCATIONS_FOR_FILEOUTPUT) + "_Data.txt");
+		FILE* outfile;
+		fopen_s(&outfile, directory.c_str(), "w+");
+		if (outfile != nullptr)
+		{
+			for (const auto& data : mAllocatorData)
+			{
+				const Data& d = data.second;
+				fprintf_s(outfile,
+					"%s:\n\tAverage Allocation Time:\t%f\n\tAverage Deallocation Time:\t%f\n\tNumber of Allocations:\t\t%lld\n\tNumber of Deallocations:\t%lld\n\n"
+					, data.first.c_str(), 
+					d.mSumAllocationTime / d.mNumAllocations, 
+					d.mSumDeallocationTime / d.mNumDeallocations, 
+					d.mNumAllocations, 
+					d.mNumDeallocations);
+			}
+		}
+		fclose(outfile);
+	}
+
+	bool MemoryManager::AreAllAllocationsOver() const
+	{
+#if ALLOCATIONS_FOR_FILEOUTPUT > 0
+		bool isGood = false;
+		for (const auto& data : mAllocatorData)
+		{
+			if (data.second.mNumAllocations < ALLOCATIONS_FOR_FILEOUTPUT)
+			{
+				isGood = false;
+				break;
+			}
+			isGood = true;
+		}
+		return isGood;
+#else
+		return false;
+#endif
 	}
 #endif // _MEMDEBUG
 }

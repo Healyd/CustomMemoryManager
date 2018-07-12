@@ -69,20 +69,27 @@ namespace CustomMemoryManager
 				std::string text = "\t\tMALLOC Window";
 				ImGui::Text(text.c_str());
 			}
-		}
 
-		StackGuiWindow();
-		DoubleStackGuiWindow();
-		PoolGuiWindow();
-		HeapGuiWindow();
-		MallocGuiWindow();
+			// Debug OutputFile (similar to data in the gui)
+			if (mMemoryManager->AreAllAllocationsOver() && doOnceFileOutput)
+			{
+				mMemoryManager->OutputFileAverages();
+				doOnceFileOutput = false;
+			}
+
+			StackGuiWindow();
+			DoubleStackGuiWindow();
+			PoolGuiWindow();
+			HeapGuiWindow();
+			MallocGuiWindow();
+		}
 	}
-	
+
 	void MemoryGui::EndGui()
 	{
 
 	}
-	
+
 	void MemoryGui::ShowAllocatorSelector(const std::string& checkBoxName, bool& mShowWindow, std::vector<std::string> allocatorNames)
 	{
 		ImGui::Checkbox(checkBoxName.c_str(), &mShowWindow);
@@ -116,8 +123,8 @@ namespace CustomMemoryManager
 
 					ImGui::Text("%s Size (Bytes): %u", name.c_str(), stack->StackSize_Bytes());
 					ImGui::Text("%s Used Space (Bytes): %i", name.c_str(), stack->UsedSpace_Bytes());
-					ImGui::Text("%s Average Allocation Time: %f microseconds", name.c_str(), data->mAverageAllocationTime / data->mNumAllocations);
-					ImGui::Text("%s Average Deallocation Time: %f microseconds", name.c_str(), data->mAverageDeallocationTime / data->mNumDeallocations);
+					ImGui::Text("%s Average Allocation Time: %f microseconds", name.c_str(), data->mSumAllocationTime / data->mNumAllocations);
+					ImGui::Text("%s Average Deallocation Time: %f microseconds", name.c_str(), data->mSumDeallocationTime / data->mNumDeallocations);
 					ImGui::Text("%s Num Allocations: %u", name.c_str(), data->mNumAllocations);
 					ImGui::Text("%s Num Dellocations: %u", name.c_str(), data->mNumDeallocations);
 
@@ -191,8 +198,8 @@ namespace CustomMemoryManager
 
 					ImGui::Spacing();
 
-					ImGui::Text("%s Top Average Allocation Time: %f microseconds", name.c_str(), data->mAverageAllocationTime / data->mNumAllocations);
-					ImGui::Text("%s Top Average Deallocation Time: %f microseconds", name.c_str(), data->mAverageDeallocationTime / data->mNumDeallocations);
+					ImGui::Text("%s Top Average Allocation Time: %f microseconds", name.c_str(), data->mSumAllocationTime / data->mNumAllocations);
+					ImGui::Text("%s Top Average Deallocation Time: %f microseconds", name.c_str(), data->mSumDeallocationTime / data->mNumDeallocations);
 					ImGui::Text("%s Top Num Allocations: %u", name.c_str(), data->mNumAllocations);
 					ImGui::Text("%s Top Num Dellocations: %u", name.c_str(), data->mNumDeallocations);
 
@@ -204,8 +211,8 @@ namespace CustomMemoryManager
 
 					ImGui::Spacing();
 
-					ImGui::Text("%s Bottom Average Allocation Time: %f microseconds", name.c_str(), data->mAverageAllocationTime_Bottom / data->mNumAllocations_Bottom);
-					ImGui::Text("%s Bottom Average Deallocation Time: %f microseconds", name.c_str(), data->mAverageDeallocationTime_Bottom / data->mNumDeallocations_Bottom);
+					ImGui::Text("%s Bottom Average Allocation Time: %f microseconds", name.c_str(), data->mSumAllocationTime_Bottom / data->mNumAllocations_Bottom);
+					ImGui::Text("%s Bottom Average Deallocation Time: %f microseconds", name.c_str(), data->mSumDeallocationTime_Bottom / data->mNumDeallocations_Bottom);
 					ImGui::Text("%s Bottom Num Allocations: %u", name.c_str(), data->mNumAllocations_Bottom);
 					ImGui::Text("%s Bottom Num Dellocations: %u", name.c_str(), data->mNumDeallocations_Bottom);
 
@@ -273,8 +280,8 @@ namespace CustomMemoryManager
 					ImGui::Text("%s Size (Bytes): %u", name.c_str(), pool->Size_Bytes());
 					ImGui::Text("%s Used Space (Bytes): %i", name.c_str(), pool->UsedSize_Bytes());
 
-					ImGui::Text("%s Average Allocation Time: %f microseconds", name.c_str(), data->mAverageAllocationTime / data->mNumAllocations);
-					ImGui::Text("%s Average Deallocation Time: %f microseconds", name.c_str(), data->mAverageDeallocationTime / data->mNumDeallocations);
+					ImGui::Text("%s Average Allocation Time: %f microseconds", name.c_str(), data->mSumAllocationTime / data->mNumAllocations);
+					ImGui::Text("%s Average Deallocation Time: %f microseconds", name.c_str(), data->mSumDeallocationTime / data->mNumDeallocations);
 					ImGui::Text("%s Num Allocations: %u", name.c_str(), data->mNumAllocations);
 					ImGui::Text("%s Num Dellocations: %u", name.c_str(), data->mNumDeallocations);
 
@@ -317,8 +324,8 @@ namespace CustomMemoryManager
 					ImGui::Text("%s Size (Bytes): %u", name.c_str(), heap->Size_Bytes());
 					ImGui::Text("%s Used Space (Bytes): %i", name.c_str(), heap->UsedSize_Bytes());
 
-					ImGui::Text("%s Average Allocation Time: %f microseconds", name.c_str(), data->mAverageAllocationTime / data->mNumAllocations);
-					ImGui::Text("%s Average Deallocation Time: %f microseconds", name.c_str(), data->mAverageDeallocationTime / data->mNumDeallocations);
+					ImGui::Text("%s Average Allocation Time: %f microseconds", name.c_str(), data->mSumAllocationTime / data->mNumAllocations);
+					ImGui::Text("%s Average Deallocation Time: %f microseconds", name.c_str(), data->mSumDeallocationTime / data->mNumDeallocations);
 					ImGui::Text("%s Num Allocations: %u", name.c_str(), data->mNumAllocations);
 					ImGui::Text("%s Num Dellocations: %u", name.c_str(), data->mNumDeallocations);
 
@@ -381,8 +388,8 @@ namespace CustomMemoryManager
 
 		ImGui::Text("%s Size (Bytes): %u", name.c_str(), allocator->Size_Bytes());
 		ImGui::Text("%s Used Space (Bytes): %i", name.c_str(), allocator->UsedSize_Bytes());
-		ImGui::Text("%s Average Allocation Time: %f microseconds", name.c_str(), data->mAverageAllocationTime / data->mNumAllocations);
-		ImGui::Text("%s Average Deallocation Time: %f microseconds", name.c_str(), data->mAverageDeallocationTime / data->mNumDeallocations);
+		ImGui::Text("%s Average Allocation Time: %f microseconds", name.c_str(), data->mSumAllocationTime / data->mNumAllocations);
+		ImGui::Text("%s Average Deallocation Time: %f microseconds", name.c_str(), data->mSumDeallocationTime / data->mNumDeallocations);
 		ImGui::Text("%s Num Allocations: %u", name.c_str(), data->mNumAllocations);
 		ImGui::Text("%s Num Dellocations: %u", name.c_str(), data->mNumDeallocations);
 	}

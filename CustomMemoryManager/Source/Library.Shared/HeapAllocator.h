@@ -45,6 +45,7 @@ namespace CustomMemoryManager::Allocators
 		HeapNode* FindNodeFirstFitSize(std::size_t size_bytes, HeapNode** head, HeapNode** end);
 		HeapNode* FindNodeLastFitSize(std::size_t size_bytes, HeapNode** head, HeapNode** end);
 		HeapNode* FindNodeBestFitSize(std::size_t size_bytes, HeapNode** head, HeapNode** end);
+		HeapNode* FindNodeNextFitSize(std::size_t size_bytes);// , HeapNode** head, HeapNode** end);
 
 		void MemPushBackNode(HeapNode* node, HeapNode** head, HeapNode** end);
 		void MemPushFrontNode(HeapNode* node, HeapNode** head, HeapNode** end);
@@ -70,6 +71,8 @@ namespace CustomMemoryManager::Allocators
 
 		HeapNode* mLocations_Head{ nullptr };
 		HeapNode* mLocations_End{ nullptr };
+
+		HeapNode* mNextFit{ nullptr };	// should be used only with InActiveLocations
 
 		//std::list<HeapNode> mLocations_Head;
 
