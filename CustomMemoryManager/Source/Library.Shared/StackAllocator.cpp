@@ -104,23 +104,10 @@ namespace CustomMemoryManager::Allocators
 			{
 				break;
 			}
-			temp = reinterpret_cast<void*>(reinterpret_cast<std::intptr_t>(temp) + 0b01);
+			temp = reinterpret_cast<void*>(reinterpret_cast<std::intptr_t>(temp) + 0x01);
 		}
 
-
-
-		//std::uintptr_t curPlusAlign = (reinterpret_cast<std::uintptr_t>(mStackCurrent) + alignment);
-		//std::uintptr_t maskApply = curPlusAlign & mask;
-		//void* temp2 = reinterpret_cast<void*>(maskApply);
-		//void* temp2 = reinterpret_cast<void*>((reinterpret_cast<std::uintptr_t>(mStackCurrent) + alignment) & mask);	// ~(static_cast<std::uintptr_t>(alignment - 1)));
 		mStackCurrent = reinterpret_cast<void*>(currentStackLocation + allocAmount_bytes + alignment);
-		//temp2; temp;
-
-		bool isAligned = false;
-		if (alignment > 0)
-		{
-			isAligned = reinterpret_cast<std::uintptr_t>(temp) % (alignment+1) == 0;
-		}
 
 		assert(alignment == 0 ? true : reinterpret_cast<std::intptr_t>(temp) % (alignment+1) == 0);
 		return temp;
