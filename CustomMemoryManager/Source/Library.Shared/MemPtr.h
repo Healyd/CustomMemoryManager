@@ -1,10 +1,13 @@
 #pragma once
-#include "MemoryManager.h"
-#include "MemData.h"
+//#include "MemoryManager.h"
+//#include "MemData.h"
+#include "MemoryEnums.h"
 #include <string>
 
 namespace CustomMemoryManager
 {
+	class MemoryManager;
+
 	template <typename T>
 	class MemPtr final
 	{
@@ -30,11 +33,12 @@ namespace CustomMemoryManager
 
 		MemPtr(T* ptr);
 		//MemPtr(MemData<T>& memData);
-		MemPtr(MemData<T>&& memData);
-		MemPtr(const MemPtr&) = delete;
-		MemPtr(MemPtr&&) = delete;
-		MemPtr& operator=(const MemPtr&) = delete;
-		MemPtr& operator=(MemPtr&&) = delete;
+		//MemPtr(MemData<T>&& memData);
+		MemPtr(T* ptr, const AllocType type, const std::string& name, MemoryManager& manager);
+		MemPtr(const MemPtr& other);
+		MemPtr(MemPtr&&);
+		MemPtr& operator=(const MemPtr&);
+		MemPtr& operator=(MemPtr&&);
 		~MemPtr() = default;
 
 		//inline void SetPtr(T* ptr) { mAddress = ptr; };
@@ -46,11 +50,11 @@ namespace CustomMemoryManager
 		bool IsValid() const;
 
 	private:
-		//T * mAddress{ nullptr };
-		//AllocType mAllocType{ AllocType::NONE };
-		//std::string mAllocatorName;
-		//MemoryManager* mMemoryManager{ nullptr };		//TODO: extent to maybe point directly to the allocator this object is in.
-		MemData<T> mMemData;
+		T * mAddress{ nullptr };
+		AllocType mAllocType{ AllocType::NONE };
+		std::string mAllocatorName;
+		MemoryManager* mMemoryManager{ nullptr };		//TODO: extent to maybe point directly to the allocator this object is in.
+		//MemData<T> mMemData;
 	};
 
 	//template <typename T>

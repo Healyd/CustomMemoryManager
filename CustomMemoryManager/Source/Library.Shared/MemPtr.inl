@@ -14,8 +14,12 @@ namespace CustomMemoryManager
 	template <typename T>
 	MemPtr<T>::MemPtr(T* ptr)
 		:	mAddress(ptr)
-	{
-	}
+	{}
+
+	template <typename T>
+	MemPtr<T>::MemPtr(T* ptr, const AllocType type, const std::string& name, MemoryManager& manager)
+		: mAddress(ptr), mAllocType(type), mAllocatorName(name), mMemoryManager(&manager)
+	{}
 
 	//template <typename T>
 	//MemPtr<T>::MemPtr(MemData<T>& memData)
@@ -23,10 +27,47 @@ namespace CustomMemoryManager
 	//{
 	//}
 
+	//template <typename T>
+	//MemPtr<T>::MemPtr(MemData<T>&& memData)
+	//	:	mMemData(std::move(memData))
+	//{
+	//}
+
 	template <typename T>
-	MemPtr<T>::MemPtr(MemData<T>&& memData)
-		:	mMemData(std::move(memData))
+	MemPtr<T>::MemPtr(const MemPtr& other)
+		: mAddress(other.mAddress), mAllocType(other.mAllocType), mAllocatorName(other.mAllocatorName), mMemoryManager(other.mMemoryManager)
+	{}
+
+	template <typename T>
+	MemPtr<T>::MemPtr(MemPtr&& other)
+		: mAddress(other.mAddress), mAllocType(other.mAllocType), mAllocatorName(std::move(other.mAllocatorName)), mMemoryManager(other.mMemoryManager)
 	{
+		other.mAddress = nullptr;
+		other.mAllocType = AllocType::NONE;
+		other.mAllocatorName = "";
+		mMemoryManager = nullptr;
+	}
+
+	template <typename T>
+	MemPtr<T>& MemPtr<T>::operator=(const MemPtr& other)
+	{
+		mAddress = other.mAddress;
+		mAllocType = other.mAllocType;
+		mAllocatorName = other.mAllocatorName;
+		mMemoryManager = other.mMemoryManager;
+	}
+
+	template <typename T>
+	MemPtr<T>& MemPtr<T>::operator=(MemPtr&& other)
+	{
+		mAddress = other.mAddress;
+		mAllocType = other.mAllocType;
+		mAllocatorName = std::move(other.mAllocatorName); 
+		mMemoryManager = other.mMemoryManager;
+		other.mAddress = nullptr;
+		other.mAllocType = AllocType::NONE;
+		other.mAllocatorName = "";
+		mMemoryManager = nullptr;
 	}
 
 	//template <typename T>
@@ -54,17 +95,13 @@ namespace CustomMemoryManager
 	template <typename T>
 	T* MemPtr<T>::Get()
 	{
-		if (mMemData.mAddress == nullptr)
-		{
-			throw std::exception("Address is Null!");
-		}
-		return mMemData.mAddress;
+		return mAddress;
 	}
 
 	template <typename T>
 	bool MemPtr<T>::IsNull() const
 	{
-		if (mMemData.mAddress == nullptr)
+		if (mAddress == nullptr)
 		{
 			return false;
 		}
@@ -74,7 +111,7 @@ namespace CustomMemoryManager
 	template <typename T>
 	bool MemPtr<T>::IsValid() const
 	{
-		if (mMemData.mMemoryManager == nullptr)
+		if (mMemoryManager == nullptr)
 		{
 			return false;
 		}

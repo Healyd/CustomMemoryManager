@@ -5,7 +5,8 @@
 #include "PoolAllocator.h"
 #include "HeapAllocator.h"
 #include "MemoryEnums.h"
-#include "MemData.h"
+//#include "MemData.h"
+#include "MemPtr.h"
 #include <unordered_map>
 #include <string>
 #include <vector>
@@ -73,7 +74,7 @@ namespace CustomMemoryManager
 		
 		void* Allocate(std::size_t allocAmount_bytes, const std::string& name, const AllocType type, const std::size_t alignment = 0U, const std::string fileName = "none", const std::size_t lineNumber = 0U, Allocators::Info info = Allocators::Info::NONE);
 		template <typename T>
-		MemData<T> Allocate_GetData(std::size_t allocAmount_bytes, const std::string& name, const AllocType type);
+		/*MemData<T>*/MemPtr<T> Allocate_GetData(std::size_t allocAmount_bytes, const std::string& name, const AllocType type);
 
 		void Deallocate(void* ptr, const std::string& name, const AllocType type, const std::string fileName = "none", const std::size_t lineNumber = 0U, Allocators::Info info = Allocators::Info::NONE);
 
@@ -121,9 +122,10 @@ namespace CustomMemoryManager
 	}
 
 	template <typename T>
-	MemData<T> MemoryManager::Allocate_GetData(std::size_t allocAmount_bytes, const std::string& name, const AllocType type)
+	/*MemData<T>*/ MemPtr<T> MemoryManager::Allocate_GetData(std::size_t allocAmount_bytes, const std::string& name, const AllocType type)
 	{
-		return MemData<T>(static_cast<T*>(Allocate(allocAmount_bytes, name, type)), type, name, *this);
+		return MemPtr<T>(static_cast<T*>(Allocate(allocAmount_bytes, name, type)), type, name, *this);
+		//return MemPtr<T>(MemData<T>(static_cast<T*>(Allocate(allocAmount_bytes, name, type)), type, name, *this));
 	}
 }
 
