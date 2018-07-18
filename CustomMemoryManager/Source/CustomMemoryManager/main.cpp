@@ -167,28 +167,28 @@ int main(int, char**)
 	MemoryTest<std::uint32_t> memoryTestInts
 	(
 		{
-		{ "Stack1", 100, CustomMemoryManager::MemoryManager::AllocType::STACK },
-		{ "Stack2", 10, CustomMemoryManager::MemoryManager::AllocType::STACK },
-		{ "Stack4", 50, CustomMemoryManager::MemoryManager::AllocType::STACK },
-		{ "UINT32_Pool", 100, CustomMemoryManager::MemoryManager::AllocType::POOL },
-		{ "DoubleStack1", 100, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK },
-		{ "DoubleStack2", 10, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK },
-		{ "Heap1", 50, CustomMemoryManager::MemoryManager::AllocType::HEAP }
+		{ "Stack1", 100, CustomMemoryManager::AllocType::STACK },
+		{ "Stack2", 10, CustomMemoryManager::AllocType::STACK },
+		{ "Stack4", 50, CustomMemoryManager::AllocType::STACK },
+		{ "UINT32_Pool", 100, CustomMemoryManager::AllocType::POOL },
+		{ "DoubleStack1", 100, CustomMemoryManager::AllocType::DOUBLESTACK },
+		{ "DoubleStack2", 10, CustomMemoryManager::AllocType::DOUBLESTACK },
+		{ "Heap1", 50, CustomMemoryManager::AllocType::HEAP }
 		}
 	);
 	MemoryTest<std::string> memoryTestString
 	(
 		{
-		{ "Stack4", 50, CustomMemoryManager::MemoryManager::AllocType::STACK },
-		{ "string_Pool", 100, CustomMemoryManager::MemoryManager::AllocType::POOL},
-		{ "Heap1", 50, CustomMemoryManager::MemoryManager::AllocType::HEAP }
+		{ "Stack4", 50, CustomMemoryManager::AllocType::STACK },
+		{ "string_Pool", 100, CustomMemoryManager::AllocType::POOL},
+		{ "Heap1", 50, CustomMemoryManager::AllocType::HEAP }
 		}
 	);
 	MemoryTest<Object> memoryTestObject
 	(
 		{
-		{ "Object_Pool", 100, CustomMemoryManager::MemoryManager::AllocType::POOL },
-		{ "Heap1", 50, CustomMemoryManager::MemoryManager::AllocType::HEAP }
+		{ "Object_Pool", 100, CustomMemoryManager::AllocType::POOL },
+		{ "Heap1", 50, CustomMemoryManager::AllocType::HEAP }
 		}
 	);
 #endif // _MEMDEBUG

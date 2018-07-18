@@ -20,6 +20,8 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)imgui-1.61\imconfig.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)imgui-1.61\imgui.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)imgui-1.61\imgui_internal.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)MemData.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)MemoryEnums.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)MemoryGui.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)MemoryManager.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)MemPtr.h" />

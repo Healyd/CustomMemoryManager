@@ -12,14 +12,14 @@ namespace CustomMemoryManager
 		: mMemoryManager(&manager)
 	{
 		// Stack Initialization
-		std::vector<std::string> stackNames = mMemoryManager->Get(MemoryManager::AllocType::STACK);
+		std::vector<std::string> stackNames = mMemoryManager->Get(AllocType::STACK);
 		for (const auto& name : stackNames)
 		{
 			mGraphData.emplace(std::move(std::pair<std::string, std::deque<float>>(name, std::deque<float>())));
 		}
 
 		// Double Stack Initialization
-		std::vector<std::string> doubleStackNames = mMemoryManager->Get(MemoryManager::AllocType::DOUBLESTACK);
+		std::vector<std::string> doubleStackNames = mMemoryManager->Get(AllocType::DOUBLESTACK);
 		for (const auto& name : doubleStackNames)
 		{
 			mGraphData.emplace(std::move(std::pair<std::string, std::deque<float>>(name + "_top", std::deque<float>())));
@@ -27,13 +27,13 @@ namespace CustomMemoryManager
 		}
 
 		// Pool Initialization (currently only support for std::uint32_t pools)
-		std::vector<std::string> poolNames = mMemoryManager->Get(MemoryManager::AllocType::POOL);
+		std::vector<std::string> poolNames = mMemoryManager->Get(AllocType::POOL);
 		for (const auto& name : poolNames)
 		{
 			mGraphData.emplace(std::move(std::pair<std::string, std::deque<float>>(name, std::deque<float>())));
 		}
 
-		std::vector<std::string> heapNames = mMemoryManager->Get(MemoryManager::AllocType::HEAP);
+		std::vector<std::string> heapNames = mMemoryManager->Get(AllocType::HEAP);
 		for (const auto& name : heapNames)
 		{
 			mGraphData.emplace(std::move(std::pair<std::string, std::deque<float>>(name, std::deque<float>())));
@@ -58,10 +58,10 @@ namespace CustomMemoryManager
 
 		if (mMemoryManager != nullptr)
 		{
-			ShowAllocatorSelector("Show Stack Window", mShowStackWindows, mMemoryManager->Get(MemoryManager::AllocType::STACK));
-			ShowAllocatorSelector("Show Double Stacks Window", mShowDoubleStackWindows, mMemoryManager->Get(MemoryManager::AllocType::DOUBLESTACK));
-			ShowAllocatorSelector("Show Pools Window", mShowPoolWindows, mMemoryManager->Get(MemoryManager::AllocType::POOL));
-			ShowAllocatorSelector("Show Heaps Window", mShowHeapWindows, mMemoryManager->Get(MemoryManager::AllocType::HEAP));
+			ShowAllocatorSelector("Show Stack Window", mShowStackWindows, mMemoryManager->Get(AllocType::STACK));
+			ShowAllocatorSelector("Show Double Stacks Window", mShowDoubleStackWindows, mMemoryManager->Get(AllocType::DOUBLESTACK));
+			ShowAllocatorSelector("Show Pools Window", mShowPoolWindows, mMemoryManager->Get(AllocType::POOL));
+			ShowAllocatorSelector("Show Heaps Window", mShowHeapWindows, mMemoryManager->Get(AllocType::HEAP));
 
 			// Malloc
 			ImGui::Checkbox("Show Malloc Window", &mShowMallocWindows);
@@ -111,10 +111,10 @@ namespace CustomMemoryManager
 
 		if (mMemoryManager != nullptr)
 		{
-			std::vector<std::string> stackNames = mMemoryManager->Get(MemoryManager::AllocType::STACK);
+			std::vector<std::string> stackNames = mMemoryManager->Get(AllocType::STACK);
 			for (const std::string& name : stackNames)
 			{
-				Allocators::StackAllocator* stack = static_cast<Allocators::StackAllocator*>(mMemoryManager->Get(name, MemoryManager::AllocType::STACK));
+				Allocators::StackAllocator* stack = static_cast<Allocators::StackAllocator*>(mMemoryManager->Get(name, AllocType::STACK));
 				if (stack != nullptr)
 				{
 					const MemoryManager::Data* const data = mMemoryManager->GetData(name);
@@ -176,10 +176,10 @@ namespace CustomMemoryManager
 
 		if (mMemoryManager != nullptr)
 		{
-			std::vector<std::string> stackNames = mMemoryManager->Get(MemoryManager::AllocType::DOUBLESTACK);
+			std::vector<std::string> stackNames = mMemoryManager->Get(AllocType::DOUBLESTACK);
 			for (const std::string& name : stackNames)
 			{
-				Allocators::DoubleEndedStackAllocator* stack = static_cast<Allocators::DoubleEndedStackAllocator*>(mMemoryManager->Get(name, MemoryManager::AllocType::DOUBLESTACK));
+				Allocators::DoubleEndedStackAllocator* stack = static_cast<Allocators::DoubleEndedStackAllocator*>(mMemoryManager->Get(name, AllocType::DOUBLESTACK));
 				if (stack != nullptr)
 				{
 					const MemoryManager::Data* const data = mMemoryManager->GetData(name);
@@ -267,10 +267,10 @@ namespace CustomMemoryManager
 
 		if (mMemoryManager != nullptr)
 		{
-			std::vector<std::string> poolNames = mMemoryManager->Get(MemoryManager::AllocType::POOL);
+			std::vector<std::string> poolNames = mMemoryManager->Get(AllocType::POOL);
 			for (const std::string& name : poolNames)
 			{
-				Allocators::IAllocator* pool = mMemoryManager->Get(name, MemoryManager::AllocType::POOL);
+				Allocators::IAllocator* pool = mMemoryManager->Get(name, AllocType::POOL);
 				if (pool != nullptr)
 				{
 					const MemoryManager::Data* const data = mMemoryManager->GetData(name);
@@ -311,10 +311,10 @@ namespace CustomMemoryManager
 
 		if (mMemoryManager != nullptr)
 		{
-			std::vector<std::string> heapNames = mMemoryManager->Get(MemoryManager::AllocType::HEAP);
+			std::vector<std::string> heapNames = mMemoryManager->Get(AllocType::HEAP);
 			for (const std::string& name : heapNames)
 			{
-				Allocators::HeapAllocator* heap = static_cast<Allocators::HeapAllocator*>(mMemoryManager->Get(name, MemoryManager::AllocType::HEAP));
+				Allocators::HeapAllocator* heap = static_cast<Allocators::HeapAllocator*>(mMemoryManager->Get(name, AllocType::HEAP));
 				if (heap != nullptr)
 				{
 					const MemoryManager::Data* const data = mMemoryManager->GetData(name);

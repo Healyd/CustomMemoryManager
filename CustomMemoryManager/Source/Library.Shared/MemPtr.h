@@ -1,5 +1,6 @@
 #pragma once
 #include "MemoryManager.h"
+#include "MemData.h"
 #include <string>
 
 namespace CustomMemoryManager
@@ -8,34 +9,35 @@ namespace CustomMemoryManager
 	class MemPtr final
 	{
 	public:
-		struct MemData
-		{
-		public:
-			MemData() = default;
-			
-			MemData(T* address, const MemoryManager::AllocType type, const std::string& name, MemoryManager& manager)
-				: mAddress(address), mAllocType(type), mAllocatorName(name), mMemoryManager(&manager)
-			{}
-
-			MemData(const MemData& other)
-				: mAddress(other.mAddress), mAllocType(other.mAllocType), mAllocatorName(other.mAllocatorName), mMemoryManager(other.mMemoryManager)
-			{}
-
-			T* mAddress{ nullptr };
-			MemoryManager::AllocType mAllocType{ MemoryManager::AllocType::NONE };
-			std::string mAllocatorName;
-			MemoryManager* mMemoryManager{ nullptr };
-		};
+		//struct MemData
+		//{
+		//public:
+		//	MemData();
+		//	
+		//	MemData(T* address, const MemoryManager::AllocType type, const std::string& name, MemoryManager& manager);
+		//	//	: mAddress(address), mAllocType(type), mAllocatorName(name), mMemoryManager(&manager)
+		//	//{}
+		//
+		//	MemData(const MemData& other);
+		//	//	: mAddress(other.mAddress), mAllocType(other.mAllocType), mAllocatorName(other.mAllocatorName), mMemoryManager(other.mMemoryManager)
+		//	//{}
+		//
+		//	T* mAddress{ nullptr };
+		//	MemoryManager::AllocType mAllocType{ MemoryManager::AllocType::NONE };
+		//	std::string mAllocatorName;
+		//	MemoryManager* mMemoryManager{ nullptr };
+		//};
 
 		MemPtr(T* ptr);
-		MemPtr(MemData& memData);
+		//MemPtr(MemData<T>& memData);
+		MemPtr(MemData<T>&& memData);
 		MemPtr(const MemPtr&) = delete;
 		MemPtr(MemPtr&&) = delete;
 		MemPtr& operator=(const MemPtr&) = delete;
 		MemPtr& operator=(MemPtr&&) = delete;
 		~MemPtr() = default;
 
-		inline void SetPtr(T* ptr) { mAddress = ptr; };
+		//inline void SetPtr(T* ptr) { mAddress = ptr; };
 
 		T& operator*();
 		T* operator->();
@@ -44,24 +46,24 @@ namespace CustomMemoryManager
 		bool IsValid() const;
 
 	private:
-		T* mAddress{ nullptr };
-		MemoryManager::AllocType mAllocType{ MemoryManager::AllocType::NONE };
-		std::string mAllocatorName;
-		MemoryManager* mMemoryManager{ nullptr };		//TODO: extent to maybe point directly to the allocator this object is in.
-		MemData mMemData;
+		//T * mAddress{ nullptr };
+		//AllocType mAllocType{ AllocType::NONE };
+		//std::string mAllocatorName;
+		//MemoryManager* mMemoryManager{ nullptr };		//TODO: extent to maybe point directly to the allocator this object is in.
+		MemData<T> mMemData;
 	};
 
-	template <typename T>
-	inline T* MakeMemPtr_Raw(const std::string& name, MemoryManager::AllocType type, MemoryManager& manager)
-	{
-		return static_cast<T*>(new (name, manager, type, "makememptr_raw", 0U) T());
-	}
+	//template <typename T>
+	//inline T* MakeMemPtr_Raw(const std::string& name, MemoryManager::AllocType type, MemoryManager& manager)
+	//{
+	//	return static_cast<T*>(new (name, manager, type, "makememptr_raw", 0U) T());
+	//}
 
-	template <typename T>
-	inline T* PoolAlloc(const std::string& name, MemoryManager& manager)
-	{
-		return static_cast<T*>(new (name, manager, CustomMemoryManager::MemoryManager::AllocType::POOL) T());
-	}
+	//template <typename T>
+	//inline T* PoolAlloc(const std::string& name, MemoryManager& manager)
+	//{
+	//	return static_cast<T*>(new (name, manager, CustomMemoryManager::MemoryManager::AllocType::POOL) T());
+	//}
 
 	//template <typename T>
 	//inline MemPtr<T>::MemData MakeMemPtrData(const std::string& name, MemoryManager::AllocType type, MemoryManager& manager)

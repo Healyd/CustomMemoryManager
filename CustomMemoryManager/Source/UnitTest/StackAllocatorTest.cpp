@@ -133,12 +133,12 @@ namespace UnitTest
 		TEST_METHOD(test)
 		{
 			MemoryManager memoryManager;
-			Assert::IsTrue(memoryManager.CreateAllocator("Stack1", 43*sizeof(Foo), MemoryManager::AllocType::STACK), L"Allocator Not Created.");
+			Assert::IsTrue(memoryManager.CreateAllocator("Stack1", 43*sizeof(Foo), AllocType::STACK), L"Allocator Not Created.");
 			
 			
-			Foo* ptr3 = static_cast<Foo*>(new ("Stack1", memoryManager, MemoryManager::AllocType::STACK, 0U, __FILE__, __LINE__) Foo());
+			Foo* ptr3 = static_cast<Foo*>(new ("Stack1", memoryManager, AllocType::STACK, 0U, __FILE__, __LINE__) Foo());
 			ptr3->~Foo();
-			memoryManager.Deallocate(ptr3, "Stack1", MemoryManager::AllocType::STACK);
+			memoryManager.Deallocate(ptr3, "Stack1", AllocType::STACK);
 			//operator delete (ptr3, "Stack1", memoryManager, MemoryManager::AllocType::STACK, "none", 0U, Allocators::Info::NONE);
 			//memoryManager.Deallocate(ptr3, "Stack1", MemoryManager::AllocType::STACK);
 
@@ -155,7 +155,7 @@ namespace UnitTest
 		TEST_METHOD(MoreTesing)
 		{
 			MemoryManager memoryManager;
-			Assert::IsTrue(memoryManager.CreateAllocator("Stack1", 43 * sizeof(Foo), MemoryManager::AllocType::STACK), L"Allocator Not Created.");
+			Assert::IsTrue(memoryManager.CreateAllocator("Stack1", 43 * sizeof(Foo), AllocType::STACK), L"Allocator Not Created.");
 
 			/*Foo* ptr22 = static_cast<Foo*>(STACK_ALLOC("Stack1", memoryManager) Foo());
 			ptr22->~Foo();

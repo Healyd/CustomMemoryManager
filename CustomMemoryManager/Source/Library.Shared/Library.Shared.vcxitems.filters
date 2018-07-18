@@ -52,6 +52,12 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)HeapAllocator.h">
       <Filter>Allocators</Filter>
     </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)MemData.h">
+      <Filter>Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="$(MSBuildThisFileDirectory)MemoryEnums.h">
+      <Filter>Manager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)StackAllocator.cpp">

@@ -11,7 +11,7 @@ template <typename T>
 class MemoryTest
 {
 public:
-	MemoryTest(const std::vector<std::tuple<std::string, std::size_t, CustomMemoryManager::MemoryManager::AllocType>>& names);
+	MemoryTest(const std::vector<std::tuple<std::string, std::size_t, CustomMemoryManager::AllocType>>& names);
 	void Run();
 private:
 	void TestStackAllocator(const std::string& name, std::size_t allocAmount, std::size_t deallocAmount);
@@ -20,12 +20,12 @@ private:
 	void TestPoolAllocator(const std::string& name, std::size_t allocAmount, std::size_t deallocAmount);
 	void TestHeapAllocator(const std::string& name, std::size_t allocAmount, std::size_t deallocAmount);
 
-	std::vector<std::tuple<std::string, std::size_t, CustomMemoryManager::MemoryManager::AllocType>> mTestNames;
+	std::vector<std::tuple<std::string, std::size_t, CustomMemoryManager::AllocType>> mTestNames;
 	std::unordered_map<std::string, std::vector<T*>> mPointers;
 };
 
 template <typename T>
-MemoryTest<T>::MemoryTest(const std::vector<std::tuple<std::string, std::size_t, CustomMemoryManager::MemoryManager::AllocType>>& names)
+MemoryTest<T>::MemoryTest(const std::vector<std::tuple<std::string, std::size_t, CustomMemoryManager::AllocType>>& names)
 	: mTestNames(names)
 {
 	for (const auto& it : names)
@@ -41,22 +41,22 @@ void MemoryTest<T>::Run()
 {
 	for (const auto& it : mTestNames)
 	{
-		CustomMemoryManager::MemoryManager::AllocType type = std::get<2>(it);
-		if (type == CustomMemoryManager::MemoryManager::AllocType::STACK)
+		CustomMemoryManager::AllocType type = std::get<2>(it);
+		if (type == CustomMemoryManager::AllocType::STACK)
 		{
 			//				  (name			  , alloc		   , dealloc        )
 			TestStackAllocator(std::get<0>(it), std::get<1>(it), std::get<1>(it));
 		}
-		else if (type == CustomMemoryManager::MemoryManager::AllocType::POOL)
+		else if (type == CustomMemoryManager::AllocType::POOL)
 		{
 			TestPoolAllocator(std::get<0>(it), std::get<1>(it), std::get<1>(it));
 		}
-		else if (type == CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK)
+		else if (type == CustomMemoryManager::AllocType::DOUBLESTACK)
 		{
 			TestDStackAllocatorTop(std::get<0>(it), std::get<1>(it), std::get<1>(it));
 			TestDStackAllocatorBottom(std::get<0>(it), std::get<1>(it), std::get<1>(it));
 		}
-		else if (type == CustomMemoryManager::MemoryManager::AllocType::HEAP)
+		else if (type == CustomMemoryManager::AllocType::HEAP)
 		{
 			TestHeapAllocator(std::get<0>(it), std::get<1>(it), std::get<1>(it));
 		}
@@ -85,7 +85,7 @@ void MemoryTest<T>::TestStackAllocator(const std::string& name, std::size_t allo
 		STACK_DEALLOC(name, ptr);
 	}
 
-	CustomMemoryManager::Allocators::StackAllocator* stackAllocator = static_cast<CustomMemoryManager::Allocators::StackAllocator*>(GLOBAL_MEMORY_MANAGER.Get(name, CustomMemoryManager::MemoryManager::AllocType::STACK));
+	CustomMemoryManager::Allocators::StackAllocator* stackAllocator = static_cast<CustomMemoryManager::Allocators::StackAllocator*>(GLOBAL_MEMORY_MANAGER.Get(name, CustomMemoryManager::AllocType::STACK));
 
 	// number of objects left we can allocate
 	std::size_t x = (stackAllocator->StackSize_Bytes() - stackAllocator->UsedSpace_Bytes()) / sizeof(T) + 1;
@@ -125,7 +125,7 @@ void MemoryTest<T>::TestDStackAllocatorTop(const std::string& name, std::size_t 
 		DSTACK_DEALLOC_TOP(name, ptr);
 	}
 
-	CustomMemoryManager::Allocators::DoubleEndedStackAllocator* stackAlloc = static_cast<CustomMemoryManager::Allocators::DoubleEndedStackAllocator*>(GLOBAL_MEMORY_MANAGER.Get(name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK));
+	CustomMemoryManager::Allocators::DoubleEndedStackAllocator* stackAlloc = static_cast<CustomMemoryManager::Allocators::DoubleEndedStackAllocator*>(GLOBAL_MEMORY_MANAGER.Get(name, CustomMemoryManager::AllocType::DOUBLESTACK));
 	std::size_t x = (stackAlloc->TopStackSize_Bytes() - stackAlloc->UsedBytes_Top()) / sizeof(T) + 1;
 	if (numObjectsToAllocate >= x)
 	{
@@ -164,7 +164,7 @@ void MemoryTest<T>::TestDStackAllocatorBottom(const std::string& name, std::size
 		DSTACK_DEALLOC_BOTTOM(name, ptr);
 	}
 
-	CustomMemoryManager::Allocators::DoubleEndedStackAllocator* stackAlloc = static_cast<CustomMemoryManager::Allocators::DoubleEndedStackAllocator*>(GLOBAL_MEMORY_MANAGER.Get(name, CustomMemoryManager::MemoryManager::AllocType::DOUBLESTACK));
+	CustomMemoryManager::Allocators::DoubleEndedStackAllocator* stackAlloc = static_cast<CustomMemoryManager::Allocators::DoubleEndedStackAllocator*>(GLOBAL_MEMORY_MANAGER.Get(name, CustomMemoryManager::AllocType::DOUBLESTACK));
 	std::size_t x = (stackAlloc->BottomStackSize_Bytes() - stackAlloc->UsedBytes_Bottom()) / sizeof(T) + 1;
 	if (numObjectsToAllocate >= x)
 	{
@@ -202,7 +202,7 @@ void MemoryTest<T>::TestPoolAllocator(const std::string& name, std::size_t alloc
 		POOL_DEALLOC(ptr, name, T);
 	}
 
-	CustomMemoryManager::Allocators::PoolAllocator<T>* stackAlloc = static_cast<CustomMemoryManager::Allocators::PoolAllocator<T>*>(GLOBAL_MEMORY_MANAGER.Get(name, CustomMemoryManager::MemoryManager::AllocType::POOL));
+	CustomMemoryManager::Allocators::PoolAllocator<T>* stackAlloc = static_cast<CustomMemoryManager::Allocators::PoolAllocator<T>*>(GLOBAL_MEMORY_MANAGER.Get(name, CustomMemoryManager::AllocType::POOL));
 
 	// number of objects left we can allocate
 	std::size_t x = (stackAlloc->PoolSize_Bytes() - stackAlloc->UsedSpace_Bytes()) / sizeof(T) + 1;
@@ -242,7 +242,7 @@ void MemoryTest<T>::TestHeapAllocator(const std::string& name, std::size_t alloc
 		HEAP_DEALLOC(ptr, name, T);
 	}
 
-	CustomMemoryManager::Allocators::HeapAllocator* heapAllocator = static_cast<CustomMemoryManager::Allocators::HeapAllocator*>(GLOBAL_MEMORY_MANAGER.Get(name, CustomMemoryManager::MemoryManager::AllocType::HEAP));
+	CustomMemoryManager::Allocators::HeapAllocator* heapAllocator = static_cast<CustomMemoryManager::Allocators::HeapAllocator*>(GLOBAL_MEMORY_MANAGER.Get(name, CustomMemoryManager::AllocType::HEAP));
 
 	// number of objects left we can allocate
 	std::size_t x = (heapAllocator->Size_Bytes() - heapAllocator->UsedSize_Bytes()) / sizeof(T) + 1;
