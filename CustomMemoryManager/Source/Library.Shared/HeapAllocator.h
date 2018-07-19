@@ -20,6 +20,11 @@ namespace CustomMemoryManager::Allocators
 		virtual std::size_t Size_Bytes() const override;
 		virtual std::size_t UsedSize_Bytes() const override;
 
+		std::size_t* IncrementReference(void* ptr);
+		std::size_t* DecrementReference(void* ptr);
+
+		void ReferenceCounting_GC();
+		
 #ifdef _MEMDEBUG
 		std::size_t NumNodes() const;
 		std::size_t NumActiveNodes() const;
@@ -36,6 +41,7 @@ namespace CustomMemoryManager::Allocators
 			HeapNode* mMemPrevious{ nullptr };	// for the mLocations list
 			HeapNode* mMemNext{ nullptr };
 			bool mIsActive{ false };
+			std::size_t mReferences{ 0U };
 		};
 
 		void PushBackNode(HeapNode* node, HeapNode** head, HeapNode** end);

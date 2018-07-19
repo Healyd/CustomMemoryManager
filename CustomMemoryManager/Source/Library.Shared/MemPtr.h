@@ -1,47 +1,24 @@
 #pragma once
-//#include "MemoryManager.h"
-//#include "MemData.h"
 #include "MemoryEnums.h"
 #include <string>
 
 namespace CustomMemoryManager
 {
 	class MemoryManager;
+	class IAllocator;
 
 	template <typename T>
 	class MemPtr final
 	{
+		friend class MemoryManager;
+
 	public:
-		//struct MemData
-		//{
-		//public:
-		//	MemData();
-		//	
-		//	MemData(T* address, const MemoryManager::AllocType type, const std::string& name, MemoryManager& manager);
-		//	//	: mAddress(address), mAllocType(type), mAllocatorName(name), mMemoryManager(&manager)
-		//	//{}
-		//
-		//	MemData(const MemData& other);
-		//	//	: mAddress(other.mAddress), mAllocType(other.mAllocType), mAllocatorName(other.mAllocatorName), mMemoryManager(other.mMemoryManager)
-		//	//{}
-		//
-		//	T* mAddress{ nullptr };
-		//	MemoryManager::AllocType mAllocType{ MemoryManager::AllocType::NONE };
-		//	std::string mAllocatorName;
-		//	MemoryManager* mMemoryManager{ nullptr };
-		//};
-
-		MemPtr(T* ptr);
-		//MemPtr(MemData<T>& memData);
-		//MemPtr(MemData<T>&& memData);
-		MemPtr(T* ptr, const AllocType type, const std::string& name, MemoryManager& manager);
+		MemPtr() = default;
 		MemPtr(const MemPtr& other);
-		MemPtr(MemPtr&&);
-		MemPtr& operator=(const MemPtr&);
-		MemPtr& operator=(MemPtr&&);
-		~MemPtr() = default;
-
-		//inline void SetPtr(T* ptr) { mAddress = ptr; };
+		MemPtr(MemPtr&& other);
+		MemPtr& operator=(const MemPtr& other);
+		MemPtr& operator=(MemPtr&& other);
+		~MemPtr();
 
 		T& operator*();
 		T* operator->();
@@ -50,23 +27,23 @@ namespace CustomMemoryManager
 		bool IsValid() const;
 
 	private:
-		T * mAddress{ nullptr };
+		MemPtr(T* ptr, const AllocType type, const std::string& name, MemoryManager& manager);
+		void IncreaseReferenceCount();
+		void DecreaseReferenceCount();
+
+		T* mAddress{ nullptr };
 		AllocType mAllocType{ AllocType::NONE };
 		std::string mAllocatorName;
 		MemoryManager* mMemoryManager{ nullptr };		//TODO: extent to maybe point directly to the allocator this object is in.
-		//MemData<T> mMemData;
+		IAllocator* mAllocator{ nullptr };
+		std::size_t* mReferences{ nullptr };			// points to the reference count in the heap allocator
+		//mutable std::size_t mReferences{ 0U };
 	};
 
 	//template <typename T>
 	//inline T* MakeMemPtr_Raw(const std::string& name, MemoryManager::AllocType type, MemoryManager& manager)
 	//{
 	//	return static_cast<T*>(new (name, manager, type, "makememptr_raw", 0U) T());
-	//}
-
-	//template <typename T>
-	//inline T* PoolAlloc(const std::string& name, MemoryManager& manager)
-	//{
-	//	return static_cast<T*>(new (name, manager, CustomMemoryManager::MemoryManager::AllocType::POOL) T());
 	//}
 
 	//template <typename T>

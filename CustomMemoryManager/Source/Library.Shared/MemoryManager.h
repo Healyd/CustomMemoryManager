@@ -5,7 +5,6 @@
 #include "PoolAllocator.h"
 #include "HeapAllocator.h"
 #include "MemoryEnums.h"
-//#include "MemData.h"
 #include "MemPtr.h"
 #include <unordered_map>
 #include <string>
@@ -25,22 +24,9 @@
 
 namespace CustomMemoryManager
 {
-	//template <typename T>
-	//class MemData;
-
 	class MemoryManager final
 	{
 	public:
-		//enum AllocType
-		//{
-		//	NONE,
-		//	STACK,
-		//	DOUBLESTACK,
-		//	POOL,
-		//	HEAP,
-		//	MAX
-		//};
-
 #ifdef _MEMDEBUG
 		struct Data
 		{
@@ -72,9 +58,10 @@ namespace CustomMemoryManager
 		template <typename T>
 		bool CreateAllocator(const std::string& name, const std::size_t size, AllocType type);
 		
-		void* Allocate(std::size_t allocAmount_bytes, const std::string& name, const AllocType type, const std::size_t alignment = 0U, const std::string fileName = "none", const std::size_t lineNumber = 0U, Allocators::Info info = Allocators::Info::NONE);
+		// todo: support all allocators. currently only supports the heap allocator
 		template <typename T>
-		/*MemData<T>*/MemPtr<T> Allocate_GetData(std::size_t allocAmount_bytes, const std::string& name, const AllocType type);
+		MemPtr<T> MemPtr_HeapAllocate(std::size_t allocAmount_bytes, const std::string& name, /*const AllocType type,*/ const std::size_t alignment = 0U, const std::string& fileName = "none", const std::size_t lineNumber = 0U, Allocators::Info info = Allocators::Info::NONE);
+		void* Allocate(std::size_t allocAmount_bytes, const std::string& name, const AllocType type, const std::size_t alignment = 0U, const std::string& fileName = "none", const std::size_t lineNumber = 0U, Allocators::Info info = Allocators::Info::NONE);
 
 		void Deallocate(void* ptr, const std::string& name, const AllocType type, const std::string fileName = "none", const std::size_t lineNumber = 0U, Allocators::Info info = Allocators::Info::NONE);
 
@@ -122,10 +109,14 @@ namespace CustomMemoryManager
 	}
 
 	template <typename T>
-	/*MemData<T>*/ MemPtr<T> MemoryManager::Allocate_GetData(std::size_t allocAmount_bytes, const std::string& name, const AllocType type)
+	MemPtr<T> MemoryManager::MemPtr_HeapAllocate(std::size_t allocAmount_bytes, const std::string& name, /*const AllocType type,*/ const std::size_t alignment, const std::string& fileName, const std::size_t lineNumber, Allocators::Info info)
 	{
-		return MemPtr<T>(static_cast<T*>(Allocate(allocAmount_bytes, name, type)), type, name, *this);
-		//return MemPtr<T>(MemData<T>(static_cast<T*>(Allocate(allocAmount_bytes, name, type)), type, name, *this));
+		return MemPtr<T>(
+			static_cast<T*>(Allocate(allocAmount_bytes, name, AllocType::HEAP, alignment, fileName, lineNumber, info)),		// Allocation Location
+			AllocType::HEAP,	// Allocator Type
+			name,				// Allocator Name
+			*this				// MemoryManager Pointer
+			);
 	}
 }
 
@@ -156,11 +147,13 @@ inline CustomMemoryManager::MemoryManager gMemoryManager;
 
 #define GLOBAL_MEMORY_MANAGER gMemoryManager
 
+// todo: implement default allocators already exiting in the manager.
+/*
 #define DEFAULT_STACK	"DefaultStack"
 #define DEFAULT_DSTACK	"DefaultDoubleStack"
 #define DEFAULT_POOL	"DefaultPool"
 #define DEFAULT_HEAP	"DefaultHeap"
-
+*/
 //////////////////////////////////
 
 // STACK_ALLOC(std::string name, std::size_t alignment = 0U)
@@ -171,12 +164,12 @@ inline CustomMemoryManager::MemoryManager gMemoryManager;
 #define DSTACK_ALLOC_TOP(name)		new (name, gMemoryManager, CustomMemoryManager::AllocType::DOUBLESTACK,	0U, __FILE__, __LINE__ , CustomMemoryManager::Allocators::Info::TOP)
 #define DSTACK_ALLOC_BOTTOM(name)	new (name, gMemoryManager, CustomMemoryManager::AllocType::DOUBLESTACK,	0U, __FILE__, __LINE__ , CustomMemoryManager::Allocators::Info::BOTTOM)
 
-#define POOL_ALLOC(name)			new (name, gMemoryManager, CustomMemoryManager::AllocType::POOL,			0U, __FILE__, __LINE__ )
+#define POOL_ALLOC(name)			new (name, gMemoryManager, CustomMemoryManager::AllocType::POOL,		0U, __FILE__, __LINE__ )
 
-#define HEAP_ALLOC_FIRSTFIT(name)	new (name, gMemoryManager, CustomMemoryManager::AllocType::HEAP,			0U, __FILE__, __LINE__, CustomMemoryManager::Allocators::Info::HEAP_FIRSTFIT)
-#define HEAP_ALLOC_LASTFIT(name)	new (name, gMemoryManager, CustomMemoryManager::AllocType::HEAP,			0U, __FILE__, __LINE__, CustomMemoryManager::Allocators::Info::HEAP_LASTFIT)
-#define HEAP_ALLOC_NEXTFIT(name)	new (name, gMemoryManager, CustomMemoryManager::AllocType::HEAP,			0U, __FILE__, __LINE__, CustomMemoryManager::Allocators::Info::HEAP_NEXTFIT)
-#define HEAP_ALLOC_BESTFIT(name)	new (name, gMemoryManager, CustomMemoryManager::AllocType::HEAP,			0U, __FILE__, __LINE__, CustomMemoryManager::Allocators::Info::HEAP_BESTFIT)
+#define HEAP_ALLOC_FIRSTFIT(name)	new (name, gMemoryManager, CustomMemoryManager::AllocType::HEAP,		0U, __FILE__, __LINE__, CustomMemoryManager::Allocators::Info::HEAP_FIRSTFIT)
+#define HEAP_ALLOC_LASTFIT(name)	new (name, gMemoryManager, CustomMemoryManager::AllocType::HEAP,		0U, __FILE__, __LINE__, CustomMemoryManager::Allocators::Info::HEAP_LASTFIT)
+#define HEAP_ALLOC_NEXTFIT(name)	new (name, gMemoryManager, CustomMemoryManager::AllocType::HEAP,		0U, __FILE__, __LINE__, CustomMemoryManager::Allocators::Info::HEAP_NEXTFIT)
+#define HEAP_ALLOC_BESTFIT(name)	new (name, gMemoryManager, CustomMemoryManager::AllocType::HEAP,		0U, __FILE__, __LINE__, CustomMemoryManager::Allocators::Info::HEAP_BESTFIT)
 
 ////////////////////////////////
 
@@ -184,7 +177,10 @@ inline CustomMemoryManager::MemoryManager gMemoryManager;
 #define DSTACK_DEALLOC_TOP(name, ptr)		gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::AllocType::DOUBLESTACK, __FILE__, __LINE__ , CustomMemoryManager::Allocators::Info::TOP)
 #define DSTACK_DEALLOC_BOTTOM(name, ptr)	gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::AllocType::DOUBLESTACK, __FILE__, __LINE__ , CustomMemoryManager::Allocators::Info::BOTTOM)
 #define POOL_DEALLOC(ptr, name, type)		ptr->~type(); gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::AllocType::POOL, __FILE__, __LINE__ );
-#define HEAP_DEALLOC(ptr, name, type)		ptr->~type(); gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::AllocType::HEAP, __FILE__, __LINE__ );
+
+#define HEAP_DEALLOC(...)								OVERLOADED_MACRO(HEAP_DEALLOC, __VA_ARGS__)
+#define HEAP_DEALLOC3(ptr, name, type)					HEAP_DEALLOC4(ptr, name, type, GLOBAL_MEMORY_MANAGER) //ptr->~type(); gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::AllocType::HEAP, __FILE__, __LINE__ );
+#define HEAP_DEALLOC4(ptr, name, type, memoryManager)	ptr->~type(); memoryManager.Deallocate(ptr, name, CustomMemoryManager::AllocType::HEAP, __FILE__, __LINE__ );
 
 #define CREATE_STACK(name, size)		gMemoryManager.CreateAllocator(name, size, CustomMemoryManager::AllocType::STACK)
 #define CREATE_DSTACK(name, size)		gMemoryManager.CreateAllocator(name, size, CustomMemoryManager::AllocType::DOUBLESTACK)

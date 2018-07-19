@@ -1,60 +1,51 @@
+#include "MemoryManager.h"
 
 namespace CustomMemoryManager
 {
-	//template <typename T>
-	//MemData<T>::MemData(T* address, const MemoryManager::AllocType type, const std::string& name, MemoryManager& manager)
-	//	: mAddress(address), mAllocType(type), mAllocatorName(name), mMemoryManager(&manager)
-	//{}
-
-	//template <typename T>
-	//MemData<T>::MemData(const MemData<T>& other)
-	//	: mAddress(other.mAddress), mAllocType(other.mAllocType), mAllocatorName(other.mAllocatorName), mMemoryManager(other.mMemoryManager)
-	//{}
-
-	template <typename T>
-	MemPtr<T>::MemPtr(T* ptr)
-		:	mAddress(ptr)
-	{}
-
 	template <typename T>
 	MemPtr<T>::MemPtr(T* ptr, const AllocType type, const std::string& name, MemoryManager& manager)
-		: mAddress(ptr), mAllocType(type), mAllocatorName(name), mMemoryManager(&manager)
-	{}
-
-	//template <typename T>
-	//MemPtr<T>::MemPtr(MemData<T>& memData)
-	//	: mMemData(memData)
-	//{
-	//}
-
-	//template <typename T>
-	//MemPtr<T>::MemPtr(MemData<T>&& memData)
-	//	:	mMemData(std::move(memData))
-	//{
-	//}
+		: mAddress(ptr), mAllocType(type), mAllocatorName(name), mMemoryManager(&manager)//, mReferences(1U)
+	{
+		IncreaseReferenceCount();
+	}
 
 	template <typename T>
 	MemPtr<T>::MemPtr(const MemPtr& other)
-		: mAddress(other.mAddress), mAllocType(other.mAllocType), mAllocatorName(other.mAllocatorName), mMemoryManager(other.mMemoryManager)
-	{}
+		: mAddress(other.mAddress), mAllocType(other.mAllocType), mAllocatorName(other.mAllocatorName), mMemoryManager(other.mMemoryManager), mReferences(other.mReferences)
+	{
+		// Up the Reference Count for the address
+		IncreaseReferenceCount();
+		//other.mReferences = mReferences;
+	}
 
 	template <typename T>
 	MemPtr<T>::MemPtr(MemPtr&& other)
-		: mAddress(other.mAddress), mAllocType(other.mAllocType), mAllocatorName(std::move(other.mAllocatorName)), mMemoryManager(other.mMemoryManager)
+		: mAddress(other.mAddress), mAllocType(other.mAllocType), mAllocatorName(std::move(other.mAllocatorName)), mMemoryManager(other.mMemoryManager), mReferences(other.mReferences)
 	{
 		other.mAddress = nullptr;
 		other.mAllocType = AllocType::NONE;
 		other.mAllocatorName = "";
-		mMemoryManager = nullptr;
+		other.mMemoryManager = nullptr;
+		other.mReferences = 0U;
 	}
 
 	template <typename T>
 	MemPtr<T>& MemPtr<T>::operator=(const MemPtr& other)
 	{
+		// If the address is not null it is referencing somewhere 
+		// therefore needs ot decrement the reference count of where it currently points.
+		if (mAddress != nullptr)
+		{
+			DecreaseReferenceCount();
+		}
+
 		mAddress = other.mAddress;
 		mAllocType = other.mAllocType;
 		mAllocatorName = other.mAllocatorName;
 		mMemoryManager = other.mMemoryManager;
+
+		// Up the Reference Count for the new address
+		IncreaseReferenceCount();
 	}
 
 	template <typename T>
@@ -62,23 +53,28 @@ namespace CustomMemoryManager
 	{
 		mAddress = other.mAddress;
 		mAllocType = other.mAllocType;
-		mAllocatorName = std::move(other.mAllocatorName); 
+		mAllocatorName = std::move(other.mAllocatorName);
 		mMemoryManager = other.mMemoryManager;
+		mReferences = other.mReferences;
 		other.mAddress = nullptr;
 		other.mAllocType = AllocType::NONE;
 		other.mAllocatorName = "";
-		mMemoryManager = nullptr;
+		other.mMemoryManager = nullptr;
+		other.mReferenes = 0U;
 	}
 
-	//template <typename T>
-	//MemPtr<T>::~MemPtr()
-	//{
-	//	if (mMemoryManager != nullptr)
-	//	{
-	//		~T();
-	//		mMemoryManager->Deallocate(Get(), mAllocatorName, mAllocType);
-	//	}
-	//}
+	template <typename T>
+	MemPtr<T>::~MemPtr()
+	{
+		DecreaseReferenceCount();
+		// todo: should I delete the pointer on the last occurance. or should I 
+		if (mMemoryManager != nullptr && mReferences != nullptr && (*mReferences) <= 0U)
+		{
+			HEAP_DEALLOC(mAddress, mAllocatorName, T, (*mMemoryManager));
+			//~T();
+			//mMemoryManager->Deallocate(mAddress, mAllocatorName, mAllocType);
+		}
+	}
 
 	template <typename T>
 	T& MemPtr<T>::operator*()
@@ -118,5 +114,27 @@ namespace CustomMemoryManager
 		// TODO: an IsValid() for the memory manager??
 		//mMemoryManager->IsValid(mAllocatorName, mAllocType);
 		return false;
+	}
+
+	template <typename T>
+	void MemPtr<T>::IncreaseReferenceCount()
+	{
+		Allocators::IAllocator* allocator = mMemoryManager->Get(mAllocatorName, mAllocType);
+		if (allocator != nullptr && mAllocType == AllocType::HEAP)
+		{
+			Allocators::HeapAllocator* heapAllocator = static_cast<Allocators::HeapAllocator*>(allocator);
+			mReferences = heapAllocator->IncrementReference(mAddress);
+		}
+	}
+
+	template <typename T>
+	void MemPtr<T>::DecreaseReferenceCount()
+	{
+		Allocators::IAllocator* allocator = mMemoryManager->Get(mAllocatorName, mAllocType);
+		if (allocator != nullptr && mAllocType == AllocType::HEAP)
+		{
+			Allocators::HeapAllocator* heapAllocator = static_cast<Allocators::HeapAllocator*>(allocator);
+			mReferences = heapAllocator->DecrementReference(mAddress);
+		}
 	}
 }

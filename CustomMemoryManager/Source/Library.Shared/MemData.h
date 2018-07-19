@@ -1,3 +1,4 @@
+/*
 #pragma once
 #include "MemoryEnums.h"
 #include <string>
@@ -80,3 +81,4 @@ namespace CustomMemoryManager
 		other.mMemoryManager = nullptr;
 	}
 }
+*/

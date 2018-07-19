@@ -130,7 +130,7 @@ namespace CustomMemoryManager
 		return isCreated;
 	}
 
-	void* MemoryManager::Allocate(std::size_t allocAmount_bytes, const std::string& name, const AllocType type, const std::size_t alignment, std::string fileName, const std::size_t lineNumber, Allocators::Info info)
+	void* MemoryManager::Allocate(std::size_t allocAmount_bytes, const std::string& name, const AllocType type, const std::size_t alignment, const std::string& fileName, const std::size_t lineNumber, Allocators::Info info)
 	{
 		if (type == AllocType::STACK)
 		{

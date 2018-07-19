@@ -132,6 +132,8 @@ namespace CustomMemoryManager::Allocators
 			++mNumActiveNodes;
 #endif // _MEMDEBUG
 
+			assert(temp->mReferences == 0U);
+			//temp->mReferences = 1U;	// will do in MemPtr, therefor if it never reaches the ptr then remains zero. Memptr will increment.
 			ptr = temp->mPtr;
 		}
 		return ptr;
@@ -157,6 +159,7 @@ namespace CustomMemoryManager::Allocators
 		//mActive.erase(ptr);
 		if (temp != nullptr)
 		{
+			assert(temp->mReferences == 0U);
 			assert(temp->mIsActive == true);
 			mHeapUsedSize_Bytes -= temp->mSize_Bytes;
 			if (temp->mMemPrevious != nullptr && temp->mMemPrevious->mIsActive == false)
@@ -207,6 +210,67 @@ namespace CustomMemoryManager::Allocators
 	std::size_t HeapAllocator::UsedSize_Bytes() const
 	{
 		return mHeapUsedSize_Bytes;
+	}
+
+	std::size_t* HeapAllocator::IncrementReference(void* ptr)
+	{
+		if (ptr == nullptr)
+		{
+			return nullptr;
+		}
+		HeapNode* node = FindNode(ptr, &mActiveLocationsList_Head, &mActiveLocationsList_End);
+		if (node != nullptr)
+		{
+			assert(node->mReferences >= 0);
+			++(node->mReferences);
+			return &(node->mReferences);
+		}
+		return nullptr;
+	}
+
+	std::size_t* HeapAllocator::DecrementReference(void* ptr)
+	{
+		if (ptr == nullptr)
+		{
+			return nullptr;
+		}
+		HeapNode* node = FindNode(ptr, &mActiveLocationsList_Head, &mActiveLocationsList_End);
+		if (node != nullptr)
+		{
+			assert(node->mReferences > 0);
+			--(node->mReferences);
+			return &(node->mReferences);
+		}
+		return nullptr;
+	}
+
+	void HeapAllocator::ReferenceCounting_GC()
+	{
+		// Empty.
+		if (mActiveLocationsList_Head == nullptr && mActiveLocationsList_End == nullptr)
+		{
+			return;
+		}
+
+		// One Item.
+		if (mActiveLocationsList_Head == mActiveLocationsList_End && (mActiveLocationsList_Head)->mReferences <= 0U)
+		{
+			deallocate(mActiveLocationsList_Head->mPtr);
+			return;
+		}
+
+		// Greather Than One Item.
+		HeapNode* current = mActiveLocationsList_Head;
+		while (current != nullptr)
+		{
+			if (current->mReferences <= 0U)
+			{
+				current = current->mNext;
+				deallocate(current->mPtr);
+				continue;
+			}
+			current = current->mNext;
+		}
 	}
 
 #ifdef _MEMDEBUG
