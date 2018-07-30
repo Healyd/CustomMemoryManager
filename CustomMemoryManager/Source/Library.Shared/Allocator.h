@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdlib>
 #include <cstdint>
+#include <exception>
 
 //#ifdef _DEBUG
 //#define _MEMDEBUG
@@ -22,6 +23,7 @@ namespace CustomMemoryManager::Allocators
 	enum Info
 	{
 		NONE,
+		FASTd,
 		TOP,
 		BOTTOM,
 		HEAP_FIRSTFIT,
@@ -39,5 +41,31 @@ namespace CustomMemoryManager::Allocators
 		virtual void deallocate(void* ptr, Info info = Info::NONE) = 0;
 		virtual std::size_t Size_Bytes() const = 0;
 		virtual std::size_t UsedSize_Bytes() const = 0;
+
+	protected:
+		inline void CheckAlignment(std::size_t& alignment)
+		{
+			if (alignment % 2U != 0U)
+			{
+				throw std::exception("Odd Byte Alignment");
+			}
+
+			if (alignment > 0U)
+			{
+				alignment = alignment - 1;
+			}
+		}
+
+		inline void AlignPointer(void** ptr, std::size_t alignment)
+		{
+			for (std::size_t i = 0U; i < alignment + 1; ++i)
+			{
+				if (reinterpret_cast<std::uintptr_t>(*ptr) % (alignment + 1) == 0)
+				{
+					break;
+				}
+				*ptr = reinterpret_cast<void*>(reinterpret_cast<std::intptr_t>(*ptr) + 0x01);
+			}
+		}
 	};
 }

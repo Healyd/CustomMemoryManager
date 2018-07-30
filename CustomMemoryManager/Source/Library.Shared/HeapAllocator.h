@@ -31,11 +31,11 @@ namespace CustomMemoryManager::Allocators
 		std::size_t NumInActiveNodes() const;
 #endif // _MEMDEBUG
 
-	private:
 		struct HeapNode
 		{
 			std::size_t mSize_Bytes{ 0U };
 			void* mPtr{ nullptr };
+			//void* mMemStart{ nullptr };			// start of the memory chunk for aligned memory blocks
 			HeapNode* mPrevious{ nullptr };		// for the mLocationsActive/Inactive lists
 			HeapNode* mNext{ nullptr };
 			HeapNode* mMemPrevious{ nullptr };	// for the mLocations list
@@ -44,6 +44,7 @@ namespace CustomMemoryManager::Allocators
 			std::size_t mReferences{ 0U };
 		};
 
+	private:
 		void PushBackNode(HeapNode* node, HeapNode** head, HeapNode** end);
 		void PushFrontNode(HeapNode* node, HeapNode** head, HeapNode** end);
 		HeapNode* RemoveNode(void* ptr, HeapNode** head, HeapNode** end);

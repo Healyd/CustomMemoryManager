@@ -65,6 +65,8 @@ namespace CustomMemoryManager::Allocators
 			info = CustomMemoryManager::Allocators::HEAP_FIRSTFIT;
 		}
 
+		//CheckAlignment(alignment);
+
 		// Search InActive List.
 		HeapNode* foundNode = nullptr;
 		switch (info)

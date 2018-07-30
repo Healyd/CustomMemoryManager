@@ -2,6 +2,7 @@
 // If you are new to ImGui, see examples/README.txt and documentation at the top of imgui.cpp.
 
 #include "imgui-1.61/imgui.h"
+//#include <imgui.h>
 #include "imgui_impl_dx11.h"
 #include <d3d11.h>
 #define DIRECTINPUT_VERSION 0x0800
@@ -135,6 +136,7 @@ int main(int, char**)
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
 	ImGui_ImplDX11_Init(hwnd, g_pd3dDevice, g_pd3dDeviceContext);
+	//ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
 	/*
 		CustomMemoryManager::MemoryManager memoryManager;
 		memoryManager.CreateAllocator("Stack1", 800 * sizeof(std::uint32_t), CustomMemoryManager::MemoryManager::AllocType::STACK);

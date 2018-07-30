@@ -76,6 +76,8 @@ namespace CustomMemoryManager::Allocators
 			alignment = alignment - 1;
 		}
 
+		//CheckAlignment(alignment);
+
 		// Cache mStackCurrent as a std::intptr_t.
 		std::intptr_t currentStackLocation = reinterpret_cast<std::intptr_t>(mStackCurrent);
 
@@ -106,6 +108,8 @@ namespace CustomMemoryManager::Allocators
 			}
 			temp = reinterpret_cast<void*>(reinterpret_cast<std::intptr_t>(temp) + 0x01);
 		}
+
+		//AlignPointer(&temp, alignment);
 
 		mStackCurrent = reinterpret_cast<void*>(currentStackLocation + allocAmount_bytes + alignment);
 

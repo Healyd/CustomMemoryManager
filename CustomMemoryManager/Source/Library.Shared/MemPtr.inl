@@ -68,12 +68,12 @@ namespace CustomMemoryManager
 	{
 		DecreaseReferenceCount();
 		// todo: should I delete the pointer on the last occurance. or should I 
-		if (mMemoryManager != nullptr && mReferences != nullptr && (*mReferences) <= 0U)
-		{
-			HEAP_DEALLOC(mAddress, mAllocatorName, T, (*mMemoryManager));
-			//~T();
-			//mMemoryManager->Deallocate(mAddress, mAllocatorName, mAllocType);
-		}
+		//if (mMemoryManager != nullptr && mReferences != nullptr && (*mReferences) <= 0U)
+		//{
+		//	HEAP_DEALLOC(mAddress, mAllocatorName, T, (*mMemoryManager));
+		//	//~T();
+		//	//mMemoryManager->Deallocate(mAddress, mAllocatorName, mAllocType);
+		//}
 	}
 
 	template <typename T>
@@ -114,6 +114,17 @@ namespace CustomMemoryManager
 		// TODO: an IsValid() for the memory manager??
 		//mMemoryManager->IsValid(mAllocatorName, mAllocType);
 		return false;
+	}
+
+	template <typename T>
+	void MemPtr<T>::Delete()
+	{
+		if (mMemoryManager != nullptr)// && mReferences != nullptr && (*mReferences) <= 0U)
+		{
+			//HEAP_DEALLOC(mAddress, mAllocatorName, T, (*mMemoryManager));
+			~T();
+			mMemoryManager->Deallocate(mAddress, mAllocatorName, mAllocType);
+		}
 	}
 
 	template <typename T>

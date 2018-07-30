@@ -11,9 +11,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MemoryManager", "..\Source\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest", "..\Source\UnitTest\UnitTest.vcxproj", "{B32E90F2-B423-4FC7-B1BF-2252F262CD9F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SOIL", "..\Source\externals\Simple OpenGL Image Library\projects\VC9\SOIL.vcxproj", "{C32FB2B4-500C-43CD-A099-EECCE079D3F1}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ParticleSystem", "..\Source\ParticleSystemOriginal\ParticleSystem.vcxproj", "{222A4309-DB7C-45E2-88F4-91C579223443}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		..\Source\Library.Shared\Library.Shared.vcxitems*{03e9de8d-76cd-485a-a1bc-fa60d7d5fbcd}*SharedItemsImports = 4
+		..\Source\Library.Shared\Library.Shared.vcxitems*{222a4309-db7c-45e2-88f4-91c579223443}*SharedItemsImports = 4
 		..\Source\Library.Shared\Library.Shared.vcxitems*{5a888573-b731-4eac-b597-8e17b2e7d3c4}*SharedItemsImports = 9
 		..\Source\Library.Shared\Library.Shared.vcxitems*{b32e90f2-b423-4fc7-b1bf-2252f262cd9f}*SharedItemsImports = 4
 		..\Source\Library.Shared\Library.Shared.vcxitems*{fc921709-1094-4e9d-9412-0a2cba68b636}*SharedItemsImports = 4
@@ -63,6 +68,27 @@ Global
 		{B32E90F2-B423-4FC7-B1BF-2252F262CD9F}.Release|x64.Build.0 = Release|x64
 		{B32E90F2-B423-4FC7-B1BF-2252F262CD9F}.Release|x86.ActiveCfg = Release|Win32
 		{B32E90F2-B423-4FC7-B1BF-2252F262CD9F}.Release|x86.Build.0 = Release|Win32
+		{C32FB2B4-500C-43CD-A099-EECCE079D3F1}.Debug|x64.ActiveCfg = Debug|x64
+		{C32FB2B4-500C-43CD-A099-EECCE079D3F1}.Debug|x64.Build.0 = Debug|x64
+		{C32FB2B4-500C-43CD-A099-EECCE079D3F1}.Debug|x86.ActiveCfg = Debug|Win32
+		{C32FB2B4-500C-43CD-A099-EECCE079D3F1}.Debug|x86.Build.0 = Debug|Win32
+		{C32FB2B4-500C-43CD-A099-EECCE079D3F1}.DebugOptimized|x64.ActiveCfg = DebugOptimized|x64
+		{C32FB2B4-500C-43CD-A099-EECCE079D3F1}.DebugOptimized|x64.Build.0 = DebugOptimized|x64
+		{C32FB2B4-500C-43CD-A099-EECCE079D3F1}.DebugOptimized|x86.ActiveCfg = DebugOptimized|Win32
+		{C32FB2B4-500C-43CD-A099-EECCE079D3F1}.DebugOptimized|x86.Build.0 = DebugOptimized|Win32
+		{C32FB2B4-500C-43CD-A099-EECCE079D3F1}.Release|x64.ActiveCfg = Release|x64
+		{C32FB2B4-500C-43CD-A099-EECCE079D3F1}.Release|x64.Build.0 = Release|x64
+		{C32FB2B4-500C-43CD-A099-EECCE079D3F1}.Release|x86.ActiveCfg = Release|Win32
+		{C32FB2B4-500C-43CD-A099-EECCE079D3F1}.Release|x86.Build.0 = Release|Win32
+		{222A4309-DB7C-45E2-88F4-91C579223443}.Debug|x64.ActiveCfg = Debug|Win32
+		{222A4309-DB7C-45E2-88F4-91C579223443}.Debug|x86.ActiveCfg = Debug|Win32
+		{222A4309-DB7C-45E2-88F4-91C579223443}.Debug|x86.Build.0 = Debug|Win32
+		{222A4309-DB7C-45E2-88F4-91C579223443}.DebugOptimized|x64.ActiveCfg = DebugOptimized|Win32
+		{222A4309-DB7C-45E2-88F4-91C579223443}.DebugOptimized|x86.ActiveCfg = DebugOptimized|Win32
+		{222A4309-DB7C-45E2-88F4-91C579223443}.DebugOptimized|x86.Build.0 = DebugOptimized|Win32
+		{222A4309-DB7C-45E2-88F4-91C579223443}.Release|x64.ActiveCfg = Release|Win32
+		{222A4309-DB7C-45E2-88F4-91C579223443}.Release|x86.ActiveCfg = Release|Win32
+		{222A4309-DB7C-45E2-88F4-91C579223443}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

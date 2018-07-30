@@ -9,7 +9,7 @@
 
 namespace CustomMemoryManager
 {
-#ifdef _MEMDEBUG
+//#ifdef _MEMDEBUG
 	MemoryManager::MemoryManager()
 	{
 #if !defined(_NOOUTPUTFILE) || defined(_STACK) || defined(_DSTACK) || defined(_POOL) || defined(_HEAP) || (ALLOCATIONS_FOR_FILEOUTPUT > 0)
@@ -60,9 +60,34 @@ namespace CustomMemoryManager
 
 		mOutputDirectory = "Logs\\DebugOptimized\\" + mDateTimeStamp + "\\";
 #endif
+//
+//#ifdef  NDEBUG
+//		_wmkdir(L"Logs");
+//		_wmkdir(L"Logs\\DebugOptimized");
+//
+//		auto time1 = std::chrono::system_clock::now();
+//		std::time_t time2 = std::chrono::system_clock::to_time_t(time1);
+//		char carray[100];
+//		ctime_s(carray, sizeof(carray), &time2);
+//		mDateTimeStamp = carray;
+//
+//		std::replace(mDateTimeStamp.begin(), mDateTimeStamp.end(), ':', '-');
+//		std::replace(mDateTimeStamp.begin(), mDateTimeStamp.end(), '\n', '_');
+//
+//		char carray2[300] = "Logs\\DebugOptimized\\";
+//		strcat_s(carray2, mDateTimeStamp.c_str());
+//
+//		wchar_t wcarray[300];
+//		std::size_t num = 0U;
+//		mbstowcs_s(&num, wcarray, carray2, 300);
+//		_wmkdir(wcarray);
+//
+//		mOutputDirectory = "Logs\\DebugOptimized\\" + mDateTimeStamp + "\\";
+//#endif
+
 #endif
 	}
-#endif // _MEMDEBUG
+//#endif // _MEMDEBUG
 
 	MemoryManager::~MemoryManager()
 	{

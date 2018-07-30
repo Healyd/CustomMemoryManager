@@ -2,7 +2,8 @@
 
 #ifdef _MEMDEBUG
 
-#include "imgui-1.61/imgui.h"
+//#include "imgui-1.61/imgui.h"
+//#include <imgui.h>
 #include <cstdint>
 #include <unordered_map>
 #include <set>
@@ -27,6 +28,7 @@ namespace CustomMemoryManager
 		MemoryGui& operator=(MemoryGui&&) = delete;
 		~MemoryGui() = default;
 
+		void Init();
 		void RunGui();
 		void EndGui();
 

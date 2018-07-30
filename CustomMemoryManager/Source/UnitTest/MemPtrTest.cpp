@@ -36,10 +36,6 @@ namespace UnitTest
 			MemoryManager manager;
 			manager.CreateAllocator("Heap", 2 * sizeof(std::int32_t), AllocType::HEAP);
 
-		//	MemData<std::int32_t> data = manager.Allocate_GetData<std::int32_t>(sizeof(std::int32_t), "Stack", AllocType::STACK);
-		//	MemData<std::int32_t> data2 = std::move(data);
-
-			//MemPtr<std::int32_t> intpointer = std::move(manager.MemPtr_Allocate<std::int32_t>(sizeof(std::int32_t), "Stack", AllocType::STACK));
 			MemPtr<std::int32_t> intpointer = std::move(manager.MemPtr_HeapAllocate<std::int32_t>(sizeof(std::int32_t), "Heap"));
 			MemPtr<std::int32_t> intpointer2 = intpointer;
 			MemPtr<std::int32_t> intpointer4 = intpointer;

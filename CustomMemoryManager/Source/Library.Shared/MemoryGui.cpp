@@ -5,11 +5,17 @@
 #include "MemoryManager.h"
 #include "MemPtr.h"
 #include <iostream>
+#include "imgui-1.61/imgui.h"
 
 namespace CustomMemoryManager
 {
 	MemoryGui::MemoryGui(MemoryManager& manager)
 		: mMemoryManager(&manager)
+	{
+		Init();
+	}
+
+	void MemoryGui::Init()
 	{
 		// Stack Initialization
 		std::vector<std::string> stackNames = mMemoryManager->Get(AllocType::STACK);
@@ -150,8 +156,8 @@ namespace CustomMemoryManager
 							ImGui::TextColored(ImVec4(1, 0, 0, 1), std::string(name1 + " OVERFLOW").c_str());
 					}
 #endif //_DEBUG
-
-					GraphHistorgram(name, mGraphData.find(name)->second/*.mGraphData*/, static_cast<float>(stack->UsedSpace_Bytes()), static_cast<float>(stack->StackSize_Bytes()));
+					if (!mGraphData.empty())
+						GraphHistorgram(name, mGraphData.find(name)->second/*.mGraphData*/, static_cast<float>(stack->UsedSpace_Bytes()), static_cast<float>(stack->StackSize_Bytes()));
 
 					ImGui::Text("");
 					ImGui::Separator();
@@ -241,8 +247,11 @@ namespace CustomMemoryManager
 						stack->ClearTop();
 					}
 
-					GraphHistorgram(name + " Top", mGraphData.find(name + "_top")->second/*.mGraphData*/, static_cast<float>(stack->UsedBytes_Top()), static_cast<float>(stack->TopStackSize_Bytes()));
-					GraphHistorgram(name + " Bottom", mGraphData.find(name + "_bot")->second/*.mGraphData_Bottom*/, static_cast<float>(stack->UsedBytes_Bottom()), static_cast<float>(stack->BottomStackSize_Bytes()));
+					if (!mGraphData.empty())
+					{
+						GraphHistorgram(name + " Top", mGraphData.find(name + "_top")->second/*.mGraphData*/, static_cast<float>(stack->UsedBytes_Top()), static_cast<float>(stack->TopStackSize_Bytes()));
+						GraphHistorgram(name + " Bottom", mGraphData.find(name + "_bot")->second/*.mGraphData_Bottom*/, static_cast<float>(stack->UsedBytes_Bottom()), static_cast<float>(stack->BottomStackSize_Bytes()));
+					}
 
 					ImGui::Text("");
 					ImGui::Separator();
@@ -285,7 +294,8 @@ namespace CustomMemoryManager
 					ImGui::Text("%s Num Allocations: %u", name.c_str(), data->mNumAllocations);
 					ImGui::Text("%s Num Dellocations: %u", name.c_str(), data->mNumDeallocations);
 
-					GraphHistorgram(name, mGraphData.find(name)->second/*.mGraphData*/, static_cast<float>(pool->UsedSize_Bytes()), static_cast<float>(pool->Size_Bytes()));
+					if (!mGraphData.empty())
+						GraphHistorgram(name, mGraphData.find(name)->second/*.mGraphData*/, static_cast<float>(pool->UsedSize_Bytes()), static_cast<float>(pool->Size_Bytes()));
 
 					ImGui::Text("");
 					ImGui::Separator();
@@ -336,7 +346,8 @@ namespace CustomMemoryManager
 					ImGui::Text("%s Num InActive Nodes: %u", name.c_str(), heap->NumInActiveNodes());
 					ImGui::Text("%s Num Nodes: %u", name.c_str(), heap->NumNodes());
 
-					GraphHistorgram(name, mGraphData.find(name)->second, static_cast<float>(heap->UsedSize_Bytes()), static_cast<float>(heap->Size_Bytes()));
+					if (!mGraphData.empty())
+						GraphHistorgram(name, mGraphData.find(name)->second, static_cast<float>(heap->UsedSize_Bytes()), static_cast<float>(heap->Size_Bytes()));
 
 					ImGui::Text("");
 					ImGui::Separator();

@@ -25,6 +25,7 @@ namespace CustomMemoryManager
 		T* Get();
 		bool IsNull() const;
 		bool IsValid() const;
+		void Delete();
 
 	private:
 		MemPtr(T* ptr, const AllocType type, const std::string& name, MemoryManager& manager);
@@ -37,6 +38,10 @@ namespace CustomMemoryManager
 		MemoryManager* mMemoryManager{ nullptr };		//TODO: extent to maybe point directly to the allocator this object is in.
 		IAllocator* mAllocator{ nullptr };
 		std::size_t* mReferences{ nullptr };			// points to the reference count in the heap allocator
+
+		//Allocators::HeapAllocator::HeapNode* hNode{ nullptr };
+
+
 		//mutable std::size_t mReferences{ 0U };
 	};
 

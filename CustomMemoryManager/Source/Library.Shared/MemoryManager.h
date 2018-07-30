@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#define ALLOCATIONS_FOR_FILEOUTPUT -1
+#define ALLOCATIONS_FOR_FILEOUTPUT 100000
 
 //#define _OUTPUTFILE	// runs in debugoptimized mode
 #define _NOOUTPUTFILE
@@ -43,11 +43,11 @@ namespace CustomMemoryManager
 #endif // _MEMDEBUG
 
 	public:
-#ifdef _MEMDEBUG
+//#ifdef _MEMDEBUG
 		MemoryManager();
-#else
-		MemoryManager() = default;
-#endif // _MEMDEBUG
+//#else
+//		MemoryManager() = default;
+//#endif // _MEMDEBUG
 		MemoryManager(const MemoryManager&) = delete;
 		MemoryManager(MemoryManager&&) = delete;
 		MemoryManager& operator=(const MemoryManager&) = delete;
@@ -84,9 +84,9 @@ namespace CustomMemoryManager
 		std::unordered_map<std::string, Allocators::HeapAllocator*> mHeapAllocators;
 #ifdef _MEMDEBUG
 		std::unordered_map<std::string, Data> mAllocatorData;
+#endif // _MEMDEBUG
 		std::string mDateTimeStamp;
 		std::string mOutputDirectory;
-#endif // _MEMDEBUG
 	};
 
 	template <typename T>
@@ -160,6 +160,7 @@ inline CustomMemoryManager::MemoryManager gMemoryManager;
 #define STACK_ALLOC(...)				OVERLOADED_MACRO(STACK_ALLOC, __VA_ARGS__)
 #define STACK_ALLOC1(name)				STACK_ALLOC2(name, 0U) 
 #define STACK_ALLOC2(name, alignment)	new (name, gMemoryManager, CustomMemoryManager::AllocType::STACK,	alignment, __FILE__, __LINE__)
+//#define STACK_ALLOC3(name, alignment, memoryManager)	new (name, memoryManager, CustomMemoryManager::AllocType::STACK,	alignment, __FILE__, __LINE__)
 
 #define DSTACK_ALLOC_TOP(name)		new (name, gMemoryManager, CustomMemoryManager::AllocType::DOUBLESTACK,	0U, __FILE__, __LINE__ , CustomMemoryManager::Allocators::Info::TOP)
 #define DSTACK_ALLOC_BOTTOM(name)	new (name, gMemoryManager, CustomMemoryManager::AllocType::DOUBLESTACK,	0U, __FILE__, __LINE__ , CustomMemoryManager::Allocators::Info::BOTTOM)

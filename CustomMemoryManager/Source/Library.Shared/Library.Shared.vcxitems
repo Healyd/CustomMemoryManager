@@ -29,6 +29,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)StackAllocator.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)StopWatch.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)TypeStackAllocator.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Util.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(MSBuildThisFileDirectory)DoubleEndedStackAllocator.cpp" />
