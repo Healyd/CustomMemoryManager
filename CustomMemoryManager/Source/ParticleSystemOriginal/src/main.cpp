@@ -799,7 +799,10 @@ CubeEmitter g_CubeEmitter;
 //#endif 
 
 ParticleEffect g_ParticleEffect;
+#ifdef _MEMDEBUG
 CustomMemoryManager::MemoryGui g_MemoryGui(GLOBAL_MEMORY_MANAGER);
+#endif // _MEMDEBUG
+
 
 int g_iWindowWidth = 1280;
 int g_iWindowHeight = 720;
@@ -832,7 +835,7 @@ void ReshapeGL(int w, int h);
 void Cleanup();
 
 GLFWwindow* window;// = glfwCreateWindow(1280, 720, "ImGui GLFW+OpenGL3 example", NULL, NULL);
-
+#include "StopWatch.h"
 int main(int argc, char* argv[])
 {
 	InitGL(argc, argv);
@@ -840,11 +843,31 @@ int main(int argc, char* argv[])
 
 
 
-
-	GLOBAL_MEMORY_MANAGER.CreateAllocator("test", 10000000 * sizeof(Particle), CustomMemoryManager::AllocType::HEAP);
-	//GLOBAL_MEMORY_MANAGER.CreateAllocator<Particle>("test", 10000000 * sizeof(Particle), CustomMemoryManager::AllocType::POOL);
+#if USE_HEAP_FIRST == 1 || USE_HEAP_BEST == 1 || USE_HEAP_LAST == 1
+	GLOBAL_MEMORY_MANAGER.CreateAllocator("test", 200000 * sizeof(Particle), CustomMemoryManager::AllocType::HEAP);
+#elif USE_POOL == 1
+	GLOBAL_MEMORY_MANAGER.CreateAllocator<Particle>("test", 200000 * sizeof(Particle), CustomMemoryManager::AllocType::POOL);
+#endif
 	//g_ParticleEffect.Resize(100000);
+#ifdef _MEMDEBUG
 	g_MemoryGui.Init();
+#endif // _MEMDEBUG
+	/*g_ParticleEffect.LooseRefToAllParticles();
+	CustomMemoryManager::Allocators::IAllocator* allocator = GLOBAL_MEMORY_MANAGER.Get("test", CustomMemoryManager::AllocType::HEAP);
+	if (allocator != nullptr)
+	{
+		CustomMemoryManager::Allocators::HeapAllocator* heap = static_cast<CustomMemoryManager::Allocators::HeapAllocator*>(allocator);
+		if (heap != nullptr)
+		{
+			Library::StopWatch sw;
+			sw.Start();
+			heap->ReferenceCounting_GC();
+			sw.Start();
+			float x = sw.Elapsed().count();
+			std::cout << "here: " << x << std::endl;
+		}
+	}*/
+
 
 	g_Camera.SetTranslate(g_DefaultCameraTranslate);
 	g_Camera.SetRotate(g_DefaultCameraRotate);
@@ -993,6 +1016,10 @@ void DisplayGL()
 	glutPostRedisplay();
 }
 
+bool createParticles = true;
+bool deleteParticles = true;
+int amount = 10;
+
 void IdleGL()
 {
 	static ElapsedTime elapsedTime;
@@ -1001,17 +1028,25 @@ void IdleGL()
 	//new
 	glfwPollEvents();
 	ImGui_ImplGlfwGL3_NewFrame();
+#ifdef _MEMDEBUG
 	g_MemoryGui.RunGui();
+#endif // _MEMDEBUG
 
+
+	ImGui::Begin("Particle Controll");
+	ImGui::Checkbox("Create Particles", &createParticles);
+	ImGui::Checkbox("Delete Particles", &deleteParticles);
+	ImGui::InputInt("Amount", &amount);
+	ImGui::Text("Num Particles: %d", g_ParticleEffect.GetNumParticles());
+	ImGui::End();
 	if (g_bUpdate)
 	{
-		g_ParticleEffect.Update(fDeltaTime);
+		g_ParticleEffect.Update(fDeltaTime, createParticles, deleteParticles, amount);
 	}
 	else
 	{
 		g_ParticleEffect.BuildVertexBuffer();
 	}
-
 	////new
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 	//int display_w, display_h;

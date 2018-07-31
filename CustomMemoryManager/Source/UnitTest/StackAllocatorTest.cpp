@@ -171,6 +171,7 @@ namespace UnitTest
 
 			stackallocator.allocate(sizeof(char), 4U);
 			stackallocator.allocate(sizeof(std::uint32_t), 4U);
+
 		}
 
 	private:

@@ -37,12 +37,14 @@ namespace UnitTest
 			manager.CreateAllocator("Heap", 2 * sizeof(std::int32_t), AllocType::HEAP);
 
 			MemPtr<std::int32_t> intpointer = std::move(manager.MemPtr_HeapAllocate<std::int32_t>(sizeof(std::int32_t), "Heap"));
-			MemPtr<std::int32_t> intpointer2 = intpointer;
-			MemPtr<std::int32_t> intpointer4 = intpointer;
-			MemPtr<std::int32_t> intpointer5 = intpointer4;
+			MemPtr<std::int32_t> intpointer2 = intpointer;	// 2 references
+			MemPtr<std::int32_t> intpointer4 = intpointer;	// 3 references
 			{
-				MemPtr<std::int32_t> intpointer6 = intpointer4;
+				MemPtr<std::int32_t> intpointer6 = intpointer4;	// 4 reference
 			}
+			// 3 references
+
+			MemPtr<std::int32_t> intpointer5 = intpointer4;
 			Assert::AreEqual(intpointer.Get(), intpointer2.Get());
 			MemPtr<std::int32_t> intpointer3 = std::move(intpointer2);
 			Assert::IsNull(intpointer2.Get());
@@ -50,6 +52,7 @@ namespace UnitTest
 			intpointer2.operator*();
 			Assert::IsNotNull(intpointer3.Get());
 			intpointer2;
+
 		}
 
 

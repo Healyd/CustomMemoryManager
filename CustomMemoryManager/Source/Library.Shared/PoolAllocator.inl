@@ -109,13 +109,14 @@ namespace CustomMemoryManager::Allocators
 	template <typename T>
 	void PoolAllocator<T>::deallocate(void* ptr, Info)
 	{
-		std::deque<void*>::iterator it = std::remove(mInUse.begin(), mInUse.end(), ptr); //std::find(mInUse.begin(), mInUse.end(), ptr);
+		//std::deque<void*>::iterator it = std::remove(mInUse.begin(), mInUse.end(), ptr); //std::find(mInUse.begin(), mInUse.end(), ptr);
+		std::deque<void*>::iterator it = std::find(mInUse.begin(), mInUse.end(), ptr);
 		if (it == mInUse.end())
 		{
 			return;
 		}
 		void* ptrFound = *it;
-		//mInUse.erase(it);
+		mInUse.erase(it);
 		mNotInUse.push_front(ptrFound);
 		ptr = nullptr;					// TODO: not sure about this line, if it works, need to test
 	}

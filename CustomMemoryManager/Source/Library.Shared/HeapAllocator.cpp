@@ -263,12 +263,14 @@ namespace CustomMemoryManager::Allocators
 
 		// Greather Than One Item.
 		HeapNode* current = mActiveLocationsList_Head;
+		HeapNode* temp;
 		while (current != nullptr)
 		{
 			if (current->mReferences <= 0U)
 			{
-				current = current->mNext;
+				temp = current->mNext;
 				deallocate(current->mPtr);
+				current = temp;
 				continue;
 			}
 			current = current->mNext;

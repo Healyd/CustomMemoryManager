@@ -6,6 +6,7 @@
 #include "Allocator.h"
 #include "PoolAllocator.h"
 #include "Util.h"
+#include "StopWatch.h"
 
 ParticleEffect::ParticleEffect(unsigned int numParticles /* = 0 */)
 	: m_pCamera(NULL)
@@ -88,10 +89,10 @@ void ParticleEffect::EmitParticles()
 	//}
 	//else
 	//{
-		for (unsigned int i = 0; i < m_Particles.size(); ++i)
-		{
-			EmitParticle(*(m_Particles[i]));
-		}
+	for (unsigned int i = 0; i < m_Particles.size(); ++i)
+	{
+		EmitParticle(*(m_Particles[i]));
+	}
 	//}
 }
 
@@ -147,7 +148,7 @@ void ParticleEffect::BuildVertexBuffer()
 
 }
 
-void ParticleEffect::Update(float fDeltaTime)
+void ParticleEffect::Update(float fDeltaTime, bool allocate, bool deallocate, int amount)
 {
 	//int x = 0;
 	for (unsigned int i = 0; i < m_Particles.size(); ++i)
@@ -155,28 +156,28 @@ void ParticleEffect::Update(float fDeltaTime)
 		Particle& particle = *(m_Particles[i]);
 
 		particle.m_fAge += fDeltaTime;
-//		if (particle.m_fAge > particle.m_fLifeTime  && x < 100)
-//		{
-//			if (m_pParticleEmitter != NULL)  //EmitParticle(particle);
-//			{
-//				ParticleBuffer::iterator it = std::find(m_Particles.begin(), m_Particles.end(), &particle);
-//				if (it != m_Particles.end() && (getRangedRandom(0, 100000) < getCreateProbability()))
-//				{
-//				std::cout << getCreateProbability() << std::endl;
-//					Particle* p = &particle;
-//					m_Particles.erase(it);
-//#ifdef memory
-//					//POOL_DEALLOC(p, "test", Particle);
-//					HEAP_DEALLOC3(p, "test", Particle);
-//					m_VertexBuffer.resize(m_Particles.size() * 4, Vertex());
-//					++x;
-//#else
-//					delete p;
-//#endif // memory
-//				}
-//			}
-//			//else RandomizeParticle(particle);
-//		}
+		//		if (particle.m_fAge > particle.m_fLifeTime  && x < 100)
+		//		{
+		//			if (m_pParticleEmitter != NULL)  //EmitParticle(particle);
+		//			{
+		//				ParticleBuffer::iterator it = std::find(m_Particles.begin(), m_Particles.end(), &particle);
+		//				if (it != m_Particles.end() && (getRangedRandom(0, 100000) < getCreateProbability()))
+		//				{
+		//				std::cout << getCreateProbability() << std::endl;
+		//					Particle* p = &particle;
+		//					m_Particles.erase(it);
+		//#ifdef memory
+		//					//POOL_DEALLOC(p, "test", Particle);
+		//					HEAP_DEALLOC3(p, "test", Particle);
+		//					m_VertexBuffer.resize(m_Particles.size() * 4, Vertex());
+		//					++x;
+		//#else
+		//					delete p;
+		//#endif // memory
+		//				}
+		//			}
+		//			//else RandomizeParticle(particle);
+		//		}
 
 		float lifeRatio = particle.m_fAge;// glm::saturate(particle.m_fAge / particle.m_fLifeTime);
 		if (lifeRatio == 0.0f) lifeRatio = 0.9f;
@@ -193,37 +194,47 @@ void ParticleEffect::Update(float fDeltaTime)
 	//	GLOBAL_MEMORY_MANAGER.OutputFileAverages();
 	//}
 
-	for (int i = 0; i < 10; ++i)
+	for (int i = 0; i < amount; ++i)
 	{
 		bool createParticles = false;
 		bool deleteParticles = false;
-
-		if (GetNumParticles() <= 0)
+		if (allocate && deallocate)
 		{
-			createParticles = true;
-		}
-		else if (GetNumParticles() >= 100000)
-		{
-			createParticles = false;
-			deleteParticles = true;
-		}
-		else
-		{
-			float p = getCreateProbability();
-			if (getRangedRandom(0, 100) < getCreateProbability())
+			if (GetNumParticles() <= 0)
 			{
 				createParticles = true;
 			}
-			else
+			else if (GetNumParticles() >= 100000)
 			{
+				createParticles = false;
 				deleteParticles = true;
 			}
+			else
+			{
+				float p = getCreateProbability();
+				if (getRangedRandom(0, 100) < getCreateProbability())
+				{
+					createParticles = true;
+				}
+				else
+				{
+					deleteParticles = true;
+				}
+			}
+			if (createParticles)
+			{
+				CreateParticle();
+			}
+			if (deleteParticles)
+			{
+				DestroyParticle();
+			}
 		}
-		if (createParticles)
+		else if (allocate)
 		{
 			CreateParticle();
 		}
-		if (deleteParticles)
+		else if (deallocate)
 		{
 			DestroyParticle();
 		}
@@ -274,21 +285,63 @@ void ParticleEffect::Render()
 void ParticleEffect::Resize(unsigned int numParticles)
 {
 	//m_Particles.resize( numParticles,  new Particle() );
+	
+
 	m_Particles.clear();
+	float totalMs = 0.0f;
+	std::vector<float> allms;
 	for (unsigned int i = 0U; i < numParticles; ++i)
 	{
-#ifdef memory
-#if USE_HEAP == 1
+		Library::StopWatch sw;
+#if MEMORY == 1
+#if USE_HEAP_FIRST == 1
+		sw.Start();
 		m_Particles.push_back(HEAP_ALLOC_FIRSTFIT("test") Particle());
-		//m_Particles.push_back(HEAP_ALLOC_BESTFIT("test") Particle());
+		sw.Stop();
+		allms.push_back(sw.Elapsed().count());
+#elif USE_HEAP_BEST == 1
+		sw.Start();
+		m_Particles.push_back(HEAP_ALLOC_BESTFIT("test") Particle());
+		sw.Stop();
+		allms.push_back(sw.Elapsed().count());
+#elif USE_HEAP_LAST == 1
+		sw.Start();
+		m_Particles.push_back(HEAP_ALLOC_LASTFIT("test") Particle());
+		sw.Stop();
+		allms.push_back(sw.Elapsed().count());
 #elif USE_POOL == 1
+		sw.Start();
 		m_Particles.push_back(POOL_ALLOC("test") Particle());
+		sw.Stop();
+		allms.push_back(sw.Elapsed().count());
 #endif
 #else
+		sw.Start();
 		m_Particles.push_back(new Particle());
-#endif // memory
+		sw.Stop();
+		allms.push_back(sw.Elapsed().count());
+#endif // MEMORY
 
 	}
+
+	//std::string directory("DataData.txt");
+	//FILE* outfile;
+	//fopen_s(&outfile, directory.c_str(), "w+");
+	//int index = 0;
+	//if (outfile != nullptr)
+	//{
+	//	for (const auto& data : allms)
+	//	{
+	//		//fprintf_s(outfile, "%d, %.30lf\n", index, data);
+	//		fprintf_s(outfile,"%.30lf\n", data);
+	//		++index;
+	//	}
+	//}
+	//fclose(outfile);
+
+	//float ms = totalMs / numParticles;
+	//std::cout << ms << std::endl;
+	//
 	//CustomMemoryManager::Allocators::IAllocator* allocator = GLOBAL_MEMORY_MANAGER.Get("test", CustomMemoryManager::AllocType::HEAP);
 	//if (allocator != nullptr)
 	//{
@@ -303,10 +356,18 @@ void ParticleEffect::Resize(unsigned int numParticles)
 
 void ParticleEffect::CreateParticle()
 {
-#if USE_HEAP == 1
+#if MEMORY == 1
+#if USE_HEAP_FIRST == 1
 	Particle* p = HEAP_ALLOC_FIRSTFIT("test") Particle();
+#elif USE_HEAP_BEST == 1
+	Particle* p = HEAP_ALLOC_BESTFIT("test") Particle();
+#elif USE_HEAP_LAST == 1
+	Particle* p = HEAP_ALLOC_LASTFIT("test") Particle();
 #elif USE_POOL == 1
 	Particle* p = POOL_ALLOC("test") Particle();
+#endif
+#else
+	Particle* p = new Particle();
 #endif
 	if (p != nullptr)
 	{
@@ -342,11 +403,15 @@ void ParticleEffect::DestroyParticle()
 	if (p != nullptr)
 	{
 		m_Particles.erase(it);
-#if USE_HEAP == 1
+#if MEMORY == 1
+#if USE_HEAP_FIRST == 1 || USE_HEAP_BEST == 1 || USE_HEAP_LAST == 1
 		HEAP_DEALLOC3(p, "test", Particle);
 #elif USE_POOL == 1
 		POOL_DEALLOC(p, "test", Particle);
 #endif // USE_HEAP
+#else
+		delete p;
+#endif
 		m_VertexBuffer.resize(m_Particles.size() * 4, Vertex());
 	}
 }
@@ -356,4 +421,46 @@ void ParticleEffect::DestroyParticle(ParticleBuffer::iterator& it)
 	Particle* p = *it;
 	m_Particles.erase(it);
 	//Heap
+}
+
+void ParticleEffect::DestroyAllParticles()
+{
+	float totalMs = 0.0f;
+	std::vector<float> allms;
+	for (auto& p : m_Particles)
+	{
+		Library::StopWatch sw;
+#if MEMORY == 1
+#if USE_HEAP_FIRST == 1 || USE_HEAP_BEST == 1 || USE_HEAP_LAST == 1
+		sw.Start();
+		HEAP_DEALLOC3(p, "test", Particle);
+		sw.Stop();
+		allms.push_back(sw.Elapsed().count());
+#elif USE_POOL == 1
+		sw.Start();
+		POOL_DEALLOC(p, "test", Particle);
+		sw.Stop();
+		allms.push_back(sw.Elapsed().count());
+#endif // USE_HEAP
+#else
+		sw.Start();
+		delete p;
+		sw.Stop();
+		allms.push_back(sw.Elapsed().count());
+#endif
+	}
+	std::string directory("DataDataDealloc.txt");
+	FILE* outfile;
+	fopen_s(&outfile, directory.c_str(), "w+");
+	int index = 0;
+	if (outfile != nullptr)
+	{
+		for (const auto& data : allms)
+		{
+			//fprintf_s(outfile, "%d, %.30lf\n", index, data);
+			fprintf_s(outfile,"%.30lf\n", data);
+			++index;
+		}
+	}
+	fclose(outfile);
 }

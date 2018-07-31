@@ -169,9 +169,9 @@ inline CustomMemoryManager::MemoryManager gMemoryManager;
 
 #define HEAP_ALLOC_FIRSTFIT(name)	new (name, gMemoryManager, CustomMemoryManager::AllocType::HEAP,		0U, __FILE__, __LINE__, CustomMemoryManager::Allocators::Info::HEAP_FIRSTFIT)
 #define HEAP_ALLOC_LASTFIT(name)	new (name, gMemoryManager, CustomMemoryManager::AllocType::HEAP,		0U, __FILE__, __LINE__, CustomMemoryManager::Allocators::Info::HEAP_LASTFIT)
-#define HEAP_ALLOC_NEXTFIT(name)	new (name, gMemoryManager, CustomMemoryManager::AllocType::HEAP,		0U, __FILE__, __LINE__, CustomMemoryManager::Allocators::Info::HEAP_NEXTFIT)
 #define HEAP_ALLOC_BESTFIT(name)	new (name, gMemoryManager, CustomMemoryManager::AllocType::HEAP,		0U, __FILE__, __LINE__, CustomMemoryManager::Allocators::Info::HEAP_BESTFIT)
 
+#define HEAP_ALLOC_NEXTFIT(name)	new (name, gMemoryManager, CustomMemoryManager::AllocType::HEAP,		0U, __FILE__, __LINE__, CustomMemoryManager::Allocators::Info::HEAP_NEXTFIT)
 ////////////////////////////////
 
 #define STACK_DEALLOC(name, ptr)			gMemoryManager.Deallocate(ptr, name, CustomMemoryManager::AllocType::STACK, __FILE__, __LINE__ )

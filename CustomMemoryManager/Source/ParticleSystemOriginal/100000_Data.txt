@@ -1,6 +1,6 @@
 test:
-	Average Allocation Time:	0.033150
-	Average Deallocation Time:	-nan(ind)
-	Number of Allocations:		100000
-	Number of Deallocations:	0
+	Average Allocation Time:	0.020329
+	Average Deallocation Time:	82.233475
+	Number of Allocations:		100005
+	Number of Deallocations:	52426
 

@@ -3,8 +3,12 @@
 #include "Particle.h"
 #include "Interpolator.h"
 
-#define USE_HEAP 1
+#define USE_HEAP_FIRST 1
+#define USE_HEAP_BEST 0
+#define USE_HEAP_LAST 0
 #define USE_POOL 0
+
+#define MEMORY 1
 
 
 class Camera;
@@ -46,7 +50,7 @@ public:
 	void RandomizeParticles();
 	void EmitParticles();
 
-	virtual void Update(float fDeltaTime);
+	virtual void Update(float fDeltaTime, bool allocate, bool deallocate, int amount);
 	virtual void Render();
 
 	bool LoadTexture(const std::string& fileName);
@@ -56,8 +60,13 @@ public:
 	void CreateParticle();
 	void DestroyParticle();
 	void DestroyParticle(ParticleBuffer::iterator& particle);
+	void DestroyAllParticles();
+	inline void LooseRefToAllParticles() { m_Particles.clear(); };
+	
 	inline std::size_t GetNumParticles() { return m_Particles.size(); };
 	inline float getCreateProbability() { return 100.0f - (float)(m_Particles.size() * 100 / 100000); };
+
+	
 
 protected:
 	void RandomizeParticle(Particle& particle);

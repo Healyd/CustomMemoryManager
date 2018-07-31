@@ -1,6 +1,6 @@
 #pragma once
 
-#define memory
+//#define memory
 
 struct Particle
 {
@@ -23,4 +23,3 @@ struct Particle
 };
 
 typedef std::vector<Particle*> ParticleBuffer;
-
